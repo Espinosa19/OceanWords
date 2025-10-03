@@ -13,6 +13,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.proyect.ocean_words.ui.theme.Ocean_wordsTheme
+import com.proyect.ocean_words.view.OceanWordsGameUI
+import com.proyect.ocean_words.view.adivinaEspecieView
 import com.proyect.ocean_words.view.inicioJuegoView
 
 class MainActivity : ComponentActivity() {
@@ -23,7 +25,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             Ocean_wordsTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) {
-                    inicioJuegoView();
+                    adivinaEspecieView();
                 }
             }
         }
