@@ -1,20 +1,14 @@
 package com.proyect.ocean_words.view
 
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -24,65 +18,93 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.proyect.ocean_words.R // Asegúrate de que esta ruta sea correcta
+import com.proyect.ocean_words.R
+import kotlinx.coroutines.delay
+
+// Define una función de navegación simulada.
+// En una app real, aquí llamarías a un navController.navigate("otra_ruta")
+private fun navigateToNextScreen(onNavigation: () -> Unit) {
+    onNavigation()
+}
 
 @Composable
-fun inicioJuegoView() {
-    // Colores simulados basados en la imagen
-    val blueBackground = Color(0xFF6DE1E7) // Un azul/verde claro para el fondo principal
-    val whiteBoxColor = Color.White.copy(alpha = 0.9f) // Un blanco semitransparente para el contenedor principal
-    val textColor = Color(0xFF284C6A) // Azul oscuro para el texto
-    val progressBarColor = Color(0xFF4AC2F6) // Color de la barra de carga
+fun InicioJuegoView(onNavigationToGame: () -> Unit) { // 1. Recibe la función de navegación
 
-    // 1. Contenedor principal para el fondo (como si fuera el fondo de la pantalla)
+    // --- ESTADO DE CARGA ---
+    // 2. Estado para el porcentaje de la barra de progreso (de 0.0f a 1.0f)
+    var progressTarget by remember { mutableFloatStateOf(0.0f) }
+    // 3. Estado para saber si la carga ha finalizado (para mostrar el texto "¡Listo!" o similar)
+    var isLoadingComplete by remember { mutableStateOf(false) }
+
+    // 4. Efecto para iniciar la carga y la navegación
+    LaunchedEffect(Unit) {
+        // Simular la carga: Subir el progreso al 100%
+        progressTarget = 1.0f
+
+        // Esperar un tiempo extra después de que la animación termine (aprox 2 segundos)
+        delay(2000)
+
+        // Marcar la carga como completa y navegar
+        isLoadingComplete = true
+        navigateToNextScreen(onNavigationToGame)
+    }
+
+    // 5. Animación para la barra de progreso
+    val animatedProgress by animateFloatAsState(
+        targetValue = progressTarget,
+        animationSpec = tween(durationMillis = 1500), // La barra tarda 1.5s en llenarse
+        label = "ProgressAnimation"
+    )
+    // ----------------------
+
+    // Colores (se mantienen para la vista)
+    val blueBackground = Color(0xFF6DE1E7)
+    val whiteBoxColor = Color.White.copy(alpha = 0.9f)
+    val textColor = Color(0xFF284C6A)
+    val progressBarColor = Color(0xFF4AC2F6)
+
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(blueBackground) // Fondo principal
+            .background(blueBackground)
     ) {
-        // 1.1. Imagen de fondo del océano (si tienes un drawable)
+        // ... (Tu fondo de imagen)
         Image(
-            painter = painterResource(id = R.mipmap.ic_logo_ocean), // Reemplaza con tu drawable de fondo
+            painter = painterResource(id = R.drawable.fondo_juego),
             contentDescription = "Fondo de océano",
             modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.Crop
         )
 
-        // 2. Columna principal que contiene la tarjeta blanca y el copyright.
-        // Se centra en la pantalla.
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 35.dp, vertical = 20.dp), // Padding exterior
+                .padding(horizontal = 35.dp, vertical = 70.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            // 3. El Box/Tarjeta Blanca Central
+            // ... (Tu Tarjeta Blanca Central)
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clip(RoundedCornerShape(25.dp)) // Bordes redondeados
-                    .background(whiteBoxColor) // Fondo blanco semitransparente
-                    .border( // Borde suave alrededor de la caja
+                    .clip(RoundedCornerShape(25.dp))
+                    .background(whiteBoxColor)
+                    .border(
                         width = 2.dp,
                         color = Color.White.copy(alpha = 0.5f),
                         shape = RoundedCornerShape(25.dp)
                     )
-                    .padding(30.dp), // Padding interno para los elementos
+                    .padding(30.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // 3.1. Logo
+                // ... (Logo, Espacio y Texto de Bienvenida)
                 Image(
                     painter = painterResource(id = R.mipmap.ic_logo_ocean),
                     contentDescription = "Logo Ocean Words",
-                    modifier = Modifier.size(230.dp), // Tamaño del logo
+                    modifier = Modifier.size(230.dp),
                     contentScale = ContentScale.Fit
                 )
-
-                // 3.2. Espacio
                 Spacer(modifier = Modifier.height(20.dp))
-
-                // 3.3. Texto de Bienvenida
                 Text(
                     text = "En **Ocean Words**, aprenderás datos asombrosos sobre las criaturas marinas mientras te diviertes adivinando sus nombres. El conocimiento es un tesoro escondido en las profundidades. ¡Estamos a punto de desenterrarlo!",
                     textAlign = TextAlign.Center,
@@ -90,17 +112,15 @@ fun inicioJuegoView() {
                     fontSize = 16.sp,
                     lineHeight = 24.sp
                 )
-
-                // 3.4. Espacio
                 Spacer(modifier = Modifier.height(40.dp))
 
-                // 3.5. Barra de Carga / Botón (simulado como barra de carga)
+                // --- NUEVA BARRA DE CARGA DINÁMICA ---
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(55.dp)
                         .clip(RoundedCornerShape(30.dp))
-                        .background(Color(0xFF86D5FC).copy(alpha = 0.8f)) // Fondo base para la barra (como el botón)
+                        .background(Color(0xFF86D5FC).copy(alpha = 0.8f))
                         .border(
                             width = 2.dp,
                             color = Color.White.copy(alpha = 0.7f),
@@ -109,35 +129,34 @@ fun inicioJuegoView() {
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
-                    // Simulación de la barra de progreso (el relleno azul)
+                    // La barra de progreso usa el estado animado
                     Box(
                         modifier = Modifier
-                            .fillMaxWidth(0.8f) // 80% del ancho para el progreso
+                            .fillMaxWidth(animatedProgress) // Usa el valor animado (0.0f a 1.0f)
                             .height(10.dp)
                             .clip(RoundedCornerShape(5.dp))
                             .background(progressBarColor)
-                            .align(Alignment.Start) // Alineado a la izquierda
+                            .align(Alignment.Start)
                     )
 
-                    // Texto "Cargando..."
+                    // Texto que cambia al finalizar la carga
                     Text(
-                        text = "Cargando...",
+                        text = if (isLoadingComplete) "¡Listo para Jugar!" else "Cargando...",
                         color = Color.White,
                         fontSize = 18.sp,
-                        modifier = Modifier.padding(top = 15.dp) // Alineado bajo la barra
+                        modifier = Modifier.padding(top = 5.dp)
                     )
                 }
+                // ----------------------------------------
             }
 
-            // 4. Espacio para empujar el Copyright hacia abajo
+            // ... (Copyright)
             Spacer(modifier = Modifier.weight(1f))
-
-            // 5. Copyright (Infinity Deve)
             Text(
                 text = "© INFINITY DEVE",
-                color = Color.White.copy(alpha = 0.8f), // Blanco semitransparente
+                color = Color.White.copy(alpha = 0.8f),
                 fontSize = 12.sp,
-                modifier = Modifier.padding(bottom = 10.dp) // Un pequeño padding abajo
+                modifier = Modifier.padding(bottom = 10.dp)
             )
         }
     }
