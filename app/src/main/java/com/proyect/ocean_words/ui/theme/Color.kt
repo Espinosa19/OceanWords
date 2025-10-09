@@ -12,3 +12,8 @@ val Pink40 = Color(0xFF7D5260)
 val Orange = Color(0xFFF3B772)
 val OrangeDeep = Color(0xFFE98516)
 val Blue = Color(0xFF336A86)
+val whiteBoxColor = Color.White.copy(alpha = 0.9f)
+val IndicatorBackgroundColor = Color(0xFFB3E5FC).copy(alpha = 0.65f)
+val LightBlue = Color(0xFFE1F5FE)
+val OceanBackground = Color(0xFF0077B6)
+

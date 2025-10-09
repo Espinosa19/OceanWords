@@ -18,6 +18,8 @@ import com.proyect.ocean_words.view.InicioJuegoView
 import com.proyect.ocean_words.view.OceanWordsGameUI
 import com.proyect.ocean_words.view.adivinaEspecieView
 import com.proyect.ocean_words.view.rutas.NavManager
+import com.proyect.ocean_words.view.rutas.Rutas
+import com.proyect.ocean_words.view.screens.caracteristicasEspecieView
 
 class MainActivity : ComponentActivity() {
     @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -29,7 +31,7 @@ class MainActivity : ComponentActivity() {
             Ocean_wordsTheme {
 
                 Scaffold(modifier = Modifier.fillMaxSize()) {
-                    NavManager();
+                    NavManager()
                 }
             }
         }

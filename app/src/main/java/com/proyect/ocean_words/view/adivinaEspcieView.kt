@@ -1,52 +1,49 @@
 package com.proyect.ocean_words.view
 
-import androidx.compose.runtime.Composable
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.layout.Arrangement
-
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountBox
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.filled.Place
 import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material.icons.filled.Star
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.BiasAlignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.proyect.ocean_words.R // Asegúrate de cambiar esto a tu paquete
-import com.proyect.ocean_words.ui.theme.Blue
+
+// NOTA: Reemplaza estos imports con tus clases de verdad
+import com.proyect.ocean_words.R
+import com.proyect.ocean_words.ui.theme.LightBlue
+import com.proyect.ocean_words.ui.theme.OceanBackground
 import com.proyect.ocean_words.ui.theme.Orange
 import com.proyect.ocean_words.ui.theme.OrangeDeep
-import com.proyect.ocean_words.ui.theme.Purple40
+import com.proyect.ocean_words.view.screens.HeaderSection
 
-// Colores aproximados de la imagen
-val OceanBackground = Color(0xFF0077B6)
-val LightBlue = Color(0xFFE1F5FE)
-val IndicatorBackgroundColor = Color(0xFFB3E5FC).copy(alpha = 0.65f)
+// Import dummy para HeaderSection si no está en screens.HeaderSection
+// import com.proyect.ocean_words.view.screens.HeaderSection
+// -------------------------------------------------------------------
+
+// Implementación DUMMY para HeaderSection (ASUMIDO)
+// -------------------------------------------------------------------
 
 @Composable
 fun OceanWordsGameUI(
@@ -55,139 +52,168 @@ fun OceanWordsGameUI(
     animal: String ="pez lampara",
     dificultad:String="dificil",
     animalQuestion: String = "¿QUÉ ANIMAL ES ESTE?",
-    currentLetters: String = "AD CO FR CLWN FSH ARNDIBPK x cv b n n",
-    // Esta es solo una representación simplificada de las letras
 ) {
-    // Para el fondo y las decoraciones se usaría un Box
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(OceanBackground)
     ) {
+        // Fondo de imagen
+        Image(
+            painter = painterResource(id = R.drawable.fondo_juego),
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier.matchParentSize()
+        )
 
-        Box(
-            modifier = Modifier.fillMaxSize()
+        // Contenido principal
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
         ) {
-            Image(
-                painter = painterResource(id = R.drawable.fondo_juego), // tu imagen en res/drawable
-                contentDescription = null,
-                contentScale = ContentScale.Crop, // Ajusta para cubrir toda la pantalla
-                modifier = Modifier.matchParentSize()
-            )
+            // 1. Encabezado (Score, Time)
+            HeaderSection(score, time)
 
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(10.dp)
-            ) {
-                // 1. Encabezado (Logo, Score, Time)
-                HeaderSection(score, time)
+            Spacer(modifier = Modifier.height(20.dp))
 
-                Spacer(modifier = Modifier.height(20.dp))
+            // 2. Aquí se llama al componente principal del juego con toda la lógica de estado
+            JuegoAnimal(animal, dificultad, animalQuestion)
+        }
 
-                // 2. Sección de Pregunta e Imagen
-                QuestionAndImageSection(animalQuestion,animal)
+    }
+}
 
-                Column(modifier = Modifier.fillMaxWidth()
-                    .fillMaxHeight()
-                    .padding(10.dp,5.dp)){
-                    tecladoInteractivo(animal,dificultad)
+// =========================================================================================
+//                             COMPONENTE PRINCIPAL DEL JUEGO
+// =========================================================================================
+
+@Composable
+fun JuegoAnimal(animal: String, dificultad: String, animalQuestion: String) {
+    // 1. LÓGICA DE PREPARACIÓN DE LETRAS
+    val animalSinEspacios = animal.trim().replace(" ", "")
+    val letrasPorFila = 7
+    val animalRandom = if (dificultad != "dificil") {
+        shuffleText(animalSinEspacios)
+    } else {
+        val letrasRandom = getTwoRandomLetters()
+        shuffleText(animalSinEspacios + letrasRandom.joinToString(""))
+    }
+    val tamano = animalRandom.length
+
+    // 2. ESTADOS
+    val visible = remember { List(tamano) { true }.toMutableStateList() } // Visibilidad de botones
+    val respuestaJugador = remember {
+        mutableStateListOf<Char?>().apply {
+            animal.forEach { char -> add(if (char == ' ') null else null) }
+        }
+    }
+    val botonADondeFue = remember { // Mapeo de botón (teclado) a slot (respuesta)
+        mutableStateListOf<Int>().apply { animalRandom.forEach { _ -> add(-1) } }
+    }
+
+    // 3. CALLBACKS (Eventos)
+    val onLetterSelected: (Char, Int) -> Unit = { char, originalIndex ->
+
+        var foundMatch = false // Bandera para saber si encontramos al menos una coincidencia
+
+        // 1. Iterar sobre la PALABRA OCULTA (animal) para encontrar todas las posiciones correctas
+        animal.forEachIndexed { correctIndex, correctChar ->
+
+
+            if (correctChar.equals(char, ignoreCase = true)) {
+
+
+                if (animal[correctIndex] != ' ') {
+                    respuestaJugador[correctIndex] = correctChar // Asigna la letra en la posición correcta
+                    foundMatch = true
 
                 }
             }
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(130.dp)
-                    .align(Alignment.BottomCenter)
-                    .background(OrangeDeep) // Fondo semitransparente para la barra
-                    .padding(bottom = 38.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+        }
 
-            ) {
-                accionesEspecíficas()
-            }
+        // 3. Actualizar la visibilidad del botón del teclado solo si se encontró al menos una coincidencia
+        if (foundMatch) {
+            // Marcamos el botón del teclado como usado/oculto
+            visible[originalIndex] = false
+
+            // NOTA: 'botonADondeFue' ya no es tan crítico si las letras van directo al slot.
+            // Podrías simplificar esta parte o usarlo para gestionar la visibilidad del teclado.
+            // Por ahora, lo mantenemos simple: el botón se oculta porque ya se usó.
         }
     }
-}
 
-@Composable
-fun HeaderIndicatorRow(score: Int, time: String) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = 27.dp)
-            .fillMaxWidth()
-            .padding(horizontal = 5.dp), // Sin padding top, ya que se manejaría en el Box principal
-        horizontalArrangement = Arrangement.SpaceAround,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        GameIndicator(
-            icon = Icons.Default.Star,
-            tipo="Icono",
-            label = "SCORE",
-            value = score.toString(),
-            iconColor = Color(0xFFFCCB06), // Amarillo para el trofeo
-            iconBackgroundColor = Color.White
-        )
-
-        GameIndicator(
-            icon = Icons.Default.AccountBox,
-            tipo= "Imagen",
-            label = "TIME",
-            value = time,
-            iconColor = Color.White, // Blanco para el reloj
-            iconBackgroundColor = Color(0xFF0077B6) // Azul oscuro para el fondo del reloj
-        )
+    val onLetterRemoved: (Int) -> Unit = { responseSlotIndex ->
+        respuestaJugador[responseSlotIndex] = null
+        val originalButtonIndex = botonADondeFue.indexOf(responseSlotIndex)
+        if (originalButtonIndex != -1) {
+            botonADondeFue[originalButtonIndex] = -1
+            visible[originalButtonIndex] = true
+        }
     }
-}
-@Composable
-fun HeaderSection(score: Int, time: String) {
-    // El Box permite apilar la imagen de fondo, el logo, los íconos de score/time y el botón de menú.
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(190.dp) // Altura aproximada del área del encabezado
-    ) {
 
-        Image(
-            painter = painterResource(id = R.drawable.ocean_words), // Reemplaza con tu ID correcto
-            contentDescription = "Fondo de océano y título del juego",
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 15.dp)
-                .height(150.dp) // Ajusta esta altura para que solo se vea el logo
-                .align(Alignment.TopCenter), // Lo centra arriba
-            contentScale = ContentScale.FillWidth // Ajusta el ancho y mantiene la proporción
-        )
-        Spacer(modifier = Modifier.height(80.dp).align(Alignment.TopCenter)) // Espacio entre logo y indicadores
+    val onResetGame: () -> Unit = {
+        visible.forEachIndexed { i, _ -> visible[i] = true }
+        botonADondeFue.fill(-1)
+        for (i in respuestaJugador.indices) {
+            respuestaJugador[i] = null
+        }
+    }
 
+    // 4. LAYOUT
+    Box(modifier = Modifier.fillMaxSize()) {
+        val configuration = LocalConfiguration.current
+        val screenWidthDp = configuration.screenWidthDp.dp
+        val bottomPadding = if (screenWidthDp > 420.dp) { 180.dp } else { 150.dp }
+
+        // --- SECCIÓN DE PREGUNTA Y SLOTS DE RESPUESTA ---
+        // Se llama fuera del Column superior porque ocupa gran parte del espacio vertical
+        QuestionAndImageSection(animalQuestion, animal, respuestaJugador, onLetterRemoved)
+
+
+        // --- TECLADO INTERACTIVO (BOTONES DE LETRAS) ---
+        Column(
+            modifier = Modifier.fillMaxWidth()
+                .align(Alignment.BottomCenter)
+                .padding(bottom = bottomPadding, start = 10.dp, end = 10.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            tecladoInteractivo(animalRandom, visible, letrasPorFila, onLetterSelected)
+        }
+
+        // --- BARRA DE ACCIONES INFERIOR (REFRESH/PISTA) ---
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .align(Alignment.TopCenter)
-                .padding(top = 120.dp) // Ajusta este padding para colocarlo justo debajo del logo
+                .height(130.dp)
+                .align(Alignment.BottomCenter)
+                // 💡 CAMBIO: Quitamos el padding horizontal extra del padding(bottom = 38.dp)
+                // y solo aplicamos el padding interior para centrar los botones.
+                .background(OrangeDeep)
+                .padding(bottom = 38.dp), // Aplicamos solo el padding vertical
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            HeaderIndicatorRow(score, time)
-        }
-
-        IconButton(
-            onClick = { /* Lógica de click para el menú */ },
-            modifier = Modifier
-                .align(Alignment.TopEnd)
-                .padding(top = 16.dp, end = 16.dp) // Ajusta la posición
-        ) {
-            Icon(
-                imageVector = Icons.Default.Menu,
-                contentDescription = "Menú",
-                tint = Color.White,
-                modifier = Modifier.size(32.dp)
-            )
+            accionesEspecíficas(onResetGame)
         }
     }
 }
+
+// =========================================================================================
+//                             COMPONENTES MODIFICADOS
+// =========================================================================================
+
 @Composable
-fun QuestionAndImageSection(question: String,animal: String) {
+fun QuestionAndImageSection(
+    question: String,
+    animal: String,
+    // 💡 NUEVOS ARGUMENTOS
+    respuestaJugador: MutableList<Char?>,
+    onLetterRemoved: (Int) -> Unit
+) {
+    val configuration = LocalConfiguration.current
+    val screenWidthDp = configuration.screenWidthDp.dp
+    val horizontalPadding = if (screenWidthDp > 420.dp) { 25.dp } else { 45.dp }
+    val offsetPadding = if (screenWidthDp > 420.dp) { (-25).dp } else { (-20).dp }
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -195,128 +221,55 @@ fun QuestionAndImageSection(question: String,animal: String) {
             .padding(20.dp,10.dp,20.dp,10.dp) ,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        // Box de la Pregunta
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .clip(RoundedCornerShape(10.dp)) // Aplica el redondeo de las esquinas
-                .background(LightBlue) // Aplica el color de fondo
-                .padding(vertical = 12.dp, horizontal = 15.dp), // Padding interno para centrar el texto
+                .clip(RoundedCornerShape(10.dp))
+                .background(LightBlue)
+                .padding(vertical = 12.dp, horizontal = horizontalPadding),
             contentAlignment = Alignment.Center
         ) {
-            Text(
-                text = question, // "¿QUÉ ANIMAL ES ESTE?"
-                fontSize = 24.sp, // Aumentamos el tamaño para que destaque
-                fontWeight = FontWeight.Black, // Usamos Black o ExtraBold para el impacto
-                color = Color.Black,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth()
-            )
+            Text(text = question, fontSize = 24.sp, fontWeight = FontWeight.Black, color = Color.Black, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
         }
 
-
+        // Box de la Imagen y la Respuesta
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(260.dp),
             contentAlignment = Alignment.Center
-
-
         ){
             Image(
                 painter = painterResource(id = R.drawable.ballena),
                 contentDescription = "Pez Payaso",
-                modifier = Modifier.size(200.dp)
-                    .offset(y = (-25).dp),
-
-                )
-
-            ResponseArea(animal)
-
+                modifier = Modifier.size(200.dp).offset(y = offsetPadding),
+            )
+            // 💡 LLAMADA A RESPONSEAREA CON EL ESTADO Y CALLBACK
+            ResponseArea(animal, respuestaJugador, onLetterRemoved)
         }
-
-
     }
 }
+
 @Composable
-fun GameIndicator(
-    icon: ImageVector,
-    tipo: String,
-    label: String,
-    value: String,
-    iconColor: Color,
-    iconBackgroundColor: Color
+fun ResponseArea(
+    animal: String,
+    respuestaJugador: MutableList<Char?>,
+    onSlotClicked: (Int) -> Unit
 ) {
-    // Usamos Box para superponer y alinear el icono circular dentro de la "cápsula"
-    Box(
-        modifier = Modifier
-            .clip(RoundedCornerShape(30.dp)) // Borde redondeado para toda la "cápsula"
-            .background(IndicatorBackgroundColor)
-            .border(
-                width = 2.dp,
-                color = Color.White.copy(alpha = 0.5f), // Borde blanco suave
-                shape = RoundedCornerShape(30.dp)
-            )
-            .height(40.dp) // Altura fija para la cápsula
-            .padding(start = 2.dp), // Pequeño padding a la izquierda para el efecto de sombra/espacio
-        contentAlignment = Alignment.CenterStart
-    ) {
-        Row(
-            modifier = Modifier.padding(start = 50.dp, end = 12.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            // El texto va en blanco dentro de la cápsula
-            Text(
-                text = "$label: $value",
-                color = Color.White,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold
-            )
-        }
-
-        // Icono dentro de un círculo sólido (se alinea automáticamente al Box)
-        Box(
-            modifier = Modifier
-                .size(38.dp) // Tamaño del círculo
-                .clip(CircleShape)
-                .background(Blue)
-                .align(Alignment.CenterStart),
-            contentAlignment = Alignment.Center
-        ) {
-            when (tipo) {
-                "Imagen" -> Image(
-                    painter = painterResource(id = R.drawable.reloj_de_arena),
-                    contentDescription = "Fondo de océano",
-                    modifier = Modifier.size(24.dp)
-                        .padding(start = 5.dp)
-                )
-                "Icono" -> Icon(
-                    imageVector = icon,
-                    contentDescription = label,
-                    tint = iconColor,
-                    modifier = Modifier.size(24.dp)
-                )
-            }
-
-        }
-    }
-}
-@Composable
-fun ResponseArea(animal: String) {
-    // Usamos 'animal.trim().replace(" ", "")' para contar solo las letras visibles,
-    // pero para la estructura de las cajas es mejor usar la longitud total.
+    val configuration = LocalConfiguration.current
+    val screenWidthDp = configuration.screenWidthDp.dp
+    val topPadding = if (screenWidthDp < 820.dp) { 125.dp } else { 168.dp }
     val tamano = animal.length
     val letrasPorFila = 8
 
     Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = 115.dp),
+        modifier = Modifier.fillMaxWidth().padding(top = topPadding),
         verticalArrangement = Arrangement.spacedBy(8.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Creamos filas dinámicamente según el tamaño
+        var currentIndex = 0
         for (i in 0 until tamano step letrasPorFila) {
-
             Row(
                 modifier = if (tamano > 8 && i == 0) {
                     Modifier.padding(top = 24.dp)
@@ -333,23 +286,76 @@ fun ResponseArea(animal: String) {
                     val caracter = animal[j]
 
                     if (caracter == ' ') {
-                        Box(
-                            modifier = Modifier
-                                .width(15.dp)
-                                .height(30.dp)
-                        ) {
-                        }
+                        Box(modifier = Modifier.width(15.dp).height(38.dp)) { } // Ajustado a 38.dp
                     } else {
-                        Box(
-                            modifier = Modifier
-                                .size(30.dp)
-                                .background(
-                                    LightBlue.copy(alpha = 0.5f),
-                                    RoundedCornerShape(8.dp)
-                                ),
-                            contentAlignment = Alignment.Center
+                        val responseChar = respuestaJugador[currentIndex]
+                        val indexForCallback = currentIndex
+                        val posicion: Int = animal.indexOfFirst { caracter ->
+                            caracter == responseChar
+                        }
+                        Button(
+                            onClick = { if (responseChar != null) onSlotClicked(indexForCallback) },
+                            modifier = Modifier.size(38.dp).clip(RoundedCornerShape(8.dp)),
+                            shape = RoundedCornerShape(8.dp),
+                            contentPadding = PaddingValues(0.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = LightBlue.copy(alpha = 0.8f)
+                            )
                         ) {
-                            Text(text = " ")
+                            Text(
+                                text = responseChar?.toString() ?: "",
+                                color = Color.Black,
+                                fontSize = 20.sp,
+                                fontWeight = FontWeight.Bold,
+                                textAlign = TextAlign.Center
+                            )
+                        }
+                        currentIndex++
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun tecladoInteractivo(
+    animalRandom: String,
+    visible: MutableList<Boolean>,
+    letrasPorFila: Int,
+    onLetterSelected: (Char, Int) -> Unit // 💡 NUEVO ARGUMENTO
+) {
+    val tamano = animalRandom.length
+
+    Column(
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        for (i in 0 until tamano step letrasPorFila) {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                val fin = (i + letrasPorFila).coerceAtMost(tamano)
+                for (j in i until fin) {
+                    AnimatedVisibility(
+                        visible = visible[j],
+                        exit = fadeOut(animationSpec = tween(500))
+                    ) {
+                        Button(
+                            onClick = { onLetterSelected(animalRandom[j], j) }, // 💡 Usa el callback
+                            modifier = Modifier.size(38.dp),
+                            shape = RoundedCornerShape(10.dp),
+                            contentPadding = PaddingValues(0.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = LightBlue)
+                        ) {
+                            Text(
+                                text = animalRandom[j].toString(),
+                                color = Color.Black,
+                                fontSize = 20.sp,
+                                fontWeight = FontWeight.Bold,
+                                textAlign = TextAlign.Center
+                            )
                         }
                     }
                 }
@@ -357,121 +363,59 @@ fun ResponseArea(animal: String) {
         }
     }
 }
+
 @Composable
-fun accionesEspecíficas() {
+fun accionesEspecíficas(onResetGame: () -> Unit) { // 💡 FIRMA CORREGIDA
     Row(
-
         modifier = Modifier.fillMaxWidth().height(100.dp),
-
-        horizontalArrangement = Arrangement.spacedBy(25.dp, Alignment.CenterHorizontally),
-
+        horizontalArrangement = Arrangement.spacedBy(22.dp, Alignment.CenterHorizontally),
         verticalAlignment = Alignment.CenterVertically
     ) {
-
-        BotonDeInterfaz(
-            icon = Icons.Filled.Close,
-            onClick = { }
-        )
+        BotonDeInterfaz(icon = Icons.Filled.ArrowBack, onClick = { })
+        BotonDeInterfaz(icon = Icons.Filled.Close, onClick = { })
 
         BotonDeInterfaz(
             icon = Icons.Filled.Refresh,
-            onClick = { /* Acción para deshacer o recargar */ }
+            onClick = onResetGame // 💡 Usa el callback de reset completo
         )
 
         Button(
             onClick = {},
-            modifier = Modifier
-                .size(60.dp),
+            modifier = Modifier.size(60.dp),
             shape = RoundedCornerShape(12.dp),
             colors = ButtonDefaults.buttonColors(containerColor = Orange),
             contentPadding = PaddingValues(0.dp)
         ) {
-            // ✅ USAMOS ICON: Muestra el icono en lugar del Text
             Image(
-                painter = painterResource(id = R.drawable.pista), // Reemplaza con tu ID correcto
-                contentDescription = "Fondo de océano y título del juego",
-                modifier = Modifier
-                    .size(32.dp)
+                painter = painterResource(id = R.drawable.pista),
+                contentDescription = "Pista",
+                modifier = Modifier.size(32.dp)
             )
         }
     }
 }
+
 @Composable
-fun tecladoInteractivo(animal: String,dificultad: String) {
-    val animalSinEspacios = animal.trim().replace(" ", "")
-    var animalRandom="";
-
-    val letrasPorFila = 10
-    if(dificultad != "dificil"){
-        animalRandom = shuffleText(animalSinEspacios)
-    }else{
-        val letrasRandom = getTwoRandomLetters()
-        animalRandom = shuffleText(animalSinEspacios + letrasRandom.joinToString(""))
-    }
-    val tamano = animalRandom.length
-
-    Column(
-        modifier = Modifier
-            .fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        // Creamos filas dinámicamente según el tamaño
-        for (i in 0 until tamano step letrasPorFila) {
-
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                val fin = (i + letrasPorFila).coerceAtMost(tamano)
-                for (j in i until fin) {
-
-                    Box(
-                        modifier = Modifier
-                            .size(35.dp)
-                            .background(
-                                LightBlue.copy(alpha = 0.8f),
-                                RoundedCornerShape(8.dp)
-                            ),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = animalRandom[j].toString(),
-                            color = Color.Black,                     // Color de la letra
-                            fontSize = 20.sp,                        // Tamaño de fuente
-                            fontWeight = FontWeight.Bold,            // Negrita
-                            textAlign = TextAlign.Center             // Centrado
-                        )                    }
-
-                }
-            }
-        }
-    }
-
-}@Composable
 fun BotonDeInterfaz(
-    // 💡 CAMBIO: Usamos ImageVector para el icono en lugar de String para el texto
     icon: ImageVector,
     colorFondo: Color = Orange,
     onClick: () -> Unit = {}
 ) {
     Button(
         onClick = onClick,
-        modifier = Modifier
-            .size(60.dp),
+        modifier = Modifier.size(60.dp),
         shape = RoundedCornerShape(12.dp),
         colors = ButtonDefaults.buttonColors(containerColor = colorFondo),
-                contentPadding = PaddingValues(0.dp)
+        contentPadding = PaddingValues(0.dp)
     ) {
-        // ✅ USAMOS ICON: Muestra el icono en lugar del Text
-        Icon(
-            imageVector = icon,
-            contentDescription = null, // Se puede dejar nulo si el contexto es obvio (como en HUDs)
-            tint = Color.White, // Color del símbolo dentro del botón
-            modifier = Modifier.size(32.dp)
-        )
+        Icon(imageVector = icon, contentDescription = null, tint = Color.White, modifier = Modifier.size(32.dp))
     }
 }
+
+// =========================================================================================
+//                             FUNCIONES DE UTILIDAD
+// =========================================================================================
+
 fun getTwoRandomLetters(): List<Char> {
     val abecedario =('a'..'z')
     return List(2) { abecedario.random() }
@@ -480,6 +424,7 @@ fun getTwoRandomLetters(): List<Char> {
 fun shuffleText(animal: String): String {
     return animal.toList().shuffled().joinToString("")
 }
+
 @Preview(showBackground = true)
 @Composable
 fun adivinaEspecieView() {
