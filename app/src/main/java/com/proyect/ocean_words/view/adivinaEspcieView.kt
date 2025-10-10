@@ -29,6 +29,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 
 // NOTA: Reemplaza estos imports con tus clases de verdad
 import com.proyect.ocean_words.R
@@ -38,15 +39,10 @@ import com.proyect.ocean_words.ui.theme.Orange
 import com.proyect.ocean_words.ui.theme.OrangeDeep
 import com.proyect.ocean_words.view.screens.HeaderSection
 
-// Import dummy para HeaderSection si no está en screens.HeaderSection
-// import com.proyect.ocean_words.view.screens.HeaderSection
-// -------------------------------------------------------------------
-
-// Implementación DUMMY para HeaderSection (ASUMIDO)
-// -------------------------------------------------------------------
 
 @Composable
 fun OceanWordsGameUI(
+    navController: NavController,
     score: Int = 1250,
     time: String = "0:45",
     animal: String ="pez lampara",
@@ -72,7 +68,7 @@ fun OceanWordsGameUI(
                 .fillMaxSize()
         ) {
             // 1. Encabezado (Score, Time)
-            HeaderSection(score, time)
+            HeaderSection(score, time,navController)
 
             Spacer(modifier = Modifier.height(20.dp))
 
@@ -99,12 +95,11 @@ fun JuegoAnimal(animal: String, dificultad: String, animalQuestion: String) {
         shuffleText(animalSinEspacios + letrasRandom.joinToString(""))
     }
     val tamano = animalRandom.length
-
     // 2. ESTADOS
     val visible = remember { List(tamano) { true }.toMutableStateList() } // Visibilidad de botones
     val respuestaJugador = remember {
         mutableStateListOf<Char?>().apply {
-            animal.forEach { char -> add(if (char == ' ') null else null) }
+            animalSinEspacios.forEach { char -> add(if (char == ' ') null else null) }
         }
     }
     val botonADondeFue = remember { // Mapeo de botón (teclado) a slot (respuesta)
@@ -113,33 +108,34 @@ fun JuegoAnimal(animal: String, dificultad: String, animalQuestion: String) {
 
     // 3. CALLBACKS (Eventos)
     val onLetterSelected: (Char, Int) -> Unit = { char, originalIndex ->
+        var posicionAsignada = -1 // Índice del slot de respuesta que se llenó
 
-        var foundMatch = false // Bandera para saber si encontramos al menos una coincidencia
-
-        // 1. Iterar sobre la PALABRA OCULTA (animal) para encontrar todas las posiciones correctas
-        animal.forEachIndexed { correctIndex, correctChar ->
+        animalSinEspacios.forEachIndexed { correctIndex, correctChar ->
 
 
             if (correctChar.equals(char, ignoreCase = true)) {
 
+                if (respuestaJugador[correctIndex] == null) {
 
-                if (animal[correctIndex] != ' ') {
-                    respuestaJugador[correctIndex] = correctChar // Asigna la letra en la posición correcta
-                    foundMatch = true
+                    if (posicionAsignada == -1) {
+                        respuestaJugador[correctIndex] = correctChar // Asigna la letra
+                        posicionAsignada = correctIndex
 
+                        return@forEachIndexed // Salir del forEach
+                    }
                 }
             }
         }
-
-        // 3. Actualizar la visibilidad del botón del teclado solo si se encontró al menos una coincidencia
-        if (foundMatch) {
-            // Marcamos el botón del teclado como usado/oculto
-            visible[originalIndex] = false
-
-            // NOTA: 'botonADondeFue' ya no es tan crítico si las letras van directo al slot.
-            // Podrías simplificar esta parte o usarlo para gestionar la visibilidad del teclado.
-            // Por ahora, lo mantenemos simple: el botón se oculta porque ya se usó.
+        if (posicionAsignada != -1) {
+            // Si es la PRIMERA VEZ que se usa (visible[originalIndex] es true), la ocultamos.
+            if (visible[originalIndex]) {
+                visible[originalIndex] = false // Oculta el botón después del primer uso exitoso
+            }
+            // Mapeamos el botón de teclado (originalIndex) al slot de respuesta (posicionAsignada)
+            botonADondeFue[originalIndex] = posicionAsignada
         }
+
+
     }
 
     val onLetterRemoved: (Int) -> Unit = { responseSlotIndex ->
@@ -163,14 +159,11 @@ fun JuegoAnimal(animal: String, dificultad: String, animalQuestion: String) {
     Box(modifier = Modifier.fillMaxSize()) {
         val configuration = LocalConfiguration.current
         val screenWidthDp = configuration.screenWidthDp.dp
+        var screenHeightDp =configuration.screenHeightDp
         val bottomPadding = if (screenWidthDp > 420.dp) { 180.dp } else { 150.dp }
-
-        // --- SECCIÓN DE PREGUNTA Y SLOTS DE RESPUESTA ---
-        // Se llama fuera del Column superior porque ocupa gran parte del espacio vertical
         QuestionAndImageSection(animalQuestion, animal, respuestaJugador, onLetterRemoved)
 
 
-        // --- TECLADO INTERACTIVO (BOTONES DE LETRAS) ---
         Column(
             modifier = Modifier.fillMaxWidth()
                 .align(Alignment.BottomCenter)
@@ -180,7 +173,6 @@ fun JuegoAnimal(animal: String, dificultad: String, animalQuestion: String) {
             tecladoInteractivo(animalRandom, visible, letrasPorFila, onLetterSelected)
         }
 
-        // --- BARRA DE ACCIONES INFERIOR (REFRESH/PISTA) ---
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -211,8 +203,8 @@ fun QuestionAndImageSection(
 ) {
     val configuration = LocalConfiguration.current
     val screenWidthDp = configuration.screenWidthDp.dp
-    val horizontalPadding = if (screenWidthDp > 420.dp) { 25.dp } else { 45.dp }
-    val offsetPadding = if (screenWidthDp > 420.dp) { (-25).dp } else { (-20).dp }
+    val horizontalPadding = if (screenWidthDp > 420.dp) { 25.dp } else { 60.dp }
+    val offsetPadding = if (screenWidthDp > 420.dp) { (-10).dp } else { (-20).dp }
 
     Column(
         modifier = Modifier
@@ -259,7 +251,8 @@ fun ResponseArea(
 ) {
     val configuration = LocalConfiguration.current
     val screenWidthDp = configuration.screenWidthDp.dp
-    val topPadding = if (screenWidthDp < 820.dp) { 125.dp } else { 168.dp }
+    val topPadding = if (screenWidthDp > 420.dp) { 125.dp } else { 148.dp }
+    val sizeComp = if (screenWidthDp > 420.dp) { 28.dp } else { 35.dp }
     val tamano = animal.length
     val letrasPorFila = 8
 
@@ -288,14 +281,13 @@ fun ResponseArea(
                     if (caracter == ' ') {
                         Box(modifier = Modifier.width(15.dp).height(38.dp)) { } // Ajustado a 38.dp
                     } else {
+                        print(caracter)
                         val responseChar = respuestaJugador[currentIndex]
                         val indexForCallback = currentIndex
-                        val posicion: Int = animal.indexOfFirst { caracter ->
-                            caracter == responseChar
-                        }
+
                         Button(
                             onClick = { if (responseChar != null) onSlotClicked(indexForCallback) },
-                            modifier = Modifier.size(38.dp).clip(RoundedCornerShape(8.dp)),
+                            modifier = Modifier.size(sizeComp).clip(RoundedCornerShape(8.dp)),
                             shape = RoundedCornerShape(8.dp),
                             contentPadding = PaddingValues(0.dp),
                             colors = ButtonDefaults.buttonColors(
@@ -325,8 +317,10 @@ fun tecladoInteractivo(
     letrasPorFila: Int,
     onLetterSelected: (Char, Int) -> Unit // 💡 NUEVO ARGUMENTO
 ) {
+    val configuration = LocalConfiguration.current
+    val screenWidthDp = configuration.screenWidthDp.dp
+    val topPadding = if (screenWidthDp > 420.dp) { 125.dp } else { 148.dp }
     val tamano = animalRandom.length
-
     Column(
         verticalArrangement = Arrangement.spacedBy(8.dp),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -425,8 +419,3 @@ fun shuffleText(animal: String): String {
     return animal.toList().shuffled().joinToString("")
 }
 
-@Preview(showBackground = true)
-@Composable
-fun adivinaEspecieView() {
-    OceanWordsGameUI()
-}

@@ -16,4 +16,8 @@ val whiteBoxColor = Color.White.copy(alpha = 0.9f)
 val IndicatorBackgroundColor = Color(0xFFB3E5FC).copy(alpha = 0.65f)
 val LightBlue = Color(0xFFE1F5FE)
 val OceanBackground = Color(0xFF0077B6)
+val grey20 = Color(red = 51, green = 51, blue = 51, alpha = 255)
+val BlueGrayDark = Color(0xFF49455D)
+val LightOlive = Color(0xFFBCD587)
+val grey10 = Color(red = 51, green = 51, blue = 51, alpha = 74)
 

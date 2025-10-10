@@ -31,17 +31,17 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.proyect.ocean_words.R
 import com.proyect.ocean_words.ui.theme.OceanBackground
-import com.proyect.ocean_words.ui.theme.OrangeDeep
 import com.proyect.ocean_words.ui.theme.whiteBoxColor
-import com.proyect.ocean_words.view.OceanWordsGameUI
 
 val CardBackgroundColor = Color(0xFFFFFFFF)
 val RibbonColor = Color(0xFF66BB6A) // Verde para la cinta
 val StarColor = Color(0xFFFFCC00)
 @Composable
 fun caracteristicasEspecieView(
+    navController: NavController,
     score: Int = 1250,
     time: String = "0:45",
     animal: String ="pez lampara",
@@ -72,7 +72,7 @@ fun caracteristicasEspecieView(
                     .padding(10.dp)
             ) {
                 // 1. Encabezado (Logo, Score, Time)
-                HeaderSection(score, time)
+                HeaderSection(score, time,navController)
 
                 Spacer(modifier = Modifier.height(20.dp))
                 WhaleInfoCard(whaleImageRes = R.drawable.ballena)

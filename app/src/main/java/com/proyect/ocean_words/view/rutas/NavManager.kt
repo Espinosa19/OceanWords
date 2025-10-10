@@ -14,11 +14,16 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.proyect.ocean_words.view.InicioJuegoView // Importa tu vista de Splash
 import com.proyect.ocean_words.view.OceanWordsGameUI
+import com.proyect.ocean_words.view.screens.caracteristicasEspecieView
 
 // --- Rutas de la Aplicación ---
 object Rutas {
     const val SPLASH = "splash"
     const val JUEGO_PRINCIPAL = "juego_principal"
+    const val CARACTERISTICAS = "caracteristicas"
+
+    const val CONFIGURACION = "configuracion" // Nueva ruta
+    const val ACERCA_DE = "acerca_de"       // Nueva ruta
 }
 
 @Composable
@@ -46,7 +51,13 @@ fun NavManager() {
         // DESTINO: Pantalla Principal del Juego
         composable(Rutas.JUEGO_PRINCIPAL) {
             // Llama al Composable de tu vista principal
-            OceanWordsGameUI()
+            OceanWordsGameUI(navController)
+        }
+        composable(Rutas.CONFIGURACION) {
+            // Llama al Composable de tu vista principal
+        }
+        composable(Rutas.CARACTERISTICAS) {
+            caracteristicasEspecieView(navController)
         }
     }
 }

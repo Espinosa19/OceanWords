@@ -16,7 +16,6 @@ import androidx.navigation.compose.rememberNavController
 import com.proyect.ocean_words.ui.theme.Ocean_wordsTheme
 import com.proyect.ocean_words.view.InicioJuegoView
 import com.proyect.ocean_words.view.OceanWordsGameUI
-import com.proyect.ocean_words.view.adivinaEspecieView
 import com.proyect.ocean_words.view.rutas.NavManager
 import com.proyect.ocean_words.view.rutas.Rutas
 import com.proyect.ocean_words.view.screens.caracteristicasEspecieView
@@ -29,6 +28,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             Ocean_wordsTheme {
+                val navController = rememberNavController()
 
                 Scaffold(modifier = Modifier.fillMaxSize()) {
                     NavManager()
