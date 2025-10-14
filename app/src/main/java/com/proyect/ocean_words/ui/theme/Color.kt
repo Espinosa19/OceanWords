@@ -20,4 +20,5 @@ val grey20 = Color(red = 51, green = 51, blue = 51, alpha = 255)
 val BlueGrayDark = Color(0xFF49455D)
 val LightOlive = Color(0xFFBCD587)
 val grey10 = Color(red = 51, green = 51, blue = 51, alpha = 74)
-
+val azulCeleste = Color(0xFF6BBAD6)
+val arena = Color(0xFFF6D96D)

@@ -13,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.rememberNavController
+import com.jakewharton.threetenabp.AndroidThreeTen
 import com.proyect.ocean_words.ui.theme.Ocean_wordsTheme
 import com.proyect.ocean_words.view.InicioJuegoView
 import com.proyect.ocean_words.view.OceanWordsGameUI
@@ -23,6 +24,8 @@ import com.proyect.ocean_words.view.screens.caracteristicasEspecieView
 class MainActivity : ComponentActivity() {
     @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     override fun onCreate(savedInstanceState: Bundle?) {
+        AndroidThreeTen.init(this)
+
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 

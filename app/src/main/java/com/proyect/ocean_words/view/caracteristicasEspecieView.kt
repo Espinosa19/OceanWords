@@ -2,6 +2,7 @@ package com.proyect.ocean_words.view.screens
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -28,16 +29,15 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.proyect.ocean_words.R
 import com.proyect.ocean_words.ui.theme.OceanBackground
+import com.proyect.ocean_words.ui.theme.arena
+import com.proyect.ocean_words.ui.theme.azulCeleste
 import com.proyect.ocean_words.ui.theme.whiteBoxColor
 
-val CardBackgroundColor = Color(0xFFFFFFFF)
-val RibbonColor = Color(0xFF66BB6A) // Verde para la cinta
 val StarColor = Color(0xFFFFCC00)
 @Composable
 fun caracteristicasEspecieView(
@@ -47,9 +47,7 @@ fun caracteristicasEspecieView(
     animal: String ="pez lampara",
     dificultad:String="dificil",
     animalQuestion: String = "¿QUÉ ANIMAL ES ESTE?",
-    // Esta es solo una representación simplificada de las letras
 ) {
-    // Para el fondo y las decoraciones se usaría un Box
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -69,10 +67,8 @@ fun caracteristicasEspecieView(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(10.dp)
             ) {
-                // 1. Encabezado (Logo, Score, Time)
-                HeaderSection(score, time,navController)
+                HeaderSection(score, navController)
 
                 Spacer(modifier = Modifier.height(20.dp))
                 WhaleInfoCard(whaleImageRes = R.drawable.ballena)
@@ -87,16 +83,23 @@ fun WhaleInfoCard(
 ) {
     Column(
         modifier = Modifier.fillMaxWidth()
-            .height(460.dp),
+            .height(520.dp)
+            ,
         horizontalAlignment = Alignment.CenterHorizontally // ¡Esta línea es clave!
     ) {    Card (
             modifier = Modifier
-                .fillMaxWidth(0.9f) // Usa fillMaxWidth y un factor para controlar el ancho
-                .padding(14.dp,vertical = 16.dp), // Solo padding vertical
+                .fillMaxWidth(0.95f) // Usa fillMaxWidth y un factor para controlar el ancho
+                .padding(24.dp,vertical = 16.dp)
+                .border( // AHORA pasamos la forma (shape)
+                    width = 13.dp,
+                    color = arena,
+                    shape = RoundedCornerShape(24.dp) // <-- ¡Esta es la clave!
+                ),
             shape = RoundedCornerShape(24.dp), // Esquinas muy redondeadas
             colors = CardDefaults.cardColors(
                 containerColor = whiteBoxColor // Fondo amarillo pálido
-            ),
+            )
+        ,
             elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
         ) {
         Column(
@@ -105,21 +108,13 @@ fun WhaleInfoCard(
                 .padding(bottom = 20.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // 1. Cinta de "¡CORRECTO!" (Simulada con un Box y Text)
             Box(
                 modifier = Modifier
-                    .fillMaxWidth(0.9f) // Ocupa la mayor parte del ancho
-                    .offset(y = (-10).dp) // Superpuesto en la parte superior
-                    .clip(
-                        RoundedCornerShape(
-                            topStart = 4.dp,
-                            topEnd = 4.dp,
-                            bottomStart = 20.dp,
-                            bottomEnd = 20.dp
-                        )
-                    )
-                    .background(RibbonColor)
-                    .padding(vertical = 8.dp, horizontal = 16.dp),
+                    .fillMaxWidth(0.9f)
+                    .padding(top = 12.dp)
+
+                    .background(azulCeleste)
+                    .padding(vertical = 8.dp, horizontal = 12.dp),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
@@ -129,9 +124,7 @@ fun WhaleInfoCard(
                     fontSize = 18.sp
                 )
             }
-            // Pequeña corrección para hacer la cinta más parecida
 
-            // 2. Imagen de la ballena
             Image(
                 painter = painterResource(id = whaleImageRes),
                 contentDescription = "Ballena",
@@ -140,14 +133,12 @@ fun WhaleInfoCard(
                     .padding(top = 10.dp)
             )
 
-            // 3. Nombre del animal
             Text(
                 text = "BALLENA",
                 fontWeight = FontWeight.Black,
                 fontSize = 20.sp,
             )
 
-            // 4. Título "DATOS CURIOSOS:"
             Text(
                 text = "DATOS CURIOSOS:",
                 fontWeight = FontWeight.Bold,
@@ -155,14 +146,12 @@ fun WhaleInfoCard(
                 modifier = Modifier.padding(top = 16.dp)
             )
 
-            // 5. Lista de Datos Curiosos (usando Column para la lista y Text para los puntos)
             Column(
                 modifier = Modifier
                     .padding(horizontal = 24.dp)
                     .padding(top = 8.dp),
                 horizontalAlignment = Alignment.Start
             ) {
-                // Función auxiliar para un elemento de lista
                 @Composable
                 fun CuriousFact(text: String) {
                     Text(
@@ -180,7 +169,6 @@ fun WhaleInfoCard(
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            // 6. Sección de puntos ganados con la estrella (usando Row)
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -188,9 +176,6 @@ fun WhaleInfoCard(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center
             ) {
-                // Icono de estrella (Necesitarás un ícono/imagen de estrella)
-                // Se utiliza un Box simple con color para simular la estrella.
-                // En una app real, usarías Icon(Icons.Filled.Star, ...) o una imagen/SVG.
                 Box(
                     modifier = Modifier
                         .size(30.dp)
@@ -209,7 +194,6 @@ fun WhaleInfoCard(
 
                 Spacer(modifier = Modifier.width(10.dp))
 
-                // Texto de puntos ganados
                 Text(
                     text = "¡HAS GANADO 100 PUNTOS!",
                     fontWeight = FontWeight.ExtraBold,

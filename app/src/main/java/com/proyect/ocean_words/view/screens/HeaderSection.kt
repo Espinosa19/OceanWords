@@ -31,22 +31,22 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.proyect.ocean_words.R
 import com.proyect.ocean_words.ui.theme.Blue // Asumo que son colores definidos en tu tema
+import com.proyect.ocean_words.view.TemporizadorRegresivo
+
 // NOTA: Tu código original usaba IndicatorBackgroundColor, Orange, OrangeDeep, y Purple40
 // pero no estaban definidos en el código que enviaste. Asumo que se definen en el archivo theme.
 
 @Composable
-fun HeaderSection(score: Int, time: String,navController: NavController) {
+fun HeaderSection(score: Int, navController: NavController) {
     var statusMenu by remember { mutableStateOf(false) }
-
-    // CAMBIO CLAVE 1: Usamos Box con wrapContentHeight. El Box contendrá el logo, el menú y los indicadores.
+    val tiempo = TemporizadorRegresivo()
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .wrapContentHeight(Alignment.Top) // Ajusta su altura al contenido, alineado arriba
+            .wrapContentHeight(Alignment.Top)
     ) {
 
-        // --- 1. Logo (Capa Principal) ---
-        // Usamos un Column para centrar el logo y darle un poco de altura base, eliminando alturas fijas
+
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -61,14 +61,11 @@ fun HeaderSection(score: Int, time: String,navController: NavController) {
                     .wrapContentHeight(),
                 contentScale = ContentScale.FillWidth
             )
-            // Espacio fijo entre el logo y los indicadores
             Spacer(modifier = Modifier.height(10.dp))
 
-            // 2. Indicadores (Debajo del logo)
-            HeaderIndicatorRow(score, time)
+            HeaderIndicatorRow(score, tiempo)
         }
 
-        // --- 3. Botón de Menú (Capa Superior Derecha) ---
         IconButton(
             onClick = { statusMenu = !statusMenu },
 
@@ -76,7 +73,6 @@ fun HeaderSection(score: Int, time: String,navController: NavController) {
                 .align(Alignment.TopEnd)
                 .padding(top = 25.dp,end = 8.dp) // Margen a la derecha
         ) {
-            // El icono del tesoro (o menú) se coloca en la parte superior derecha, flotando.
             Image(
                 painter = painterResource(id = R.drawable.tesoro),
                 contentDescription = "menu",
