@@ -7,8 +7,6 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.proyect.ocean_words.model.SlotEstado
-import org.threeten.bp.LocalDateTime
-import org.threeten.bp.format.DateTimeFormatter
 
 class AdivinaEspecieViewModel (
     animal: String,
@@ -21,7 +19,6 @@ class AdivinaEspecieViewModel (
         private val _navegarAExito = MutableLiveData<Boolean>()
         val navegarAExito: LiveData<Boolean> = _navegarAExito
         private val letrasPorFila = 7
-        private var tiempoTempo: LocalDateTime = LocalDateTime.now()
 
     val animalRandom: String = if (dificultad != "dificil") {
             shuffleText(animalSinEspacios)
@@ -154,14 +151,7 @@ class AdivinaEspecieViewModel (
                 respuestaJugador[i] = SlotEstado(char = null, esCorrecto = null)
             }
         }
-        fun actualizarTiempo(){
-            tiempoTempo = tiempoTempo.plusMinutes(10)
 
-        }
-        fun mostrarTiempo(): String {
-            val formato = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")
-            return tiempoTempo.format(formato)
-        }
         private fun getTwoRandomLetters(): List<Char> {
             val abecedario =('a'..'z')
             return List(2) { abecedario.random() } }

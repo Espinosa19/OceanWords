@@ -5,11 +5,15 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBox // Se mantiene para el tipo
+import androidx.compose.material.icons.filled.AddCircle
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Star // Se mantiene para el tipo
+import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -31,6 +35,8 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.proyect.ocean_words.R
 import com.proyect.ocean_words.ui.theme.Blue // Asumo que son colores definidos en tu tema
+import com.proyect.ocean_words.ui.theme.LightOlive
+import com.proyect.ocean_words.view.BotonDeInterfaz
 import com.proyect.ocean_words.view.TemporizadorRegresivo
 
 // NOTA: Tu código original usaba IndicatorBackgroundColor, Orange, OrangeDeep, y Purple40
@@ -63,7 +69,7 @@ fun HeaderSection(score: Int, navController: NavController) {
             )
             Spacer(modifier = Modifier.height(10.dp))
 
-            HeaderIndicatorRow(score, tiempo)
+            HeaderIndicatorRow(tiempo,onBackClick = {})
         }
 
         IconButton(
@@ -87,47 +93,101 @@ fun HeaderSection(score: Int, navController: NavController) {
         }
     }
 }
-
-// NO NECESITA CAMBIOS MAYORES
 @Composable
-fun HeaderIndicatorRow(score: Int, time: String) {
+fun HeaderIndicatorRow(
+    time: String,
+    onBackClick: () -> Unit // Agregamos un callback para manejar el clic
+) {
+    // Usamos SpaceBetween para dar más énfasis a los extremos
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            // Padding ajustado para separarlo de los bordes laterales y centrarlo
-            .padding(horizontal = 16.dp, vertical = 8.dp),
-        horizontalArrangement = Arrangement.SpaceEvenly, // Uso SpaceEvenly para mejor distribución
+            .padding(vertical = 12.dp),
+        horizontalArrangement = Arrangement.Center, // centra todo el contenido
         verticalAlignment = Alignment.CenterVertically
     ) {
-        GameIndicator(
-            icon = Icons.Default.Star,
-            tipo="Icono",
-            label = "SCORE",
-            value = score.toString(),
-            iconColor = Color(0xFFFCCB06),
-            iconBackgroundColor = Color.White
-        )
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(15.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            CustomBackButton(onClick = onBackClick)
+            CentralIndicatorBox()
+            GameIndicator(value = "500")
+        }
+    }
 
-        GameIndicator(
-            icon = Icons.Default.AccountBox, // Esto es solo un placeholder para el tipo
-            tipo= "Imagen",
-            label = "TIME",
-            value = time,
-            iconColor = Color.White,
-            iconBackgroundColor = Color(0xFF0077B6)
+}
+
+// -------------------------------------------------------------------------------------------------
+
+/**
+ * Componente Botón de Retroceso (Separado para limpieza)
+ */
+@Composable
+fun CustomBackButton(onClick: () -> Unit) {
+    Button(
+        onClick = onClick,
+        modifier = Modifier.size(40.dp), // Ligeramente más grande y visible
+        shape = RoundedCornerShape(percent = 50), // Forma perfectamente circular
+        colors = ButtonDefaults.buttonColors(containerColor = Blue),
+        contentPadding = PaddingValues(0.dp)
+    ) {
+        Icon(
+            imageVector = Icons.Filled.ArrowBack,
+            contentDescription = "Volver atrás",
+            tint = Color.White,
+            modifier = Modifier.size(24.dp) // Ícono de tamaño estándar
         )
     }
 }
 
+/**
+ * Componente Indicador Central (Simplificado y estéticamente mejorado)
+ */
+@Composable
+fun CentralIndicatorBox() {
+    // Usamos Box para el fondo y Row para el contenido, como antes
+    Box(
+        modifier = Modifier
+            .clip(RoundedCornerShape(20.dp)) // Borde redondeado suave
+            .background(Color(0xFFB3E5FC).copy(alpha = 0.65f)) // Asumo el color IndicatorBackgroundColor
+
+            .border(
+                width = 1.dp, // Borde más sutil
+                color = Color.White.copy(alpha = 0.8f),
+                shape = RoundedCornerShape(20.dp)
+            )
+            .height(40.dp)
+            .padding(horizontal = 8.dp), // Relleno horizontal para que los iconos no estén pegados
+        contentAlignment = Alignment.CenterStart,
+    ) {
+        // Dentro de este Box, distribuimos los elementos.
+        Row(
+            modifier = Modifier.width(100.dp),
+
+            // El Row no necesita un ancho específico, se adaptará al contenido (wrapContent)
+            horizontalArrangement = Arrangement.SpaceAround,
+        verticalAlignment = Alignment.CenterVertically
+        ) {
+            repeat(3) {
+                Image(
+                     painter = painterResource(id = R.drawable.vidas),
+                     contentDescription = null,
+                     modifier = Modifier.size(20.dp)
+                )
+
+
+            }
+        }
+    }
+}
+
+
 // NO NECESITA CAMBIOS MAYORES
 @Composable
 fun GameIndicator(
-    icon: ImageVector,
-    tipo: String,
-    label: String,
     value: String,
-    iconColor: Color,
-    iconBackgroundColor: Color
+
 ) {
     // CAMBIO CLAVE 2: Usamos wrapContentWidth(unconstrained) para que el indicador crezca solo lo necesario.
     Box(
@@ -146,15 +206,21 @@ fun GameIndicator(
     ) {
         Row(
             // El padding del Row interno asegura que el texto no se superponga con el círculo
-            modifier = Modifier.padding(start = 45.dp, end = 12.dp),
+            modifier = Modifier.padding(start = 45.dp, end = 12.dp)
+                    .width(70.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "$label: $value",
+                text = "$value",
+
                 color = Color.White,
                 fontSize = 16.sp, // Tamaño de texto adaptable
                 fontWeight = FontWeight.Bold
             )
+            Icon(imageVector = Icons.Filled.AddCircle, contentDescription = null, tint = Blue, modifier = Modifier.size(32.dp))
+
         }
 
         // Icono dentro de un círculo
@@ -166,21 +232,11 @@ fun GameIndicator(
                 .align(Alignment.CenterStart),
             contentAlignment = Alignment.Center
         ) {
-            when (tipo) {
-                "Imagen" -> Image(
-                    painter = painterResource(id = R.drawable.reloj_de_arena),
-                    contentDescription = "Reloj de arena",
-                    modifier = Modifier.size(24.dp)
-                        .padding(start = 5.dp)
-
-                )
-                "Icono" -> Icon(
-                    imageVector = icon,
-                    contentDescription = label,
-                    tint = iconColor,
-                    modifier = Modifier.size(24.dp)
-                )
-            }
+            Image(
+                painter = painterResource(id = R.drawable.dolar),
+                contentDescription = "Reloj de arena",
+                modifier = Modifier.size(24.dp)
+            )
         }
     }
 }

@@ -52,7 +52,7 @@ fun OceanWordsGameUI(
     navController: NavController,
     score: Int = 1250,
     animal: String ="pez lampara",
-    dificultad:String="dificil",
+    dificultad:String="normal",
     animalQuestion: String = "¿QUÉ ANIMAL ES ESTE?",
 ) {
     Box(
@@ -343,7 +343,6 @@ fun accionesEspecíficas(onResetGame: () -> Unit,onGoBackGame: () -> Unit) { // 
         horizontalArrangement = Arrangement.spacedBy(22.dp, Alignment.CenterHorizontally),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        BotonDeInterfaz(icon = Icons.Filled.ArrowBack, onClick = { })
         BotonDeInterfaz(icon = Icons.Filled.Close, onClick = onResetGame)
 
         BotonDeInterfaz(
