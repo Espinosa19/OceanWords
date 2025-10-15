@@ -43,8 +43,7 @@ import com.proyect.ocean_words.view.TemporizadorRegresivo
 // pero no estaban definidos en el código que enviaste. Asumo que se definen en el archivo theme.
 
 @Composable
-fun HeaderSection(score: Int, navController: NavController) {
-    var statusMenu by remember { mutableStateOf(false) }
+fun HeaderSection(score: Int) {
     val tiempo = TemporizadorRegresivo()
     Box(
         modifier = Modifier
@@ -72,25 +71,7 @@ fun HeaderSection(score: Int, navController: NavController) {
             HeaderIndicatorRow(tiempo,onBackClick = {})
         }
 
-        IconButton(
-            onClick = { statusMenu = !statusMenu },
 
-            modifier = Modifier
-                .align(Alignment.TopEnd)
-                .padding(top = 25.dp,end = 8.dp) // Margen a la derecha
-        ) {
-            Image(
-                painter = painterResource(id = R.drawable.tesoro),
-                contentDescription = "menu",
-                modifier = Modifier
-                    .size(54.dp), // Tamaño fijo pero razonable para el icono/botón
-                contentScale = ContentScale.Fit
-            )
-        }
-        if (statusMenu) {
-            // CORRECCIÓN CLAVE: Pasar el parámetro onMenuItemClick
-            NavegacionDrawerMenu(navController,onCloseMenu = { statusMenu = false }    )
-        }
     }
 }
 @Composable

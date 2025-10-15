@@ -42,6 +42,7 @@ import com.proyect.ocean_words.ui.theme.OceanBackground
 import com.proyect.ocean_words.ui.theme.Orange
 import com.proyect.ocean_words.ui.theme.OrangeDeep
 import com.proyect.ocean_words.view.screens.HeaderSection
+import com.proyect.ocean_words.view.screens.NavegacionDrawerMenu
 import com.proyect.ocean_words.viewmodels.AdivinaEspecieViewModel
 import kotlinx.coroutines.delay
 import java.util.concurrent.TimeUnit
@@ -74,7 +75,7 @@ fun OceanWordsGameUI(
                 .fillMaxSize()
         ) {
             // 1. Encabezado (Score, Time)
-            HeaderSection(score,navController)
+            HeaderSection(score)
 
             Spacer(modifier = Modifier.height(20.dp))
 
@@ -119,7 +120,7 @@ fun JuegoAnimal(animal: String, dificultad: String, animalQuestion: String,navCo
         val screenWidthDp = configuration.screenWidthDp.dp
         val bottomPadding = if (screenWidthDp > 420.dp) { 180.dp } else { 150.dp }
 
-        QuestionAndImageSection(animalQuestion, animal, respuestaJugador, onLetterRemoved)
+        QuestionAndImageSection( navController,animalQuestion, animal, respuestaJugador, onLetterRemoved)
 
 
         Column(
@@ -147,16 +148,19 @@ fun JuegoAnimal(animal: String, dificultad: String, animalQuestion: String,navCo
 }
 @Composable
 fun QuestionAndImageSection(
+    navController: NavController,
     question: String,
     animal: String,
     // 💡 NUEVOS ARGUMENTOS
     respuestaJugador: MutableList<SlotEstado?>,
     onLetterRemoved: (Int) -> Unit
 ) {
+    var statusMenu by remember { mutableStateOf(false) }
+
     val configuration = LocalConfiguration.current
     val screenWidthDp = configuration.screenWidthDp.dp
     val horizontalPadding = if (screenWidthDp > 420.dp) { 25.dp } else { 60.dp }
-    val offsetPadding = if (screenWidthDp > 420.dp) { (-10).dp } else { (-20).dp }
+    val offsetPadding = if (screenWidthDp < 720.dp) { (-10).dp } else { (-20).dp }
 
     Column(
         modifier = Modifier
@@ -176,24 +180,44 @@ fun QuestionAndImageSection(
         ) {
             Text(text = question, fontSize = 24.sp, fontWeight = FontWeight.Black, color = Color.Black, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
         }
-
-        // Box de la Imagen y la Respuesta
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(260.dp),
-            contentAlignment = Alignment.Center
-        ){
-            Image(
-                painter = painterResource(id = R.drawable.ballena),
-                contentDescription = "Pez Payaso",
+        Box(modifier = Modifier.fillMaxWidth()){
+            Box(
                 modifier = Modifier
-                    .size(200.dp)
-                    .offset(y = offsetPadding),
-            )
-            // 💡 LLAMADA A RESPONSEAREA CON EL ESTADO Y CALLBACK
-            ResponseArea(animal, respuestaJugador, onLetterRemoved)
+                    .fillMaxWidth()
+                    .height(260.dp),
+                contentAlignment = Alignment.Center
+            ){
+                Image(
+                    painter = painterResource(id = R.drawable.ballena),
+                    contentDescription = "Pez Payaso",
+                    modifier = Modifier
+                        .size(200.dp)
+                        .offset(y = offsetPadding),
+                )
+                // 💡 LLAMADA A RESPONSEAREA CON EL ESTADO Y CALLBACK
+                ResponseArea(animal, respuestaJugador, onLetterRemoved)
+            }
+            IconButton(
+                onClick = { statusMenu = !statusMenu },
+
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(top = 25.dp, end = 8.dp)
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.tesoro),
+                    contentDescription = "menu",
+                    modifier = Modifier
+                        .size(54.dp), // Tamaño fijo pero razonable para el icono/botón
+                    contentScale = ContentScale.Fit
+                )
+            }
+            if (statusMenu) {
+                NavegacionDrawerMenu(navController,onCloseMenu = { statusMenu = false }    )
+            }
         }
+
+
     }
 }@Composable
 fun ResponseArea(
@@ -203,7 +227,7 @@ fun ResponseArea(
 ) {
     val configuration = LocalConfiguration.current
     val screenWidthDp = configuration.screenWidthDp.dp
-    val topPadding = if (screenWidthDp > 420.dp) 125.dp else 148.dp
+    val topPadding = if (screenWidthDp > 420.dp) 128.dp else 158.dp
     val sizeCard = if (screenWidthDp < 720.dp) 32.dp else 38.dp
 
     val letrasPorFila = 8

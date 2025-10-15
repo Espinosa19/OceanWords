@@ -17,8 +17,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -33,6 +36,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.proyect.ocean_words.R
+import com.proyect.ocean_words.ui.theme.Blue
 import com.proyect.ocean_words.ui.theme.OceanBackground
 import com.proyect.ocean_words.ui.theme.arena
 import com.proyect.ocean_words.ui.theme.azulCeleste
@@ -68,7 +72,7 @@ fun caracteristicasEspecieView(
                 modifier = Modifier
                     .fillMaxSize()
             ) {
-                HeaderSection(score, navController)
+                HeaderSection(score)
 
                 Spacer(modifier = Modifier.height(20.dp))
                 WhaleInfoCard(whaleImageRes = R.drawable.ballena)
@@ -172,6 +176,7 @@ fun WhaleInfoCard(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
+
                     .padding(horizontal = 24.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center
@@ -202,6 +207,50 @@ fun WhaleInfoCard(
                 )
             }
         }
+
     }
+        val OceanIndicatorColor = Color(0xFFB3E5FC) // Color azul claro
+
+        Row(
+            modifier = Modifier
+
+                .fillMaxWidth(0.9f) // Un poco más ancho (0.9f)
+                .clip(RoundedCornerShape(20.dp)) // Aplicamos la forma primero
+                // Usamos un color menos transparente para mejorar la legibilidad del contenido
+                .background(OceanIndicatorColor.copy(alpha = 0.85f))
+                .border( // Mantenemos el borde, pero lo aplicamos al contenedor final
+                    width = 1.dp,
+                    color = Color.White,
+                    shape = RoundedCornerShape(20.dp)
+                )
+                .padding(12.dp) // Aumentamos un poco el padding interno para que respire
+        ,
+        horizontalArrangement = Arrangement.spacedBy(16.dp) // Espacio entre botones
+        ) {
+            // 2. Botón 1: Acción Secundaria (Regresar/Atrás)
+            // Se recomienda usar un estilo diferente (OutlinedButton) para diferenciar acciones.
+            Button(
+                onClick = {},
+                modifier = Modifier.weight(1f)
+                    .height(60.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Blue)
+
+            ) {
+                Text("Regresar", fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+            }
+
+            // 3. Botón 2: Acción Primaria (CONTINUAR)
+            Button(
+                onClick = {
+
+                },
+                modifier = Modifier.weight(1f)
+                ,
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Blue)
+            ) {
+                Text("CONTINUAR", fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+            }
+        }
     }
 }
