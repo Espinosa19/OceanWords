@@ -6,6 +6,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -16,11 +17,18 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -28,6 +36,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -37,98 +46,89 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.proyect.ocean_words.R
 import com.proyect.ocean_words.ui.theme.Blue
+import com.proyect.ocean_words.ui.theme.LightOlive
 import com.proyect.ocean_words.ui.theme.OceanBackground
+import com.proyect.ocean_words.ui.theme.Orange
+import com.proyect.ocean_words.ui.theme.OrangeDeep
 import com.proyect.ocean_words.ui.theme.arena
 import com.proyect.ocean_words.ui.theme.azulCeleste
 import com.proyect.ocean_words.ui.theme.whiteBoxColor
+import com.proyect.ocean_words.view.BotonDeInterfaz
+import com.proyect.ocean_words.view.accionesEspecíficas
 
 val StarColor = Color(0xFFFFCC00)
 @Composable
 fun caracteristicasEspecieView(
     navController: NavController,
-    score: Int = 1250,
-    time: String = "0:45",
-    animal: String ="pez lampara",
-    dificultad:String="dificil",
-    animalQuestion: String = "¿QUÉ ANIMAL ES ESTE?",
+score: Int = 1250,
+time: String = "0:45",
+animal: String = "Pez lámpara",
+dificultad: String = "Difícil",
+animalQuestion: String = "¿Qué animal es este?"
 ) {
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(OceanBackground)
     ) {
+        // Fondo
+        Image(
+            painter = painterResource(id = R.drawable.fondo_juego),
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier.matchParentSize()
+        )
 
-        Box(
-            modifier = Modifier.fillMaxSize()
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Image(
-                painter = painterResource(id = R.drawable.fondo_juego), // tu imagen en res/drawable
-                contentDescription = null,
-                contentScale = ContentScale.Crop, // Ajusta para cubrir toda la pantalla
-                modifier = Modifier.matchParentSize()
-            )
+            HeaderSection(score = score) // Encabezado superior (corazones, monedas, etc.)
+            Spacer(modifier = Modifier.height(20.dp))
+            WhaleInfoCard(whaleImageRes = R.drawable.ballena)
 
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-            ) {
-                HeaderSection(score)
-
-                Spacer(modifier = Modifier.height(20.dp))
-                WhaleInfoCard(whaleImageRes = R.drawable.ballena)
-            }
         }
+
+
+        // Barra inferior fija
     }
 }
 
 @Composable
-fun WhaleInfoCard(
-    whaleImageRes: Int // Resource ID for the whale image (e.g., R.drawable.ballena)
-) {
-    Column(
-        modifier = Modifier.fillMaxWidth()
-            .height(520.dp)
-            ,
-        horizontalAlignment = Alignment.CenterHorizontally // ¡Esta línea es clave!
-    ) {    Card (
-            modifier = Modifier
-                .fillMaxWidth(0.95f) // Usa fillMaxWidth y un factor para controlar el ancho
-                .padding(24.dp,vertical = 16.dp)
-                .border( // AHORA pasamos la forma (shape)
-                    width = 13.dp,
-                    color = arena,
-                    shape = RoundedCornerShape(24.dp) // <-- ¡Esta es la clave!
-                ),
-            shape = RoundedCornerShape(24.dp), // Esquinas muy redondeadas
-            colors = CardDefaults.cardColors(
-                containerColor = whiteBoxColor // Fondo amarillo pálido
-            )
-        ,
-            elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
-        ) {
+fun WhaleInfoCard(whaleImageRes: Int) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth(0.98f)
+            .wrapContentHeight() // 👈 importante
+            .padding(horizontal = 24.dp, vertical = 16.dp)
+            .border(width = 13.dp, color = arena, shape = RoundedCornerShape(24.dp)),
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(containerColor = whiteBoxColor),
+        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+    ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 20.dp),
+                .padding(top = 10.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            // Título superior
             Box(
                 modifier = Modifier
                     .fillMaxWidth(0.9f)
-                    .padding(top = 12.dp)
-
                     .background(azulCeleste)
-                    .padding(vertical = 8.dp, horizontal = 12.dp),
+                    .padding(vertical = 8.dp),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = "¡CORRECTO",
+                    text = "¡CORRECTO!",
                     color = Color.White,
                     fontWeight = FontWeight.Bold,
                     fontSize = 18.sp
                 )
             }
 
+            // Imagen del animal
             Image(
                 painter = painterResource(id = whaleImageRes),
                 contentDescription = "Ballena",
@@ -137,12 +137,14 @@ fun WhaleInfoCard(
                     .padding(top = 10.dp)
             )
 
+            // Título
             Text(
                 text = "BALLENA",
                 fontWeight = FontWeight.Black,
-                fontSize = 20.sp,
+                fontSize = 20.sp
             )
 
+            // Subtítulo
             Text(
                 text = "DATOS CURIOSOS:",
                 fontWeight = FontWeight.Bold,
@@ -150,107 +152,124 @@ fun WhaleInfoCard(
                 modifier = Modifier.padding(top = 16.dp)
             )
 
+            // Lista de datos curiosos
             Column(
                 modifier = Modifier
-                    .padding(horizontal = 24.dp)
-                    .padding(top = 8.dp),
+                    .padding(horizontal = 34.dp, vertical = 8.dp),
                 horizontalAlignment = Alignment.Start
             ) {
-                @Composable
-                fun CuriousFact(text: String) {
-                    Text(
-                        text = "• $text",
-                        fontSize = 14.sp,
-                        textAlign = TextAlign.Start,
-                        modifier = Modifier.padding(vertical = 1.dp)
-                    )
-                }
-
                 CuriousFact("Son los animales más grandes del planeta.")
                 CuriousFact("Se comunican a través de cantos.")
 
             }
 
-            Spacer(modifier = Modifier.height(20.dp))
+            // Puntos ganados
 
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-
-                    .padding(horizontal = 24.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center
+                    .padding(horizontal = 24.dp, vertical = 10.dp)
+                    .height(100.dp),
+                horizontalArrangement = Arrangement.spacedBy(22.dp, Alignment.CenterHorizontally),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Box(
-                    modifier = Modifier
-                        .size(30.dp)
-                        .clip(RoundedCornerShape(8.dp))
-                        .background(StarColor)
-                        .padding(4.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "★",
-                        fontSize = 16.sp,
-                        color = Color.White,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
+                BotonInferiorIcon(
+                    icon = Icons.Default.Home,
+                    texto = "Inicio",
+                    onClick = { /* Acción */ }
+                )
 
-                Spacer(modifier = Modifier.width(10.dp))
-
-                Text(
-                    text = "¡HAS GANADO 100 PUNTOS!",
-                    fontWeight = FontWeight.ExtraBold,
-                    fontSize = 18.sp,
-                    color = Color.Black // O el color de fuente deseado
+                BotonInferiorIcon(
+                    icon = Icons.Default.ArrowForward,
+                    texto = "Siguiente",
+                    onClick = { /* Acción */ }
                 )
             }
         }
-
     }
-        val OceanIndicatorColor = Color(0xFFB3E5FC) // Color azul claro
+}
 
+@Composable
+private fun CuriousFact(text: String) {
+    Text(
+        text = "• $text",
+        fontSize = 14.sp,
+        textAlign = TextAlign.Start,
+        modifier = Modifier.padding(vertical = 1.dp)
+    )
+}
+
+
+@Composable
+fun BotonInferior(
+    iconRes: Int,
+    texto: String,
+    onClick: () -> Unit
+) {
+    Button(
+        onClick = onClick,
+        modifier = Modifier
+            .width(120.dp)
+            .height(55.dp),
+        shape = RoundedCornerShape(16.dp),
+        elevation = ButtonDefaults.elevatedButtonElevation(6.dp),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = LightOlive,
+            contentColor = Color.Black
+        ),
+        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp)
+    ) {
         Row(
-            modifier = Modifier
-
-                .fillMaxWidth(0.9f) // Un poco más ancho (0.9f)
-                .clip(RoundedCornerShape(20.dp)) // Aplicamos la forma primero
-                // Usamos un color menos transparente para mejorar la legibilidad del contenido
-                .background(OceanIndicatorColor.copy(alpha = 0.85f))
-                .border( // Mantenemos el borde, pero lo aplicamos al contenedor final
-                    width = 1.dp,
-                    color = Color.White,
-                    shape = RoundedCornerShape(20.dp)
-                )
-                .padding(12.dp) // Aumentamos un poco el padding interno para que respire
-        ,
-        horizontalArrangement = Arrangement.spacedBy(16.dp) // Espacio entre botones
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            // 2. Botón 1: Acción Secundaria (Regresar/Atrás)
-            // Se recomienda usar un estilo diferente (OutlinedButton) para diferenciar acciones.
-            Button(
-                onClick = {},
-                modifier = Modifier.weight(1f)
-                    .height(60.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Blue)
+            Image(
+                painter = painterResource(id = iconRes),
+                contentDescription = texto,
+                modifier = Modifier.size(28.dp)
+            )
+            Text(
+                text = texto,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold
+            )
+        }
+    }
+}
 
-            ) {
-                Text("Regresar", fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
-            }
-
-            // 3. Botón 2: Acción Primaria (CONTINUAR)
-            Button(
-                onClick = {
-
-                },
-                modifier = Modifier.weight(1f)
-                ,
-                shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Blue)
-            ) {
-                Text("CONTINUAR", fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
-            }
+@Composable
+fun BotonInferiorIcon(
+    icon: ImageVector,
+    texto: String,
+    onClick: () -> Unit
+) {
+    Button(
+        onClick = onClick,
+        modifier = Modifier
+            .width(120.dp)
+            .height(55.dp),
+        shape = RoundedCornerShape(16.dp),
+        elevation = ButtonDefaults.elevatedButtonElevation(6.dp),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = LightOlive,
+            contentColor = Color.Black
+        ),
+        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp)
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = texto,
+                modifier = Modifier.size(28.dp)
+            )
+            Text(
+                text = texto,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold
+            )
         }
     }
 }
