@@ -11,7 +11,7 @@ android {
 
     defaultConfig {
         applicationId = "com.proyect.ocean_words"
-        minSdk = 21
+        minSdk = 23
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
@@ -39,13 +39,15 @@ android {
         compose = true
     }
 }
-
 dependencies {
     implementation(platform("com.google.firebase:firebase-bom:34.5.0"))
     implementation("androidx.compose.ui:ui-text-google-fonts:1.7.0")
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.lifecycle.viewmodel.ktx)
+    implementation(libs.firebase.database)
+
     implementation("androidx.navigation:navigation-compose:2.7.4") // Reemplaza 2.7.4 con la versión estable más reciente
     implementation ("androidx.compose.runtime:runtime-livedata:1.6.8") // O la versión actual
     implementation ("com.jakewharton.threetenabp:threetenabp:1.4.4")

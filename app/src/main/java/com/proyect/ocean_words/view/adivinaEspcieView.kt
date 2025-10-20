@@ -1,7 +1,5 @@
 package com.proyect.ocean_words.view
 
-import android.icu.text.CaseMap.Upper
-import androidx.annotation.DrawableRes
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeOut
@@ -11,9 +9,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -40,9 +35,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 
 import com.proyect.ocean_words.R
-import com.proyect.ocean_words.model.AdivinaEspecieViewModelFactory
+import com.proyect.ocean_words.viewmodels.AdivinaEspecieViewModelFactory
 import com.proyect.ocean_words.model.SlotEstado
-import com.proyect.ocean_words.view.theme.Blue
 import com.proyect.ocean_words.view.theme.LightBlue
 import com.proyect.ocean_words.view.theme.OceanBackground
 import com.proyect.ocean_words.view.theme.Orange
@@ -52,14 +46,9 @@ import com.proyect.ocean_words.view.screens.NavegacionDrawerMenu
 import com.proyect.ocean_words.view.theme.Boogaloo
 import com.proyect.ocean_words.view.theme.BricolageGrotesque
 import com.proyect.ocean_words.view.theme.Delius
-import com.proyect.ocean_words.view.theme.Gabriela
-import com.proyect.ocean_words.view.theme.Gorditas
-import com.proyect.ocean_words.view.theme.LightOlive
 import com.proyect.ocean_words.view.theme.MomoTrustDisplay
 import com.proyect.ocean_words.view.theme.VerdeClaro
-import com.proyect.ocean_words.viewmodels.AdivinaEspecieViewModel
-import kotlinx.coroutines.delay
-import java.util.concurrent.TimeUnit
+import com.proyect.ocean_words.viewmodels.EspecieViewModel
 
 
 @Composable
@@ -105,7 +94,7 @@ fun OceanWordsGameUI(
 
 @Composable
 fun JuegoAnimal(animal: String, dificultad: String, animalQuestion: String,navController:NavController) {
-        val viewModel: AdivinaEspecieViewModel = viewModel(
+        val viewModel: EspecieViewModel = viewModel(
             factory = AdivinaEspecieViewModelFactory(animal, dificultad)
         )
 

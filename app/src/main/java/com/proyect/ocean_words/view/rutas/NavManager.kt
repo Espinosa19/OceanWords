@@ -1,6 +1,7 @@
 package com.proyect.ocean_words.view.rutas
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -51,20 +52,9 @@ fun NavManager(musicManager: MusicManager) {
     var targetLevelId by remember { mutableStateOf<Int?>(null) }
     NavHost(
         navController = navController,
-        startDestination = Rutas.SPLASH // La aplicación comienza en la pantalla de carga
+        startDestination = Rutas.CAMINO_NIVELES // La aplicación comienza en la pantalla de carga
     ) {
         // DESTINO: Pantalla de Carga (Splash)
-        composable(Rutas.SPLASH) {
-            LaunchedEffect(Unit) { musicManager.playMenuMusic() }
-            InicioJuegoView(
-                onNavigationToGame = {
-                    navController.navigate(Rutas.CAMINO_NIVELES) {
-                        // Importante: Elimina 'splash' de la pila para no poder volver atrás
-                        popUpTo(Rutas.SPLASH) { inclusive = true }
-                    }
-                }
-            )
-        }
         composable(route = Rutas.JUEGO_PRINCIPAL,
             arguments = listOf(
                 navArgument ("levelId") {
@@ -80,17 +70,32 @@ fun NavManager(musicManager: MusicManager) {
 
         composable(Rutas.CAMINO_NIVELES) {
             LaunchedEffect(Unit) { musicManager.playMenuMusic() }
-            Scaffold (
-                containerColor = Color.Transparent,
-                bottomBar = { BottomNavBar(navController) }
-            ) { innerPadding ->
-                Box(modifier = Modifier.padding(innerPadding)) {
-                    caminoNiveles (
-                        onStartTransitionAndNavigate = { levelId ->
-                            targetLevelId = levelId
-                        },
-                        navController
-                    )
+
+            // 1. *** ESTADO CLAVE: Controla si la pantalla de inicio debe mostrarse. ***
+            var showSplashScreen by remember { mutableStateOf(true) }
+
+            if (showSplashScreen) {
+                // 2. Muestra la pantalla de inicio (splash/carga)
+                InicioJuegoView(
+                    onLoadingComplete = {
+                        // 3. Cuando la carga interna termine, oculta la vista.
+                        showSplashScreen = false
+                    }
+                )
+            } else {
+                // 4. Muestra el contenido principal de la ruta (Scaffold)
+                Scaffold (
+                    containerColor = Color.Transparent,
+                    bottomBar = { BottomNavBar(navController) }
+                ) { innerPadding ->
+                    Box(modifier = Modifier.padding(innerPadding)) {
+                        caminoNiveles (
+                            onStartTransitionAndNavigate = { levelId ->
+                                targetLevelId = levelId
+                            },
+                            navController
+                        )
+                    }
                 }
             }
         }

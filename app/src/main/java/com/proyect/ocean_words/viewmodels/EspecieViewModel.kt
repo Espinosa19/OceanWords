@@ -1,19 +1,20 @@
 package com.proyect.ocean_words.viewmodels
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.proyect.ocean_words.model.SlotEstado
+import com.proyect.ocean_words.repositories.EspecieRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-class AdivinaEspecieViewModel (
+class EspecieViewModel (
     animal: String,
     dificultad: String
 ) : ViewModel() {
+    val EspecieRepository = EspecieRepository()
+
     val animalSinEspacios: String = animal.trim().replace(" ", "")
     private val tamanoTeclado: Int
     private val _navegarAExito = MutableLiveData<Boolean>()

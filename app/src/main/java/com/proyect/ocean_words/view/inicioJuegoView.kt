@@ -24,13 +24,8 @@ import com.proyect.ocean_words.R
 import com.proyect.ocean_words.view.theme.whiteBoxColor
 import kotlinx.coroutines.delay
 
-// Define una función de navegación simulada.
-private fun navigateToNextScreen(onNavigation: () -> Unit) {
-    onNavigation()
-}
-
 @Composable
-fun InicioJuegoView(onNavigationToGame: () -> Unit) {
+fun InicioJuegoView(onLoadingComplete: () -> Unit) {
 
     // --- ESTADO DE CARGA y Animación (se mantienen) ---
     var progressTarget by remember { mutableFloatStateOf(0.0f) }
@@ -40,7 +35,7 @@ fun InicioJuegoView(onNavigationToGame: () -> Unit) {
         progressTarget = 1.0f
         delay(2000)
         isLoadingComplete = true
-        navigateToNextScreen(onNavigationToGame)
+        onLoadingComplete()
     }
 
     val animatedProgress by animateFloatAsState(
