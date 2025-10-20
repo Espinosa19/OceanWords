@@ -34,6 +34,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.navigation.NavHostController
+import com.proyect.ocean_words.utils.MusicManager
 import com.proyect.ocean_words.view.screens.GameIndicator
 import com.proyect.ocean_words.view.screens.configuracionView
 
@@ -53,6 +54,9 @@ val niveles = List(TotalLevels) { index ->
 fun caminoNiveles(
     onStartTransitionAndNavigate: (levelId: Int) -> Unit,
     navController: NavHostController,
+    musicManager: MusicManager,
+    onMusicToggle: (Boolean) -> Unit,
+    isMusicEnabled: Boolean
 ) {
     val listState = rememberLazyListState()
     val density = LocalDensity.current
@@ -256,7 +260,12 @@ fun caminoNiveles(
                             .offset(y = (-20).dp)
                     ) {
                         configuracionView(
-                            onBack = { showConfigDialog = false }
+                            onBack = {
+                                showConfigDialog = false
+                            },
+                            musicManager = musicManager,
+                            onMusicToggle = onMusicToggle,
+                            isMusicEnabled = isMusicEnabled
                         )
                     }
                 }

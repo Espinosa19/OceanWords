@@ -9,6 +9,12 @@ class MusicManager(private val context: Context) {
     private var menuPlayer: MediaPlayer? = null
     private var levelPlayer: MediaPlayer? = null
 
+    fun stopAllMusic() {
+        menuPlayer?.pause()
+
+        levelPlayer?.pause()
+    }
+
     fun playMenuMusic() {
         stopLevelMusic()
         if (menuPlayer == null) {
@@ -37,5 +43,15 @@ class MusicManager(private val context: Context) {
 
     fun stopLevelMusic() {
         levelPlayer?.pause()
+    }
+
+    fun destroy() {
+        menuPlayer?.stop()
+        menuPlayer?.release()
+        menuPlayer = null
+
+        levelPlayer?.stop()
+        levelPlayer?.release()
+        levelPlayer = null
     }
 }

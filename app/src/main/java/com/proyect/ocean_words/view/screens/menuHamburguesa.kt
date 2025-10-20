@@ -31,7 +31,10 @@ import com.proyect.ocean_words.model.sampleShopItems
 @Composable
 fun NavegacionDrawerMenu(
     navController: NavController,
-    onCloseMenu: () -> Unit
+    onCloseMenu: () -> Unit,
+    musicManager: com.proyect.ocean_words.utils.MusicManager,
+    onMusicToggle: (Boolean) -> Unit,
+    isMusicEnabled: Boolean
 ) {
     var statusPistas by remember { mutableStateOf(false) }
 
@@ -110,7 +113,13 @@ fun NavegacionDrawerMenu(
                         .offset(y = (-20).dp)
                 ) {
                     configuracionView(
-                        onBack = { showConfigDialog = false }
+                        onBack = {
+                            showConfigDialog = false
+                            onCloseMenu()
+                        },
+                        musicManager = musicManager,
+                        onMusicToggle = onMusicToggle,
+                        isMusicEnabled = isMusicEnabled
                     )
                 }
             }

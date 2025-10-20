@@ -11,23 +11,16 @@ import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.unit.dp
 import com.proyect.ocean_words.R
+import com.proyect.ocean_words.model.BurbujaEstado
 import kotlin.random.Random
 import kotlin.math.sin
 
-data class Bubble(
-    val initialX: Float,
-    val delay: Int,
-    val duration: Int,
-    val sizeRange: Float,
-    val horizontalWave: Float,
-)
-
-private val bubbles = List(150) {
-    Bubble(
+private val bubbles = List(75) {
+    BurbujaEstado(
         initialX = Random.nextFloat(),
         delay = Random.nextInt(0, 3000),
         duration = Random.nextInt(4000, 8000),
-        sizeRange = Random.nextFloat() *150f + 40f, // Tamaño base (10 a 25)
+        sizeRange = Random.nextFloat() *150f + 40f,
         horizontalWave = Random.nextFloat() * 20f + 10f
     )
 }
