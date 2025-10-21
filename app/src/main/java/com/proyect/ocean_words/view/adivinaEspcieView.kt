@@ -14,6 +14,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.getValue // Esta es la importación clave que faltaimport androidx.compose.runtime.remember
 import androidx.compose.runtime.mutableStateOf
@@ -53,6 +54,7 @@ import com.proyect.ocean_words.view.theme.Delius
 import com.proyect.ocean_words.view.theme.MomoTrustDisplay
 import com.proyect.ocean_words.view.theme.VerdeClaro
 import com.proyect.ocean_words.viewmodels.EspecieViewModel
+import com.proyect.ocean_words.viewmodels.NivelViewModel
 
 
 @Composable
@@ -548,10 +550,13 @@ fun OceanWordsGameRoute(
     navController: NavController,
     levelId: Int,
     isAppInForeground: Boolean,
-    musicManager: MusicManager
+    musicManager: MusicManager,
+    viewModel: EspecieViewModel
+
 ) {
 //    val viewModel: NivelViewModel = viewModel()
-
+    val especies by viewModel.especies.collectAsState(initial = emptyList())
+    Log.i("Niveles","$especies")
     var isMusicGloballyEnabled by remember { mutableStateOf(true) }
     LaunchedEffect(isMusicGloballyEnabled, isAppInForeground) {
         if (isMusicGloballyEnabled && isAppInForeground) {

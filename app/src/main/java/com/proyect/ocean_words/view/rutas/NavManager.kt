@@ -1,6 +1,5 @@
 package com.proyect.ocean_words.view.rutas
 
-import android.content.ContentValues.TAG
 import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
@@ -25,6 +24,8 @@ import com.proyect.ocean_words.view.OceanWordsGameRoute
 import com.proyect.ocean_words.view.screens.BottomNavBar
 import com.proyect.ocean_words.view.screens.GameShopScreen
 import com.proyect.ocean_words.view.screens.caracteristicasEspecieView
+import com.proyect.ocean_words.viewmodels.EspecieViewModel
+import com.proyect.ocean_words.viewmodels.NivelViewModel
 
 // --- Rutas de la Aplicación ---
 object Rutas {
@@ -47,7 +48,12 @@ fun createAdivinaEspecieRoute(levelId: Int): String {
     return "juego_principal/$levelId"
 }
 @Composable
-fun NavManager(musicManager: MusicManager, isAppInForeground: Boolean) {
+fun NavManager(
+    musicManager: MusicManager,
+    isAppInForeground: Boolean,
+    nivelViewModel: NivelViewModel,
+    especieViewModel: EspecieViewModel
+) {
     val navController = rememberNavController()
     var targetLevelId by remember { mutableStateOf<Int?>(null) }
     var isMusicGloballyEnabled by remember { mutableStateOf(true) }
@@ -72,7 +78,7 @@ fun NavManager(musicManager: MusicManager, isAppInForeground: Boolean) {
         composable(Rutas.CAMINO_NIVELES) {
 
 
-            CaminoNivelesRoute(navController,musicManager,isAppInForeground)
+            CaminoNivelesRoute(navController,musicManager,isAppInForeground,nivelViewModel)
 
         }
         composable(
@@ -84,7 +90,8 @@ fun NavManager(musicManager: MusicManager, isAppInForeground: Boolean) {
                 navController = navController,
                 levelId = levelId,
                 musicManager = musicManager,
-                isAppInForeground = isAppInForeground
+                isAppInForeground = isAppInForeground,
+                viewModel = especieViewModel
             )
         }
 

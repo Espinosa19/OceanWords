@@ -1,5 +1,6 @@
 package com.proyect.ocean_words.view
 
+import android.util.Log
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.*
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -373,11 +374,12 @@ fun LevelNode(
 fun CaminoNivelesRoute(
     navController: NavHostController,
     musicManager: MusicManager,
-    isAppInForeground: Boolean
+    isAppInForeground: Boolean,
+    viewModel: NivelViewModel
 ) {
-    val viewModel: NivelViewModel = viewModel()
     val isSplashShown by viewModel.isSplashShown.collectAsState()
-
+    val niveles by viewModel.niveles.collectAsState(initial = emptyList())
+    Log.i("Niveles","$niveles")
     var targetLevelId by remember { mutableStateOf<Int?>(null) }
     var isMusicGloballyEnabled by remember { mutableStateOf(true) }
 

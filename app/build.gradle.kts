@@ -46,8 +46,7 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
-    implementation(libs.firebase.database)
-
+    implementation("com.google.firebase:firebase-firestore")
     implementation("androidx.navigation:navigation-compose:2.7.4") // Reemplaza 2.7.4 con la versión estable más reciente
     implementation ("androidx.compose.runtime:runtime-livedata:1.6.8") // O la versión actual
     implementation ("com.jakewharton.threetenabp:threetenabp:1.4.4")

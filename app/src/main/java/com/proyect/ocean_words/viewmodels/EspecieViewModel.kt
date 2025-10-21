@@ -4,6 +4,7 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.proyect.ocean_words.model.EspecieEstado
 import com.proyect.ocean_words.model.SlotEstado
 import com.proyect.ocean_words.repositories.EspecieRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,8 +15,11 @@ class EspecieViewModel (
     animal: String,
     dificultad: String
 ) : ViewModel() {
-//    val EspecieRepository = EspecieRepository()
-
+    val EspecieRepository = EspecieRepository()
+    private val _especies= MutableStateFlow<List<EspecieEstado>>(emptyList())
+    val especies : StateFlow<List<EspecieEstado>> = _especies
+    private val _especie = MutableStateFlow(EspecieEstado())
+    val especie : StateFlow<EspecieEstado> = _especie
     val animalSinEspacios: String = animal.trim().replace(" ", "")
     private val tamanoTeclado: Int
     private val _navegarAExito = MutableLiveData<Boolean>()
