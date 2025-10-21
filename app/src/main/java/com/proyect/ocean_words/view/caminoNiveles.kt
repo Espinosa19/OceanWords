@@ -13,7 +13,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Text
 import androidx.compose.material3.Icon
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -22,21 +21,22 @@ import androidx.compose.ui.graphics.*
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.proyect.ocean_words.R
-import com.proyect.ocean_words.view.theme.Blue
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.proyect.ocean_words.utils.MusicManager
+import com.proyect.ocean_words.view.screens.BottomNavBar
 import com.proyect.ocean_words.view.screens.GameIndicator
 import com.proyect.ocean_words.view.screens.configuracionView
+import com.proyect.ocean_words.viewmodels.NivelViewModel
 
 
 val LevelSpacing = 40.dp
@@ -58,6 +58,8 @@ fun caminoNiveles(
     onMusicToggle: (Boolean) -> Unit,
     isMusicEnabled: Boolean
 ) {
+
+
     val listState = rememberLazyListState()
     val density = LocalDensity.current
     var showConfigDialog by remember { mutableStateOf(false) }
@@ -117,6 +119,7 @@ fun caminoNiveles(
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
+        
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -146,8 +149,8 @@ fun caminoNiveles(
                     LevelNode(
                         level = level,
                         index = index,
-                        onLevelClick = { id ->
-                            onStartTransitionAndNavigate(id)
+                        onLevelClick = { levelId ->
+                            onStartTransitionAndNavigate(levelId) // 👈 Aquí sí puedes hacerlo
                         },
                         animatedScale = levelNodeScale
                     )
@@ -219,10 +222,8 @@ fun caminoNiveles(
                     .padding(horizontal = 16.dp, vertical = 8.dp)
                     .offset(y = 24.dp), // Padding para no pegar a los bordes
 
-                // 1. **La Clave**: Espacia los elementos hacia los extremos
                 horizontalArrangement = Arrangement.SpaceBetween,
 
-                // 2. Centra los elementos a lo largo del eje vertical (el centro de los 60.dp de altura)
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 IconButton(
@@ -271,8 +272,9 @@ fun caminoNiveles(
                 }
             }
 
-        }
 
+
+        }
     }
 }
 
@@ -282,7 +284,7 @@ fun caminoNiveles(
 fun LevelNode(
     level: Level,
     index: Int,
-    onLevelClick: (levelId: Int) -> Unit,
+    onLevelClick: (levelId: Int) -> Unit, // 👈 Así es correcto
     animatedScale: Float
 ) {
     val horizontalOffset = if (index % 2 == 0) (-50).dp else 50.dp
@@ -365,5 +367,57 @@ fun LevelNode(
             style = MaterialTheme.typography.titleSmall,
             modifier = Modifier.align(Alignment.Center)
         )
+    }
+}
+@Composable
+fun CaminoNivelesRoute(
+    navController: NavHostController,
+    musicManager: MusicManager,
+    isAppInForeground: Boolean
+) {
+    val viewModel: NivelViewModel = viewModel()
+    val isSplashShown by viewModel.isSplashShown.collectAsState()
+
+    var targetLevelId by remember { mutableStateOf<Int?>(null) }
+    var isMusicGloballyEnabled by remember { mutableStateOf(true) }
+
+    LaunchedEffect(isMusicGloballyEnabled, isAppInForeground) {
+        if (isMusicGloballyEnabled && isAppInForeground) {
+            musicManager.playMenuMusic()
+        } else {
+            musicManager.stopAllMusic()
+        }
+    }
+
+    if (!isSplashShown) {
+        InicioJuegoView(
+            onLoadingComplete = {
+                viewModel.markSplashAsShown()
+            }
+        )
+    }else {
+    Scaffold (
+        containerColor = Color.Transparent,
+        bottomBar = { BottomNavBar(navController) }
+    ) { innerPadding ->
+        Box(modifier = Modifier.padding(innerPadding)) {
+            caminoNiveles(
+                navController = navController,
+//        niveles = niveles,
+                onStartTransitionAndNavigate = { levelId ->
+                    navController.navigate("nivel/$levelId")
+                },
+                musicManager = musicManager,
+                onMusicToggle = { isEnabled ->
+                    // Asumiendo que 'isMusicGloballyEnabled' está definido como un MutableState
+                    // en el ámbito superior.
+                    isMusicGloballyEnabled = isEnabled
+                    // La lógica de play/stop se manejará automáticamente
+                    // en el LaunchedEffect de arriba (punto 2)
+                },
+                isMusicEnabled = isMusicGloballyEnabled
+            )
+        }
+    }
     }
 }

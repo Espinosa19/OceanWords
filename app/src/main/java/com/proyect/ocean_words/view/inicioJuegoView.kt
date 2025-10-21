@@ -25,7 +25,9 @@ import com.proyect.ocean_words.view.theme.whiteBoxColor
 import kotlinx.coroutines.delay
 
 @Composable
-fun InicioJuegoView(onLoadingComplete: () -> Unit) {
+fun InicioJuegoView(onLoadingComplete: () -> Unit,
+                    modifier: Modifier = Modifier
+) {
 
     // --- ESTADO DE CARGA y Animación (se mantienen) ---
     var progressTarget by remember { mutableFloatStateOf(0.0f) }
@@ -52,7 +54,7 @@ fun InicioJuegoView(onLoadingComplete: () -> Unit) {
     val progressBackgroundColor = Color(0xFF86D5FC).copy(alpha = 0.8f)
 
     Box(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .background(blueBackground)
     ) {

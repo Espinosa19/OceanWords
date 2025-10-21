@@ -1,5 +1,7 @@
 package com.proyect.ocean_words.view
 
+import android.content.ContentValues.TAG
+import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeOut
@@ -39,7 +41,6 @@ import com.proyect.ocean_words.viewmodels.AdivinaEspecieViewModelFactory
 import com.proyect.ocean_words.model.SlotEstado
 
 import com.proyect.ocean_words.utils.MusicManager
-import com.proyect.ocean_words.view.theme.Blue
 import com.proyect.ocean_words.view.theme.LightBlue
 import com.proyect.ocean_words.view.theme.OceanBackground
 import com.proyect.ocean_words.view.theme.Orange
@@ -58,15 +59,23 @@ import com.proyect.ocean_words.viewmodels.EspecieViewModel
 fun OceanWordsGameUI(
     navController: NavController,
     levelId: Int = 1,
+    musicManager: MusicManager,
+    isAppInForeground: Boolean,
     animal: String ="ballena",
     dificultad:String="normal",
     animalQuestion: String = "¿QUÉ ANIMAL ES ESTE?",
-    musicManager: MusicManager,
     onMusicToggle: (Boolean) -> Unit,
     isMusicEnabled: Boolean
 ) {
+    var isMusicGloballyEnabled by remember { mutableStateOf(true) }
 
-
+    LaunchedEffect(isMusicGloballyEnabled, isAppInForeground) {
+        if (isMusicGloballyEnabled && isAppInForeground) {
+            musicManager.playMenuMusic()
+        } else {
+            musicManager.stopAllMusic()
+        }
+    }
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -532,5 +541,44 @@ fun BotonDeInterfaz(
     ) {
         Icon(imageVector = icon, contentDescription = null, tint = Color.White, modifier = Modifier.size(32.dp))
     }
+    
 }
+@Composable
+fun OceanWordsGameRoute(
+    navController: NavController,
+    levelId: Int,
+    isAppInForeground: Boolean,
+    musicManager: MusicManager
+) {
+//    val viewModel: NivelViewModel = viewModel()
+
+    var isMusicGloballyEnabled by remember { mutableStateOf(true) }
+    LaunchedEffect(isMusicGloballyEnabled, isAppInForeground) {
+        if (isMusicGloballyEnabled && isAppInForeground) {
+            musicManager.playLevelMusic()
+        } else {
+            musicManager.stopAllMusic()
+        }
+    }
+    val defaultAnimal = "ballena" // o el valor que desees
+    val defaultDificultad = "normal"
+    val defaultQuestion = "¿QUÉ ANIMAL ES ESTE?"
+
+    OceanWordsGameUI(
+        navController = navController,
+        levelId = levelId,
+        musicManager = musicManager,
+        isAppInForeground = isAppInForeground, // ✅ Pasamos el valor que recibimos
+
+        animal = defaultAnimal,
+        dificultad = defaultDificultad,
+        animalQuestion = defaultQuestion,
+
+        onMusicToggle = { isEnabled ->
+            isMusicGloballyEnabled = isEnabled
+        },
+        isMusicEnabled = isMusicGloballyEnabled
+    )
+}
+
 

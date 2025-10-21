@@ -7,13 +7,14 @@ import androidx.lifecycle.ViewModel
 import com.proyect.ocean_words.model.SlotEstado
 import com.proyect.ocean_words.repositories.EspecieRepository
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
 class EspecieViewModel (
     animal: String,
     dificultad: String
 ) : ViewModel() {
-    val EspecieRepository = EspecieRepository()
+//    val EspecieRepository = EspecieRepository()
 
     val animalSinEspacios: String = animal.trim().replace(" ", "")
     private val tamanoTeclado: Int

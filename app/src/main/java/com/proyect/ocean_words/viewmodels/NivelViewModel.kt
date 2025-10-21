@@ -7,6 +7,7 @@ import com.proyect.ocean_words.model.NivelEstado
 import com.proyect.ocean_words.repositories.NivelRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch // 👈 Importar la función launch
 class NivelViewModel : ViewModel() {
     val nivelRepository = NivelRepository()
@@ -18,6 +19,12 @@ class NivelViewModel : ViewModel() {
 //    init {
 //        mostrarNiveles()
 //    }
+    private val _isSplashShown = MutableStateFlow(false)
+    val isSplashShown: StateFlow<Boolean> = _isSplashShown.asStateFlow()
+
+    fun markSplashAsShown() {
+        _isSplashShown.value = true
+    }
     fun mostrarNiveles() {
         viewModelScope.launch {
             _isLoading.value = true // Mostrar spinner/progreso
