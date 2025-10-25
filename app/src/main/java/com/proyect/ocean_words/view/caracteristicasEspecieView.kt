@@ -70,7 +70,7 @@ animalQuestion: String = "¿Qué animal es este?"
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            HeaderSection(animal,dificultad) // Encabezado superior (corazones, monedas, etc.)
+            HeaderSection(animal,dificultad,navController) // Encabezado superior (corazones, monedas, etc.)
             Spacer(modifier = Modifier.height(20.dp))
             WhaleInfoCard(whaleImageRes = R.drawable.ballena)
 
