@@ -1,6 +1,5 @@
-package com.proyect.ocean_words.ui.theme
+package com.proyect.ocean_words.view.theme
 
-import android.app.Activity
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme

@@ -20,7 +20,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.proyect.ocean_words.R
-import com.proyect.ocean_words.ui.theme.whiteBoxColor
+import com.proyect.ocean_words.view.theme.whiteBoxColor
 import kotlinx.coroutines.delay
 
 // Define una función de navegación simulada.
