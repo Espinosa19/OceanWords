@@ -9,13 +9,11 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.getValue // Esta es la importación clave que faltaimport androidx.compose.runtime.remember
 import androidx.compose.runtime.mutableStateOf
@@ -27,7 +25,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
@@ -42,11 +39,11 @@ import androidx.navigation.NavController
 import com.proyect.ocean_words.R
 import com.proyect.ocean_words.model.AdivinaEspecieViewModelFactory
 import com.proyect.ocean_words.model.SlotEstado
-import com.proyect.ocean_words.ui.theme.Blue
-import com.proyect.ocean_words.ui.theme.LightBlue
-import com.proyect.ocean_words.ui.theme.OceanBackground
-import com.proyect.ocean_words.ui.theme.Orange
-import com.proyect.ocean_words.ui.theme.OrangeDeep
+import com.proyect.ocean_words.view.theme.Blue
+import com.proyect.ocean_words.view.theme.LightBlue
+import com.proyect.ocean_words.view.theme.OceanBackground
+import com.proyect.ocean_words.view.theme.Orange
+import com.proyect.ocean_words.view.theme.OrangeDeep
 import com.proyect.ocean_words.view.screens.HeaderSection
 import com.proyect.ocean_words.view.screens.NavegacionDrawerMenu
 import com.proyect.ocean_words.viewmodels.AdivinaEspecieViewModel

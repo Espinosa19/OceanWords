@@ -40,9 +40,8 @@ import androidx.compose.ui.unit.sp
 import com.proyect.ocean_words.R
 import com.proyect.ocean_words.model.PistaEstado
 import com.proyect.ocean_words.model.sampleShopItems
-import com.proyect.ocean_words.ui.theme.Blue
-import com.proyect.ocean_words.ui.theme.LightOlive
-import com.proyect.ocean_words.ui.theme.azulCeleste
+import com.proyect.ocean_words.view.theme.LightOlive
+import com.proyect.ocean_words.view.theme.azulCeleste
 @Composable
 fun ShopItemCard(item: PistaEstado, onBuyClicked: (PistaEstado) -> Unit) {
     Column(

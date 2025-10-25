@@ -9,11 +9,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -21,20 +19,16 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowForward
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
@@ -45,16 +39,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.proyect.ocean_words.R
-import com.proyect.ocean_words.ui.theme.Blue
-import com.proyect.ocean_words.ui.theme.LightOlive
-import com.proyect.ocean_words.ui.theme.OceanBackground
-import com.proyect.ocean_words.ui.theme.Orange
-import com.proyect.ocean_words.ui.theme.OrangeDeep
-import com.proyect.ocean_words.ui.theme.arena
-import com.proyect.ocean_words.ui.theme.azulCeleste
-import com.proyect.ocean_words.ui.theme.whiteBoxColor
-import com.proyect.ocean_words.view.BotonDeInterfaz
-import com.proyect.ocean_words.view.accionesEspecíficas
+import com.proyect.ocean_words.view.theme.LightOlive
+import com.proyect.ocean_words.view.theme.OceanBackground
+import com.proyect.ocean_words.view.theme.arena
+import com.proyect.ocean_words.view.theme.azulCeleste
+import com.proyect.ocean_words.view.theme.whiteBoxColor
 
 val StarColor = Color(0xFFFFCC00)
 @Composable

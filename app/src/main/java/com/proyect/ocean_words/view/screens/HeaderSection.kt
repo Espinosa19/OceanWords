@@ -12,38 +12,27 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountBox // Se mantiene para el tipo
 import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Star // Se mantiene para el tipo
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavController
 import com.proyect.ocean_words.R
 import com.proyect.ocean_words.model.AdivinaEspecieViewModelFactory
-import com.proyect.ocean_words.ui.theme.Blue // Asumo que son colores definidos en tu tema
-import com.proyect.ocean_words.ui.theme.LightOlive
-import com.proyect.ocean_words.view.BotonDeInterfaz
-import com.proyect.ocean_words.view.TemporizadorRegresivo
+import com.proyect.ocean_words.view.theme.Blue // Asumo que son colores definidos en tu tema
 import com.proyect.ocean_words.viewmodels.AdivinaEspecieViewModel
 
 // NOTA: Tu código original usaba IndicatorBackgroundColor, Orange, OrangeDeep, y Purple40

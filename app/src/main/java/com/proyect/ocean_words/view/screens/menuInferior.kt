@@ -17,7 +17,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.proyect.ocean_words.R
-import com.proyect.ocean_words.ui.theme.whiteBoxColor
+import com.proyect.ocean_words.view.theme.whiteBoxColor
 import com.proyect.ocean_words.view.rutas.Rutas
 
 @Composable
