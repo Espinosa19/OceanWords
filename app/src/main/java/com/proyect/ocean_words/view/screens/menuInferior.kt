@@ -32,7 +32,7 @@ fun BottomNavBar(
         NavItem(
             label = "Tienda",
             drawableResId = R.drawable.tienda,
-            route = Rutas.GAME_SHOP
+            route = Rutas.TIENDA
         ),
         NavItem(
             label = "Inicio",

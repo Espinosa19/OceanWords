@@ -21,10 +21,15 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBackIos
-import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material3.Divider
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 
 @Composable
 fun configuracionView(
@@ -41,7 +46,7 @@ fun configuracionView(
             .background(Color.Transparent),
         contentAlignment = Alignment.Center
     ) {
-        Surface(
+        Surface (
             modifier = Modifier
                 .width(300.dp)
                 .clip(RoundedCornerShape(30.dp))
@@ -87,7 +92,7 @@ fun configuracionView(
             }
         }
 
-        IconButton(
+        IconButton (
             onClick = onBack,
             modifier = Modifier
                 .size(60.dp)
@@ -97,7 +102,7 @@ fun configuracionView(
                 .border(2.dp, Color(0xFF003D69), CircleShape)
         ) {
             Icon(
-                imageVector = Icons.Default.ArrowBackIos,
+                imageVector = Icons.Default.ArrowForward,
                 contentDescription = "Volver",
                 tint = Color(0xFF003D69),
                 modifier = Modifier.size(30.dp)
@@ -149,7 +154,7 @@ fun LanguageRow() {
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Icon(
-                imageVector = Icons.Default.Language,
+                imageVector = Icons.Default.Info,
                 contentDescription = null,
                 tint = Color(0xFF003D69)
             )

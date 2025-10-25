@@ -57,10 +57,12 @@ import java.util.concurrent.TimeUnit
 @Composable
 fun OceanWordsGameUI(
     navController: NavController,
+    levelId: Int = 1,
     animal: String ="pez lampara",
     dificultad:String="normal",
     animalQuestion: String = "¿QUÉ ANIMAL ES ESTE?",
 ) {
+
 
     Box(
         modifier = Modifier
@@ -88,6 +90,7 @@ fun OceanWordsGameUI(
             // 2. Aquí se llama al componente principal del juego con toda la lógica de estado
             JuegoAnimal(animal, dificultad, animalQuestion,navController)
         }
+
 
     }
 }

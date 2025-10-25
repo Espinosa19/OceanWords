@@ -21,6 +21,8 @@ import androidx.compose.ui.graphics.Color
 
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.navigation.NavController
 import com.proyect.ocean_words.R // Asegúrate de que este ID de recurso exista
 import com.proyect.ocean_words.model.sampleShopItems
@@ -33,6 +35,7 @@ fun NavegacionDrawerMenu(
 ) {
     var statusPistas by remember { mutableStateOf(false) }
 
+    var showConfigDialog by remember { mutableStateOf(false) }
 
     // El Box ahora actúa como un fondo transparente que cierra el menú al hacer clic en cualquier parte.
     Box(
@@ -93,11 +96,27 @@ fun NavegacionDrawerMenu(
                 resourceId = R.drawable.configuraciones, // Usa tu propio recurso de ícono
                 contentDescription = "Configuraciones",
                 onClick = {
-                    onCloseMenu()
-                    navController.navigate("settings")
+                    showConfigDialog = true
                 }
             )
 
+        }
+        if (showConfigDialog) {
+            Dialog(
+                onDismissRequest = { showConfigDialog = false },
+                properties = DialogProperties(usePlatformDefaultWidth = false)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color.Transparent)
+                        .offset(y = (-20).dp)
+                ) {
+                    configuracionView(
+                        onBack = { showConfigDialog = false }
+                    )
+                }
+            }
         }
     }
 }
