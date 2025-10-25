@@ -76,30 +76,57 @@ fun HeaderSection(animal : String,dificultad : String,navController: NavControll
 
 
     }
-}
-@Composable
+}@Composable
 fun HeaderIndicatorRow(
     vidas: List<Boolean>,
-    onBackClick: () -> Unit // Agregamos un callback para manejar el clic
+    onBackClick: () -> Unit
 ) {
-    // Usamos SpaceBetween para dar más énfasis a los extremos
+    val InformaTemporizador = vidas.indexOfLast { !it }
+    val rechargeTime = "04:59"
+    // Altura aproximada de la burbuja (ajustar si es necesario)
+    val bubbleHeight = 35.dp
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 12.dp),
-        horizontalArrangement = Arrangement.Center, // centra todo el contenido
+        horizontalArrangement = Arrangement.Center, // Centra el grupo de 3 elementos
         verticalAlignment = Alignment.CenterVertically
     ) {
+        // Row que agrupa Back, Vidas, y Monedas
         Row(
             horizontalArrangement = Arrangement.spacedBy(15.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
+            // Elemento 1: Botón de Retroceso
             CustomBackButton(onClick = onBackClick)
-            CentralIndicatorBox(vidas)
+
+            // Elemento 2: Contenedor de Vidas con Burbuja de Recarga (Clave)
+            Box(
+                // Alineamos el contenido de este Box al Centro
+                contentAlignment = Alignment.Center
+            ) {
+                // Indicador de Vidas (CentralIndicatorBox) - El contenido principal
+                CentralIndicatorBox(vidas = vidas)
+
+                // Burbuja de Tiempo: Posicionada CONDICIONALMENTE
+                if (InformaTemporizador !=-1 ) {
+                    LifeRechargeBubble(
+                        timeRemaining = rechargeTime,
+                        modifier = Modifier
+                            // Alinea la burbuja en la esquina superior izquierda del Box
+                            .align(Alignment.TopStart)
+                            // Aplica un offset para moverla ligeramente fuera del borde
+
+                            .offset(x = (-2).dp, y = (-bubbleHeight / 2) + 60.dp) // Ajustar valores para centrado visual
+                    )
+                }
+            }
+
+            // Elemento 3: Indicador de Monedas
             GameIndicator(value = "500")
         }
     }
-
 }
 
 // -------------------------------------------------------------------------------------------------
@@ -124,63 +151,77 @@ fun CustomBackButton(onClick: () -> Unit) {
         )
     }
 }
-
 /**
- * Componente Indicador Central (Simplificado y estéticamente mejorado)
+ * Componente Indicador Central (Corregido para mostrar corazones llenos/vacíos)
  */
 @Composable
 fun CentralIndicatorBox(vidas: List<Boolean>) {
-    // Usamos Box para el fondo y Row para el contenido, como antes
+    // ... [Variables de ancho, alto y colores, etc. - Mantenemos esto igual] ...
+    val indicatorWidth = 100.dp
+    val indicatorHeight = 40.dp
+
     Box(
         modifier = Modifier
-            .clip(RoundedCornerShape(20.dp)) // Borde redondeado suave
-            .background(Color(0xFFB3E5FC).copy(alpha = 0.65f)) // Asumo el color IndicatorBackgroundColor
-
+            .width(indicatorWidth)
+            .height(indicatorHeight)
+            .clip(RoundedCornerShape(20.dp))
+            .background(Color(0xFFB3E5FC).copy(alpha = 0.65f))
             .border(
-                width = 1.dp, // Borde más sutil
+                width = 1.dp,
                 color = Color.White.copy(alpha = 0.8f),
                 shape = RoundedCornerShape(20.dp)
             )
-            .height(40.dp)
-            .padding(horizontal = 8.dp), // Relleno horizontal para que los iconos no estén pegados
-        contentAlignment = Alignment.CenterStart,
+            .padding(horizontal = 8.dp),
+        contentAlignment = Alignment.Center,
     ) {
-        // Dentro de este Box, distribuimos los elementos.
         Row(
-            modifier = Modifier.width(100.dp),
-
-            // El Row no necesita un ancho específico, se adaptará al contenido (wrapContent)
+            modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceAround,
-        verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            val index = vidas.indexOfLast { it } // encuentra la última vida activa
-
-            if (index !=-1){
-                vidas.forEachIndexed { index, visible ->
-                    AnimatedVisibility (
-                        visible = visible,
-                        enter = fadeIn(),
-                        exit = fadeOut()
-                    ) {
-
-                        Image(
-                            painter = painterResource(id = R.drawable.vidas),
-                            contentDescription = null,
-                            modifier = Modifier.size(20.dp)
-                        )
-
-                    }
+            // ITERACIÓN CORREGIDA: Iteramos sobre cada 'vida'
+            vidas.forEach { isLifeActive ->
+                val imageResource = if (isLifeActive) {
+                    R.drawable.vidas // Asumo que 'vidas' es el corazón lleno
+                } else {
+                    R.drawable.nome_gusta // <--- ¡DEBES USAR UN RECURSO PARA EL CORAZÓN VACÍO AQUÍ!
                 }
-            }else{
-                Text(text = "10:00")
+
+                Image(
+                    painter = painterResource(id = imageResource),
+                    contentDescription = if (isLifeActive) "Corazón lleno" else "Corazón perdido",
+                    modifier = Modifier.size(20.dp)
+                )
             }
+        }
+    }
+}@Composable
+fun LifeRechargeBubble(timeRemaining: String, modifier: Modifier = Modifier) {
+    // Definición de colores (ejemplo)
+    val BubbleBackgroundColor = Color(0xFF4C86E3)
+    val TextColor = Color.White
 
+    // El componente que quieres colocar:
+    Box(
+        modifier = modifier
+            .clip(RoundedCornerShape(12.dp)) // Forma de burbuja redondeada
+            .background(BubbleBackgroundColor)
 
+            .padding(horizontal = 10.dp, vertical = 5.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        // Icono y Texto de la burbuja (por ejemplo)
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            // Icono de reloj o similar
+            Text(
+                text = "Recarga en $timeRemaining",
+                color = TextColor,
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Bold
+            )
         }
     }
 }
-
-
 // NO NECESITA CAMBIOS MAYORES
 @Composable
 fun GameIndicator(
