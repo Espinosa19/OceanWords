@@ -1,5 +1,8 @@
 package com.proyect.ocean_words.view.screens
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -18,6 +21,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -32,19 +36,26 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.proyect.ocean_words.R
+import com.proyect.ocean_words.model.AdivinaEspecieViewModelFactory
 import com.proyect.ocean_words.ui.theme.Blue // Asumo que son colores definidos en tu tema
 import com.proyect.ocean_words.ui.theme.LightOlive
 import com.proyect.ocean_words.view.BotonDeInterfaz
 import com.proyect.ocean_words.view.TemporizadorRegresivo
+import com.proyect.ocean_words.viewmodels.AdivinaEspecieViewModel
 
 // NOTA: Tu código original usaba IndicatorBackgroundColor, Orange, OrangeDeep, y Purple40
 // pero no estaban definidos en el código que enviaste. Asumo que se definen en el archivo theme.
 
 @Composable
-fun HeaderSection(score: Int) {
-    val tiempo = TemporizadorRegresivo()
+fun HeaderSection(animal : String,dificultad : String) {
+    val viewModel: AdivinaEspecieViewModel = viewModel(
+        factory = AdivinaEspecieViewModelFactory(animal, dificultad)
+    )
+    val vidas by viewModel.vidas.collectAsState()
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -68,7 +79,7 @@ fun HeaderSection(score: Int) {
             )
             Spacer(modifier = Modifier.height(10.dp))
 
-            HeaderIndicatorRow(tiempo,onBackClick = {})
+            HeaderIndicatorRow(vidas,onBackClick = {})
         }
 
 
@@ -76,7 +87,7 @@ fun HeaderSection(score: Int) {
 }
 @Composable
 fun HeaderIndicatorRow(
-    time: String,
+    vidas: List<Boolean>,
     onBackClick: () -> Unit // Agregamos un callback para manejar el clic
 ) {
     // Usamos SpaceBetween para dar más énfasis a los extremos
@@ -92,7 +103,7 @@ fun HeaderIndicatorRow(
             verticalAlignment = Alignment.CenterVertically
         ) {
             CustomBackButton(onClick = onBackClick)
-            CentralIndicatorBox()
+            CentralIndicatorBox(vidas)
             GameIndicator(value = "500")
         }
     }
@@ -126,7 +137,7 @@ fun CustomBackButton(onClick: () -> Unit) {
  * Componente Indicador Central (Simplificado y estéticamente mejorado)
  */
 @Composable
-fun CentralIndicatorBox() {
+fun CentralIndicatorBox(vidas: List<Boolean>) {
     // Usamos Box para el fondo y Row para el contenido, como antes
     Box(
         modifier = Modifier
@@ -150,15 +161,29 @@ fun CentralIndicatorBox() {
             horizontalArrangement = Arrangement.SpaceAround,
         verticalAlignment = Alignment.CenterVertically
         ) {
-            repeat(3) {
-                Image(
-                     painter = painterResource(id = R.drawable.vidas),
-                     contentDescription = null,
-                     modifier = Modifier.size(20.dp)
-                )
+            val index = vidas.indexOfLast { it } // encuentra la última vida activa
 
+            if (index !=-1){
+                vidas.forEachIndexed { index, visible ->
+                    AnimatedVisibility (
+                        visible = visible,
+                        enter = fadeIn(),
+                        exit = fadeOut()
+                    ) {
 
+                        Image(
+                            painter = painterResource(id = R.drawable.vidas),
+                            contentDescription = null,
+                            modifier = Modifier.size(20.dp)
+                        )
+
+                    }
+                }
+            }else{
+                Text(text = "10:00")
             }
+
+
         }
     }
 }

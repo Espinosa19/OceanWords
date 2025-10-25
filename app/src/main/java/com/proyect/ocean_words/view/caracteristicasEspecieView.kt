@@ -60,8 +60,6 @@ val StarColor = Color(0xFFFFCC00)
 @Composable
 fun caracteristicasEspecieView(
     navController: NavController,
-score: Int = 1250,
-time: String = "0:45",
 animal: String = "Pez lámpara",
 dificultad: String = "Difícil",
 animalQuestion: String = "¿Qué animal es este?"
@@ -83,7 +81,7 @@ animalQuestion: String = "¿Qué animal es este?"
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            HeaderSection(score = score) // Encabezado superior (corazones, monedas, etc.)
+            HeaderSection(animal,dificultad) // Encabezado superior (corazones, monedas, etc.)
             Spacer(modifier = Modifier.height(20.dp))
             WhaleInfoCard(whaleImageRes = R.drawable.ballena)
 

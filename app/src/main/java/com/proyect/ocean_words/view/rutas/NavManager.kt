@@ -12,8 +12,11 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.proyect.ocean_words.model.PistaEstado
+import com.proyect.ocean_words.model.sampleShopItems
 import com.proyect.ocean_words.view.InicioJuegoView // Importa tu vista de Splash
 import com.proyect.ocean_words.view.OceanWordsGameUI
+import com.proyect.ocean_words.view.screens.GameShopScreen
 import com.proyect.ocean_words.view.screens.caracteristicasEspecieView
 
 // --- Rutas de la Aplicación ---
@@ -24,6 +27,7 @@ object Rutas {
 
     const val CONFIGURACION = "configuracion" // Nueva ruta
     const val ACERCA_DE = "acerca_de"       // Nueva ruta
+    const val GAME_SHOP="game_shop"
 }
 
 @Composable
@@ -58,6 +62,17 @@ fun NavManager() {
         }
         composable(Rutas.CARACTERISTICAS) {
             caracteristicasEspecieView(navController)
+        }
+        composable(Rutas.GAME_SHOP) {
+            val onBuyAction: (PistaEstado) -> Unit = { itemComprado ->
+                println("¡Compra realizada! Ítem: ${itemComprado.type}")
+                // Aquí va la lógica real de tu juego
+            }
+
+            GameShopScreen(
+                items = sampleShopItems,
+                onBuy = onBuyAction
+            )
         }
     }
 }

@@ -158,7 +158,7 @@ fun InicioJuegoView(onNavigationToGame: () -> Unit) {
             // Copyright
             Spacer(modifier = Modifier.height(16.dp)) // Pequeño espacio entre la tarjeta y el copyright
             Text(
-                text = "© INFINITY DEVE",
+                text = "© INFINITY DEVS",
                 color = Color.White.copy(alpha = 0.8f),
                 fontSize = 12.sp,
                 modifier = Modifier.padding(bottom = 8.dp)

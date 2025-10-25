@@ -7,19 +7,35 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.proyect.ocean_words.model.SlotEstado
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
 class AdivinaEspecieViewModel (
     animal: String,
     dificultad: String
 ) : ViewModel() {
+    val animalSinEspacios: String = animal.trim().replace(" ", "")
+    private val tamanoTeclado: Int
+    private val _navegarAExito = MutableLiveData<Boolean>()
+    val navegarAExito: LiveData<Boolean> = _navegarAExito
+    private val letrasPorFila = 7
+    private val _vidas = MutableStateFlow(listOf(true, true, true))
+    val vidas = _vidas.asStateFlow()
 
+    // Función para perder una vida (de derecha a izquierda)
+    fun perderVida() {
+        val index = _vidas.value.indexOfLast { it } // encuentra la última vida activa
+        if (index != -1) {
+            val nuevasVidas = _vidas.value.toMutableList()
+            nuevasVidas[index] = false
+            _vidas.value = nuevasVidas
+        }
+    }
 
-        val animalSinEspacios: String = animal.trim().replace(" ", "")
-        private val tamanoTeclado: Int
-        private val _navegarAExito = MutableLiveData<Boolean>()
-        val navegarAExito: LiveData<Boolean> = _navegarAExito
-        private val letrasPorFila = 7
-
+    // Función para reiniciar todas las vidas
+    fun reiniciarVidas() {
+        _vidas.value = listOf(true, true, true)
+    }
     val animalRandom: String = if (dificultad != "dificil") {
             shuffleText(animalSinEspacios)
         } else {
@@ -54,6 +70,7 @@ class AdivinaEspecieViewModel (
             _navegarAExito.value = true // O un objeto de evento más específico
 
         } else {
+            perderVida()
             val indicesIncorrectos = mutableListOf<Int>()
             for (i in respuestaJugador.indices) {
                 val letraJugador = respuestaJugador[i]?.char
@@ -143,8 +160,24 @@ class AdivinaEspecieViewModel (
                 }
             }
         }
+    fun obtenerPista() {
+        // 1️⃣ Encuentra todos los índices donde la letra aún no está colocada
+        val indicesVacios = respuestaJugador.mapIndexedNotNull { index, slot ->
+            if (slot?.char == null) index else null
+        }
 
-        fun resetGame() {
+        if (indicesVacios.isEmpty()) return // ya está completa
+
+        // 2️⃣ Elegir un índice vacío aleatorio (para que la pista sea aleatoria)
+        val indexPista = indicesVacios.random()
+
+        // 3️⃣ Colocar la letra correcta en ese índice
+        val letraCorrecta = animalSinEspacios[indexPista]
+        respuestaJugador[indexPista] = SlotEstado(char = letraCorrecta, esCorrecto = true)
+    }
+
+
+    fun resetGame() {
             visible.indices.forEach { i -> visible[i] = true }
             botonADondeFue.indices.forEach { i -> botonADondeFue[i] = -1 }
             respuestaJugador.indices.forEach { i ->

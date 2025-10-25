@@ -6,6 +6,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -14,6 +15,7 @@ import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.getValue // Esta es la importación clave que faltaimport androidx.compose.runtime.remember
 import androidx.compose.runtime.mutableStateOf
@@ -22,7 +24,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
@@ -37,6 +42,7 @@ import androidx.navigation.NavController
 import com.proyect.ocean_words.R
 import com.proyect.ocean_words.model.AdivinaEspecieViewModelFactory
 import com.proyect.ocean_words.model.SlotEstado
+import com.proyect.ocean_words.ui.theme.Blue
 import com.proyect.ocean_words.ui.theme.LightBlue
 import com.proyect.ocean_words.ui.theme.OceanBackground
 import com.proyect.ocean_words.ui.theme.Orange
@@ -51,11 +57,11 @@ import java.util.concurrent.TimeUnit
 @Composable
 fun OceanWordsGameUI(
     navController: NavController,
-    score: Int = 1250,
     animal: String ="pez lampara",
     dificultad:String="normal",
     animalQuestion: String = "¿QUÉ ANIMAL ES ESTE?",
 ) {
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -75,7 +81,7 @@ fun OceanWordsGameUI(
                 .fillMaxSize()
         ) {
             // 1. Encabezado (Score, Time)
-            HeaderSection(score)
+            HeaderSection(animal,dificultad)
 
             Spacer(modifier = Modifier.height(20.dp))
 
@@ -102,6 +108,7 @@ fun JuegoAnimal(animal: String, dificultad: String, animalQuestion: String,navCo
         val onLetterRemoved: (Int) -> Unit = viewModel::removeLetter
         val onResetGame: () -> Unit = viewModel::resetGame
         val onGoBackGame: () -> Unit = viewModel::goBackGame
+        val obtenerPista : () -> Unit = viewModel::obtenerPista
         LaunchedEffect (navegarAExito) {
         if (navegarAExito) {
             // 1. Navegar a la pantalla de éxito
@@ -142,7 +149,7 @@ fun JuegoAnimal(animal: String, dificultad: String, animalQuestion: String,navCo
                 .padding(bottom = 38.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            accionesEspecíficas(onResetGame,onGoBackGame)
+            accionesEspecíficas(onResetGame,onGoBackGame,obtenerPista)
         }
     }
 }
@@ -192,7 +199,11 @@ fun QuestionAndImageSection(
                     contentDescription = "Pez Payaso",
                     modifier = Modifier
                         .size(200.dp)
-                        .offset(y = offsetPadding),
+                        .offset(y = offsetPadding)
+                            ,colorFilter = ColorFilter.tint(
+                            color = Color.Black.copy(alpha = 1f),
+                    blendMode = BlendMode.SrcAtop
+                )
                 )
                 // 💡 LLAMADA A RESPONSEAREA CON EL ESTADO Y CALLBACK
                 ResponseArea(animal, respuestaJugador, onLetterRemoved)
@@ -206,7 +217,7 @@ fun QuestionAndImageSection(
             ) {
                 Image(
                     painter = painterResource(id = R.drawable.tesoro),
-                    contentDescription = "menu",
+                    contentDescription = "men",
                     modifier = Modifier
                         .size(54.dp), // Tamaño fijo pero razonable para el icono/botón
                     contentScale = ContentScale.Fit
@@ -359,7 +370,7 @@ fun tecladoInteractivo(
 }
 
 @Composable
-fun accionesEspecíficas(onResetGame: () -> Unit,onGoBackGame: () -> Unit) { // 💡 FIRMA CORREGIDA
+fun accionesEspecíficas(onResetGame: () -> Unit,onGoBackGame: () -> Unit,obtenerPista : () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -373,20 +384,42 @@ fun accionesEspecíficas(onResetGame: () -> Unit,onGoBackGame: () -> Unit) { // 
             icon = Icons.Filled.Refresh,
             onClick = onGoBackGame
         )
-
-        Button(
-            onClick = {},
-            modifier = Modifier.size(60.dp),
-            shape = RoundedCornerShape(12.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = Orange),
-            contentPadding = PaddingValues(0.dp)
+        Box(
+            contentAlignment = Alignment.Center
         ) {
-            Image(
-                painter = painterResource(id = R.drawable.pista),
-                contentDescription = "Pista",
-                modifier = Modifier.size(32.dp)
-            )
+            // 🔸 Botón principal
+            Button(
+                onClick = obtenerPista ,
+                modifier = Modifier.size(60.dp),
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Orange),
+                contentPadding = PaddingValues(0.dp)
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.pista),
+                    contentDescription = "Pista",
+                    modifier = Modifier.size(32.dp)
+                )
+            }
+
+            // 🔸 Circulito en la orilla superior derecha
+            Box(
+                modifier = Modifier
+                    .align(Alignment.TopEnd) // 👈 lo coloca en la orilla superior derecha
+                    .offset(x = 6.dp, y = (-6).dp) // ajusta posición hacia afuera
+                    .size(20.dp)
+                    .background(Blue, shape = CircleShape),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "1",
+                    color = Color.White,
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
         }
+
     }
 }
 
