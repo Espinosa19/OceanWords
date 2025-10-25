@@ -80,7 +80,7 @@ fun OceanWordsGameUI(
                 .fillMaxSize()
         ) {
             // 1. Encabezado (Score, Time)
-            HeaderSection(animal,dificultad)
+            HeaderSection(animal,dificultad,navController)
 
             Spacer(modifier = Modifier.height(20.dp))
 
