@@ -68,7 +68,7 @@ fun NavegacionDrawerMenu(
                 contentDescription = "Home",
                 onClick = {
                     onCloseMenu()
-                    navController.navigate("pista")
+                    navController.navigate("camino_niveles")
                 }
             )
 

@@ -69,8 +69,12 @@ fun HeaderSection(animal : String,dificultad : String,navController: NavControll
             )
             Spacer(modifier = Modifier.height(10.dp))
 
-            HeaderIndicatorRow(vidas,onBackClick = {
-                navController.popBackStack()
+            HeaderIndicatorRow(vidas,
+                onBackClick = {
+                    navController.popBackStack()
+                },
+                redireccionarClick={
+                    navController.navigate("game_shop") // Usa una ruta clara, por ejemplo, "game_shop"
             })
         }
 
@@ -79,7 +83,8 @@ fun HeaderSection(animal : String,dificultad : String,navController: NavControll
 }@Composable
 fun HeaderIndicatorRow(
     vidas: List<Boolean>,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    redireccionarClick: () -> Unit
 ) {
     val InformaTemporizador = vidas.indexOfLast { !it }
     val rechargeTime = "04:59"
@@ -124,7 +129,7 @@ fun HeaderIndicatorRow(
             }
 
             // Elemento 3: Indicador de Monedas
-            GameIndicator(value = "500")
+            GameIndicator(value = "500",redireccionarClick)
         }
     }
 }
@@ -226,7 +231,7 @@ fun LifeRechargeBubble(timeRemaining: String, modifier: Modifier = Modifier) {
 @Composable
 fun GameIndicator(
     value: String,
-
+    redireccionarClick: () -> Unit
 ) {
     // CAMBIO CLAVE 2: Usamos wrapContentWidth(unconstrained) para que el indicador crezca solo lo necesario.
     Box(
@@ -258,7 +263,24 @@ fun GameIndicator(
                 fontSize = 16.sp, // Tamaño de texto adaptable
                 fontWeight = FontWeight.Bold
             )
-            Icon(imageVector = Icons.Filled.AddCircle, contentDescription = null, tint = Blue, modifier = Modifier.size(32.dp))
+            Button(
+                onClick =redireccionarClick,
+                modifier = Modifier.size(40.dp), // Tamaño del botón
+                shape = RoundedCornerShape(50), // Circular
+                contentPadding = PaddingValues(0.dp), // Sin padding interno
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.Transparent, // Fondo transparente
+                    contentColor = Color.Unspecified // Mantiene el color de la imagen
+                ),
+                elevation = ButtonDefaults.buttonElevation(defaultElevation = 0.dp) // Sin sombra
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.AddCircle,
+                    contentDescription = null,
+                    tint = Blue,
+                    modifier = Modifier.size(32.dp)
+                )
+            }
 
         }
 
@@ -271,11 +293,13 @@ fun GameIndicator(
                 .align(Alignment.CenterStart),
             contentAlignment = Alignment.Center
         ) {
-            Image(
-                painter = painterResource(id = R.drawable.dolar),
-                contentDescription = "Reloj de arena",
-                modifier = Modifier.size(24.dp)
-            )
+
+                Image(
+                    painter = painterResource(id = R.drawable.dolar),
+                    contentDescription = "Moneda",
+                    modifier = Modifier.size(24.dp)
+                )
+
         }
     }
 }

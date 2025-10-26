@@ -100,7 +100,7 @@ fun caminoNiveles(
         ) {
             //1. Fondo
             Image(
-                painter = painterResource(id = R.drawable.fondoazul),
+                painter = painterResource(id = R.drawable.fondo_oficial),
                 contentDescription = "Fondo submarino",
                 modifier = Modifier.fillMaxSize(),
                 contentScale = ContentScale.Crop
@@ -173,16 +173,6 @@ fun caminoNiveles(
                 contentScale = ContentScale.Fit
             )
 
-            // 4. Algas
-            Image(
-                painter = painterResource(id = R.drawable.alga),
-                contentDescription = "Algas decorativas",
-                modifier = Modifier
-                    .size(width = 200.dp, height = 300.dp)
-                    .align(Alignment.BottomEnd)
-                    .offset(x = 10.dp, y = 10.dp),
-                contentScale = ContentScale.Crop
-            )
 
             // 5. Monedas
             GameIndicator(

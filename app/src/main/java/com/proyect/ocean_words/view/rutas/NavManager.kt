@@ -3,20 +3,15 @@ package com.proyect.ocean_words.view.rutas
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -29,7 +24,6 @@ import com.proyect.ocean_words.view.OceanWordsGameUI
 import com.proyect.ocean_words.view.caminoNiveles
 import com.proyect.ocean_words.view.screens.BottomNavBar
 import com.proyect.ocean_words.view.screens.GameShopScreen
-import com.proyect.ocean_words.view.screens.PreviewGameShopScreen
 import com.proyect.ocean_words.view.screens.burbujas
 import com.proyect.ocean_words.view.screens.caracteristicasEspecieView
 
@@ -118,7 +112,9 @@ fun NavManager() {
 
                     GameShopScreen(
                         items = sampleShopItems,
-                        onBuy = onBuyAction
+                        onBuy = onBuyAction,
+                        false,
+                        navController
                     )
                 }
             }
@@ -142,7 +138,9 @@ fun NavManager() {
 
             GameShopScreen(
                 items = sampleShopItems,
-                onBuy = onBuyAction
+                onBuy = onBuyAction,
+                true,
+                navController
             )
         }
 
