@@ -59,6 +59,7 @@ class AdivinaEspecieViewModel (
         }
 
     private fun validarPalabraCompleta() {
+
         val respuestaCompleta = respuestaJugador.map { it?.char ?: ' ' }.joinToString("")
         val esPalabraCorrecta = respuestaCompleta.equals(animalSinEspacios, ignoreCase = true)
 
@@ -116,18 +117,25 @@ class AdivinaEspecieViewModel (
         }
     }
         fun selectLetter(char: Char, originalIndex: Int) {
+            val quedanVidas = _vidas.value.any { it }
+
             val posicionAsignada = respuestaJugador.indexOfFirst { it?.char == null }
+            if(quedanVidas){
 
-            if (posicionAsignada != -1) {
-                respuestaJugador[posicionAsignada] = SlotEstado(char = char, esCorrecto = null)
-                visible[originalIndex] = false
-                botonADondeFue[originalIndex] = posicionAsignada
+                if (posicionAsignada != -1) {
+                    respuestaJugador[posicionAsignada] = SlotEstado(char = char, esCorrecto = null)
+                    visible[originalIndex] = false
+                    botonADondeFue[originalIndex] = posicionAsignada
 
-                val slotsVaciosRestantes = respuestaJugador.count { it?.char == null }
+                    val slotsVaciosRestantes = respuestaJugador.count { it?.char == null }
 
-                if (slotsVaciosRestantes == 0) {
-                    validarPalabraCompleta()
+                    if (slotsVaciosRestantes == 0) {
+                        validarPalabraCompleta()
+                    }
                 }
+            }
+            else{
+
             }
         }
 

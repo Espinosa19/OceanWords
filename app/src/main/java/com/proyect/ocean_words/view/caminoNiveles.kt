@@ -132,46 +132,46 @@ fun caminoNiveles(
             }
 
             // 3. Peces Animados
-            Image(
-
-                painter = painterResource(id = R.drawable.grupopeces),
-                contentDescription = "Pez 1",
-                modifier = Modifier
-                    .size(width = 120.dp, height = 60.dp)
-                    .offset(
-                        x = with(density) { fish1XOffset.toDp() },
-                        y = 500.dp + with(density) { fish1YOffset.toDp() }
-                    ),
-                contentScale = ContentScale.Fit
-            )
-
-            Image(
-                painter = painterResource(id = R.drawable.grupopeces),
-                contentDescription = "Pez 2",
-                modifier = Modifier
-                    .size(width = 200.dp, height = 100.dp)
-                    .offset(
-                        x = with(density) { fish2XOffset.toDp() },
-                        y = 300.dp + with(density) { fish2YOffset.toDp() }
-                    )
-                    .graphicsLayer {
-                        scaleX = -1f // Voltea la imagen para que mire a la izquierda
-                    },
-                contentScale = ContentScale.Fit
-
-            )
-
-            Image(
-                painter = painterResource(id = R.drawable.grupopeces),
-                contentDescription = "Pez 3",
-                modifier = Modifier
-                    .size(width = 150.dp, height = 75.dp)
-                    .offset(
-                        x = with(density) { fish3XOffset.toDp() },
-                        y = 100.dp + with(density) { fish3YOffset.toDp() }
-                    ),
-                contentScale = ContentScale.Fit
-            )
+//            Image(
+//
+//                painter = painterResource(id = R.drawable.grupopeces),
+//                contentDescription = "Pez 1",
+//                modifier = Modifier
+//                    .size(width = 120.dp, height = 60.dp)
+//                    .offset(
+//                        x = with(density) { fish1XOffset.toDp() },
+//                        y = 500.dp + with(density) { fish1YOffset.toDp() }
+//                    ),
+//                contentScale = ContentScale.Fit
+//            )
+//
+//            Image(
+//                painter = painterResource(id = R.drawable.grupopeces),
+//                contentDescription = "Pez 2",
+//                modifier = Modifier
+//                    .size(width = 200.dp, height = 100.dp)
+//                    .offset(
+//                        x = with(density) { fish2XOffset.toDp() },
+//                        y = 300.dp + with(density) { fish2YOffset.toDp() }
+//                    )
+//                    .graphicsLayer {
+//                        scaleX = -1f // Voltea la imagen para que mire a la izquierda
+//                    },
+//                contentScale = ContentScale.Fit
+//
+//            )
+//
+//            Image(
+//                painter = painterResource(id = R.drawable.grupopeces),
+//                contentDescription = "Pez 3",
+//                modifier = Modifier
+//                    .size(width = 150.dp, height = 75.dp)
+//                    .offset(
+//                        x = with(density) { fish3XOffset.toDp() },
+//                        y = 100.dp + with(density) { fish3YOffset.toDp() }
+//                    ),
+//                contentScale = ContentScale.Fit
+//            )
 
 
             // 5. Monedas
@@ -357,7 +357,7 @@ fun LevelNode(
         )
 
         Text(
-            text = if (level.isUnlocked) "⭐⭐⭐" else "🔒",
+            text = if (level.isUnlocked) "" else "🔒",
             fontSize = 20.sp,
             modifier = Modifier
                 .align(Alignment.BottomCenter)
