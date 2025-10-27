@@ -34,6 +34,8 @@ import androidx.navigation.NavController
 import com.proyect.ocean_words.R
 import com.proyect.ocean_words.model.AdivinaEspecieViewModelFactory
 import com.proyect.ocean_words.view.theme.Blue // Asumo que son colores definidos en tu tema
+import com.proyect.ocean_words.view.theme.LightBlue
+import com.proyect.ocean_words.view.theme.LightOlive
 import com.proyect.ocean_words.viewmodels.AdivinaEspecieViewModel
 
 // NOTA: Tu código original usaba IndicatorBackgroundColor, Orange, OrangeDeep, y Purple40
@@ -203,14 +205,13 @@ fun CentralIndicatorBox(vidas: List<Boolean>) {
 }@Composable
 fun LifeRechargeBubble(timeRemaining: String, modifier: Modifier = Modifier) {
     // Definición de colores (ejemplo)
-    val BubbleBackgroundColor = Color(0xFF4C86E3)
     val TextColor = Color.White
 
     // El componente que quieres colocar:
     Box(
         modifier = modifier
             .clip(RoundedCornerShape(12.dp)) // Forma de burbuja redondeada
-            .background(BubbleBackgroundColor)
+            .background(LightOlive)
 
             .padding(horizontal = 10.dp, vertical = 5.dp),
         contentAlignment = Alignment.Center

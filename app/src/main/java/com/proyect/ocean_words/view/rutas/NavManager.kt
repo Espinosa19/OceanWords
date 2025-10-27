@@ -146,14 +146,14 @@ fun NavManager() {
 
     }
     if (targetLevelId != null) {
-        burbujas(modifier = Modifier.fillMaxSize())
+        //burbujas(modifier = Modifier.fillMaxSize())
 
         val currentLevelId = targetLevelId!!
 
         LaunchedEffect(currentLevelId) {
-            kotlinx.coroutines.delay(ANTES_TRANSCION)
+            //kotlinx.coroutines.delay(ANTES_TRANSCION)
             navController.navigate(createAdivinaEspecieRoute(currentLevelId))
-            kotlinx.coroutines.delay(TRANSICION_BURBUJAS - ANTES_TRANSCION)
+            //kotlinx.coroutines.delay(TRANSICION_BURBUJAS - ANTES_TRANSCION)
             targetLevelId = null
         }
     }

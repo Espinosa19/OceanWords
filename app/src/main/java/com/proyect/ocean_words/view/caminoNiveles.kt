@@ -100,7 +100,7 @@ fun caminoNiveles(
         ) {
             //1. Fondo
             Image(
-                painter = painterResource(id = R.drawable.fondo_oficial),
+                painter = painterResource(id = R.drawable.fondo_o),
                 contentDescription = "Fondo submarino",
                 modifier = Modifier.fillMaxSize(),
                 contentScale = ContentScale.Crop
