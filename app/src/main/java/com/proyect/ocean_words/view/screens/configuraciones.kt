@@ -21,6 +21,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.Divider
@@ -28,6 +29,9 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import com.proyect.ocean_words.R
 
 @Composable
 fun configuracionView(
@@ -151,10 +155,12 @@ fun LanguageRow() {
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Icon(
-                imageVector = Icons.Default.Info,
-                contentDescription = null,
-                tint = Color(0xFF003D69)
+            Image(
+                painter = painterResource(id = R.drawable.lenguaje),
+                contentDescription = "men",
+                modifier = Modifier
+                    .size(30.dp), // Tamaño fijo pero razonable para el icono/botón
+                contentScale = ContentScale.Fit
             )
             Spacer(modifier = Modifier.width(8.dp))
             Text(
@@ -164,11 +170,7 @@ fun LanguageRow() {
                 color = Color(0xFF003D69)
             )
         }
-        Icon(
-            imageVector = Icons.Default.Star,
-            contentDescription = null,
-            tint = Color(0xFFFFCC00)
-        )
+
     }
 }
 
