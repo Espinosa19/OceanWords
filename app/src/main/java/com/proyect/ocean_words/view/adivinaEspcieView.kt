@@ -1,10 +1,12 @@
 package com.proyect.ocean_words.view
 
+import androidx.annotation.DrawableRes
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -43,7 +45,7 @@ import com.proyect.ocean_words.view.theme.Blue
 import com.proyect.ocean_words.view.theme.LightBlue
 import com.proyect.ocean_words.view.theme.OceanBackground
 import com.proyect.ocean_words.view.theme.Orange
-import com.proyect.ocean_words.view.theme.OrangeDeep
+//import com.proyect.ocean_words.view.theme.OrangeDeep
 import com.proyect.ocean_words.view.screens.HeaderSection
 import com.proyect.ocean_words.view.screens.NavegacionDrawerMenu
 import com.proyect.ocean_words.viewmodels.AdivinaEspecieViewModel
@@ -145,7 +147,7 @@ fun JuegoAnimal(animal: String, dificultad: String, animalQuestion: String,navCo
                 .fillMaxWidth()
                 .height(130.dp)
                 .align(Alignment.BottomCenter)
-                .background(OrangeDeep)
+                .background(Color(0xFF2EB2DA))
                 .padding(bottom = 38.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -370,56 +372,129 @@ fun tecladoInteractivo(
 }
 
 @Composable
-fun accionesEspecíficas(onResetGame: () -> Unit,onGoBackGame: () -> Unit,obtenerPista : () -> Unit) {
+fun accionesEspecíficas(onResetGame: () -> Unit, onGoBackGame: () -> Unit, obtenerPista: () -> Unit) {
+    val dividerColor = Color(0xFF2EB2DA)
+    val dividerWidth = 2.dp
+    val imageSize = 40.dp
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .height(100.dp),
-        horizontalArrangement = Arrangement.spacedBy(22.dp, Alignment.CenterHorizontally),
+            .height(100.dp)
+            .background(Color(0xFF2EB2DA)),
+        horizontalArrangement = Arrangement.SpaceAround,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        BotonDeInterfaz(icon = Icons.Filled.Close, onClick = onResetGame)
-
-        BotonDeInterfaz(
-            icon = Icons.Filled.Refresh,
-            onClick = onGoBackGame
-        )
-        Box(
-            contentAlignment = Alignment.Center
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxHeight()
+                .clickable(onClick = onResetGame)
+                .clip(RoundedCornerShape(8.dp)),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
-            // 🔸 Botón principal
-            Button(
-                onClick = obtenerPista ,
-                modifier = Modifier.size(60.dp),
-                shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Orange),
-                contentPadding = PaddingValues(0.dp)
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.pista),
-                    contentDescription = "Pista",
-                    modifier = Modifier.size(32.dp)
-                )
-            }
-
-            // 🔸 Circulito en la orilla superior derecha
-            Box(
-                modifier = Modifier
-                    .align(Alignment.TopEnd) // 👈 lo coloca en la orilla superior derecha
-                    .offset(x = 6.dp, y = (-6).dp) // ajusta posición hacia afuera
-                    .size(20.dp)
-                    .background(Blue, shape = CircleShape),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = "1",
-                    color = Color.White,
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.Bold
-                )
-            }
+            Image(
+                painter = painterResource(id = R.drawable.cancelar),
+                contentDescription = "Reiniciar",
+                modifier = Modifier.size(imageSize)
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = "Reiniciar",
+                fontSize = 18.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = Color.White
+            )
         }
 
+        // Divisor
+        Box(
+            modifier = Modifier
+                .fillMaxHeight()
+                .width(dividerWidth)
+                .background(dividerColor)
+        )
+
+        // --- 2. Botón de Retroceder (Deshacer) ---
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxHeight()
+                .clickable(onClick = onGoBackGame) // <--- Funcionalidad click
+                .clip(RoundedCornerShape(8.dp)),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Image(
+                // Reemplaza 'R.drawable.deshacer_icon' con el ID de tu imagen
+                painter = painterResource(id = R.drawable.deshacer2),
+                contentDescription = "Deshacer",
+                modifier = Modifier.size(imageSize)
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = "Deshacer",
+                fontSize = 18.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = Color.White
+            )
+        }
+
+        // Divisor
+        Box(
+            modifier = Modifier
+                .fillMaxHeight()
+                .width(dividerWidth)
+                .background(dividerColor)
+        )
+
+        // --- 3. Botón de Pista ---
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxHeight()
+                .clickable(onClick = obtenerPista)
+                .clip(RoundedCornerShape(8.dp)),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(48.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.pistas),
+                    contentDescription = "Pista",
+                    modifier = Modifier.size(imageSize)
+                )
+
+                // Este es el Badge con el número '1'
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .offset(x = 6.dp, y = (-6).dp)
+                        .size(20.dp)
+                        .background(Color.Blue, shape = CircleShape),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "1",
+                        color = Color.White,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = "Pista",
+                fontSize = 18.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = Color.White
+            )
+        }
     }
 }
 

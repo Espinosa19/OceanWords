@@ -31,7 +31,7 @@ fun BottomNavBar(
     val items = listOf(
         NavItem(
             label = "Tienda",
-            drawableResId = R.drawable.tienda,
+            drawableResId = R.drawable.mariscos,
             route = Rutas.TIENDA
         ),
         NavItem(
@@ -41,7 +41,7 @@ fun BottomNavBar(
         ),
         NavItem(
             label = "Acuario",
-            drawableResId = R.drawable.bloquear,
+            drawableResId = R.drawable.pecera,
             route = Rutas.ACUARIO
         )
     )
@@ -81,7 +81,7 @@ fun BottomNavBar(
                             painter = painterResource(id = item.drawableResId),
                             contentDescription = item.label,
                             modifier = Modifier
-                                .size(40.dp)
+                                .size(45.dp)
                                 .graphicsLayer {
                                     scaleX = scale
                                     scaleY = scale
