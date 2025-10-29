@@ -27,6 +27,7 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -74,8 +75,8 @@ fun ShopItemCard(item: PistaEstado, onBuyClicked: (PistaEstado) -> Unit) {
         // Cantidad de monedas
         Text(
             text = "+${item.quantity}",
-            fontSize = 22.sp,
-            fontWeight = FontWeight.Bold,
+            style = MaterialTheme.typography.titleSmall,
+
             color = Color(0xFF00796B)
         )
 
@@ -94,8 +95,7 @@ fun ShopItemCard(item: PistaEstado, onBuyClicked: (PistaEstado) -> Unit) {
         ) {
             Text(
                 text = "$${item.price}",
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold,
+                style = MaterialTheme.typography.labelMedium,
                 color = Color.White
             )
         }

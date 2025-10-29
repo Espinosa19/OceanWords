@@ -90,7 +90,7 @@ fun BottomNavBar(
                         )
                     }
                 },
-                label = { Text(item.label, fontSize = 17.sp, color = whiteBoxColor) },
+                label = { Text(item.label, style = MaterialTheme.typography.labelMedium, color = whiteBoxColor) },
                 colors = NavigationBarItemDefaults.colors(
                     selectedIconColor = Color(0xFF076C8C),
                     unselectedIconColor = Color.White,

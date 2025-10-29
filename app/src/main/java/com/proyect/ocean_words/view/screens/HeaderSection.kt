@@ -17,6 +17,7 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -261,8 +262,7 @@ fun GameIndicator(
                 text = "$value",
 
                 color = Color.White,
-                fontSize = 16.sp, // Tamaño de texto adaptable
-                fontWeight = FontWeight.Bold
+                style = MaterialTheme.typography.labelMedium,
             )
             Button(
                 onClick =redireccionarClick,

@@ -260,6 +260,7 @@ fun GameIndicator(
 
                 color = Color.White,
                 fontSize = 16.sp,
+                style = MaterialTheme.typography.labelMedium,
                 fontWeight = FontWeight.Bold
             )
             Icon(imageVector = Icons.Filled.AddCircle, contentDescription = null, tint = Blue, modifier = Modifier.size(32.dp))
@@ -368,7 +369,7 @@ fun LevelNode(
         Text(
             text = "${level.id}",
             color = Color.Black,
-            style = MaterialTheme.typography.titleLarge,
+            style = MaterialTheme.typography.titleSmall,
             modifier = Modifier.align(Alignment.Center)
         )
     }
