@@ -21,13 +21,19 @@ import androidx.compose.material3.Icon
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.Divider
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import com.proyect.ocean_words.R
+import com.proyect.ocean_words.view.theme.azulRey
 
 @Composable
 fun configuracionView(
@@ -63,7 +69,7 @@ fun configuracionView(
                     text = "OPCIONES",
                     fontSize = 22.sp,
                     fontWeight = FontWeight.Black,
-                    color = Color(0xFF003D69),
+                    color = azulRey,
                     modifier = Modifier.padding(bottom = 20.dp)
                 )
 
@@ -97,12 +103,12 @@ fun configuracionView(
                 .offset(y = 280.dp)
                 .clip(CircleShape)
                 .background(Color.White.copy(alpha = 0.8f))
-                .border(2.dp, Color(0xFF003D69), CircleShape)
+                .border(2.dp, azulRey, CircleShape)
         ) {
             Icon(
                 imageVector = Icons.Default.ArrowForward,
                 contentDescription = "Volver",
-                tint = Color(0xFF003D69),
+                tint = azulRey,
                 modifier = Modifier.size(30.dp)
             )
         }
@@ -124,9 +130,8 @@ fun ConfigRow(
     ) {
         Text(
             text = label,
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color(0xFF003D69)
+            style = MaterialTheme.typography.labelMedium,
+            color = azulRey
         )
         Switch(
             checked = isChecked,
@@ -151,24 +156,21 @@ fun LanguageRow() {
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Icon(
-                imageVector = Icons.Default.Info,
-                contentDescription = null,
-                tint = Color(0xFF003D69)
+            Image(
+                painter = painterResource(id = R.drawable.lenguaje),
+                contentDescription = "men",
+                modifier = Modifier
+                    .size(30.dp), // Tamaño fijo pero razonable para el icono/botón
+                contentScale = ContentScale.Fit
             )
             Spacer(modifier = Modifier.width(8.dp))
             Text(
                 text = "IDIOMA",
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color(0xFF003D69)
+                style = MaterialTheme.typography.labelMedium,
+                color = azulRey
             )
         }
-        Icon(
-            imageVector = Icons.Default.Star,
-            contentDescription = null,
-            tint = Color(0xFFFFCC00)
-        )
+
     }
 }
 
@@ -188,9 +190,9 @@ fun ConfigTextButton(text: String, onClick: () -> Unit) {
     ) {
         Text(
             text = text,
-            fontSize = 14.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color(0xFF003D69)
+            style = MaterialTheme.typography.labelMedium,
+
+            color = azulRey
         )
     }
 }

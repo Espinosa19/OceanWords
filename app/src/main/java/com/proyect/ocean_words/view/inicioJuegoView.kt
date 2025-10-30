@@ -8,6 +8,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -113,8 +114,7 @@ fun InicioJuegoView(onNavigationToGame: () -> Unit) {
                     text = "En Ocean Words, aprenderás datos asombrosos sobre las criaturas marinas mientras te diviertes adivinando sus nombres. El conocimiento es un tesoro escondido en las profundidades. ¡Estamos a punto de desenterrarlo!",
                     textAlign = TextAlign.Center,
                     color = textColor,
-                    fontSize = 16.sp,
-                    lineHeight = 24.sp
+                    style = MaterialTheme.typography.labelSmall
                 )
 
                 Spacer(modifier = Modifier.height(32.dp)) // Espacio estándar entre el texto y la barra de carga
@@ -145,7 +145,7 @@ fun InicioJuegoView(onNavigationToGame: () -> Unit) {
                     Text(
                         text = if (isLoadingComplete) "¡Listo para Jugar!" else "Cargando...",
                         color = Color.White,
-                        fontSize = 18.sp,
+                        style = MaterialTheme.typography.labelSmall,
                     )
                 }
                 // ------------------------------------------------
@@ -160,7 +160,7 @@ fun InicioJuegoView(onNavigationToGame: () -> Unit) {
             Text(
                 text = "© INFINITY DEVS",
                 color = Color.White.copy(alpha = 0.8f),
-                fontSize = 12.sp,
+                style = MaterialTheme.typography.labelMedium,
                 modifier = Modifier.padding(bottom = 8.dp)
             )
         }

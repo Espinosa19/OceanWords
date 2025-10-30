@@ -22,8 +22,12 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -37,9 +41,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.proyect.ocean_words.R
 import com.proyect.ocean_words.model.PistaEstado
 import com.proyect.ocean_words.model.sampleShopItems
+import com.proyect.ocean_words.view.theme.Blue
 import com.proyect.ocean_words.view.theme.LightOlive
 import com.proyect.ocean_words.view.theme.azulCeleste
 @Composable
@@ -69,8 +75,8 @@ fun ShopItemCard(item: PistaEstado, onBuyClicked: (PistaEstado) -> Unit) {
         // Cantidad de monedas
         Text(
             text = "+${item.quantity}",
-            fontSize = 22.sp,
-            fontWeight = FontWeight.Bold,
+            style = MaterialTheme.typography.titleSmall,
+
             color = Color(0xFF00796B)
         )
 
@@ -89,8 +95,7 @@ fun ShopItemCard(item: PistaEstado, onBuyClicked: (PistaEstado) -> Unit) {
         ) {
             Text(
                 text = "$${item.price}",
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold,
+                style = MaterialTheme.typography.labelMedium,
                 color = Color.White
             )
         }
@@ -99,13 +104,17 @@ fun ShopItemCard(item: PistaEstado, onBuyClicked: (PistaEstado) -> Unit) {
 
 // --- Pantalla principal de tienda ---
 @Composable
-fun GameShopScreen(items: List<PistaEstado>, onBuy: (PistaEstado) -> Unit) {
+fun GameShopScreen(
+    items: List<PistaEstado>, onBuy: (PistaEstado) -> Unit,
+    visible: Boolean,
+    navController: NavController
+) {
     Box(
         modifier = Modifier
             .fillMaxSize()
            ) {
         Image(
-            painter = painterResource(id = R.drawable.fondo_juego),
+            painter = painterResource(id = R.drawable.fondo_tienda),
             contentDescription = null,
             contentScale = ContentScale.Crop,
             modifier = Modifier.matchParentSize()
@@ -117,10 +126,7 @@ fun GameShopScreen(items: List<PistaEstado>, onBuy: (PistaEstado) -> Unit) {
                     color = Color.Gray.copy(alpha = 0.5f), // 🔹 Borde con transparencia suave
                     shape = RoundedCornerShape(12.dp)
                 )
-                .background(
-                    color = Color.Black.copy(alpha = 0.4f), // 🔹 Fondo negro semitransparente (ajusta el alpha)
-                    shape = RoundedCornerShape(12.dp)
-                )    ,
+                ,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             // 🔹 Barra superior de título
@@ -138,12 +144,30 @@ fun GameShopScreen(items: List<PistaEstado>, onBuy: (PistaEstado) -> Unit) {
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.cancelar),
-                        contentDescription = null,
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier.size(40.dp)
-                    )
+                    if (visible){
+                        Button(
+                            onClick = { navController.popBackStack() },
+                            modifier = Modifier.size(40.dp), // Tamaño del botón
+                            shape = RoundedCornerShape(50), // Circular
+                            contentPadding = PaddingValues(0.dp), // Sin padding interno
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color.Transparent, // Fondo transparente
+                                contentColor = Color.Unspecified // Mantiene el color de la imagen
+                            ),
+                            elevation = ButtonDefaults.buttonElevation(defaultElevation = 0.dp) // Sin sombra
+                        ) {
+                            Image(
+                                painter = painterResource(id = R.drawable.eliminar),
+                                contentDescription = "Cerrar",
+                                contentScale = ContentScale.Crop,
+
+                                modifier = Modifier.size(40.dp)
+                            )
+                        }
+
+
+                    }
+
 
                     Text(
                         text = "Tienda",
@@ -154,7 +178,9 @@ fun GameShopScreen(items: List<PistaEstado>, onBuy: (PistaEstado) -> Unit) {
                         textAlign = TextAlign.Center
                     )
 
-                    GameIndicator(value = "500")
+                    GameIndicator(value = "500",redireccionarClick={
+                        navController.navigate("game_shop") // Usa una ruta clara, por ejemplo, "game_shop"
+                    })
                 }
             }
 
@@ -192,10 +218,4 @@ fun GameShopScreen(items: List<PistaEstado>, onBuy: (PistaEstado) -> Unit) {
             }
         }
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun PreviewGameShopScreen() {
-    GameShopScreen(items = sampleShopItems, onBuy = {})
 }

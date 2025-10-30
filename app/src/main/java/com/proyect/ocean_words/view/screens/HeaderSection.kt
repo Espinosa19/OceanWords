@@ -17,6 +17,7 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -34,6 +35,8 @@ import androidx.navigation.NavController
 import com.proyect.ocean_words.R
 import com.proyect.ocean_words.model.AdivinaEspecieViewModelFactory
 import com.proyect.ocean_words.view.theme.Blue // Asumo que son colores definidos en tu tema
+import com.proyect.ocean_words.view.theme.LightBlue
+import com.proyect.ocean_words.view.theme.LightOlive
 import com.proyect.ocean_words.viewmodels.AdivinaEspecieViewModel
 
 // NOTA: Tu código original usaba IndicatorBackgroundColor, Orange, OrangeDeep, y Purple40
@@ -69,8 +72,12 @@ fun HeaderSection(animal : String,dificultad : String,navController: NavControll
             )
             Spacer(modifier = Modifier.height(10.dp))
 
-            HeaderIndicatorRow(vidas,onBackClick = {
-                navController.popBackStack()
+            HeaderIndicatorRow(vidas,
+                onBackClick = {
+                    navController.popBackStack()
+                },
+                redireccionarClick={
+                    navController.navigate("game_shop") // Usa una ruta clara, por ejemplo, "game_shop"
             })
         }
 
@@ -79,7 +86,8 @@ fun HeaderSection(animal : String,dificultad : String,navController: NavControll
 }@Composable
 fun HeaderIndicatorRow(
     vidas: List<Boolean>,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    redireccionarClick: () -> Unit
 ) {
     val InformaTemporizador = vidas.indexOfLast { !it }
     val rechargeTime = "04:59"
@@ -124,7 +132,7 @@ fun HeaderIndicatorRow(
             }
 
             // Elemento 3: Indicador de Monedas
-            GameIndicator(value = "500")
+            GameIndicator(value = "500",redireccionarClick)
         }
     }
 }
@@ -198,14 +206,13 @@ fun CentralIndicatorBox(vidas: List<Boolean>) {
 }@Composable
 fun LifeRechargeBubble(timeRemaining: String, modifier: Modifier = Modifier) {
     // Definición de colores (ejemplo)
-    val BubbleBackgroundColor = Color(0xFF4C86E3)
     val TextColor = Color.White
 
     // El componente que quieres colocar:
     Box(
         modifier = modifier
             .clip(RoundedCornerShape(12.dp)) // Forma de burbuja redondeada
-            .background(BubbleBackgroundColor)
+            .background(LightOlive)
 
             .padding(horizontal = 10.dp, vertical = 5.dp),
         contentAlignment = Alignment.Center
@@ -226,7 +233,7 @@ fun LifeRechargeBubble(timeRemaining: String, modifier: Modifier = Modifier) {
 @Composable
 fun GameIndicator(
     value: String,
-
+    redireccionarClick: () -> Unit
 ) {
     // CAMBIO CLAVE 2: Usamos wrapContentWidth(unconstrained) para que el indicador crezca solo lo necesario.
     Box(
@@ -255,10 +262,26 @@ fun GameIndicator(
                 text = "$value",
 
                 color = Color.White,
-                fontSize = 16.sp, // Tamaño de texto adaptable
-                fontWeight = FontWeight.Bold
+                style = MaterialTheme.typography.labelMedium,
             )
-            Icon(imageVector = Icons.Filled.AddCircle, contentDescription = null, tint = Blue, modifier = Modifier.size(32.dp))
+            Button(
+                onClick =redireccionarClick,
+                modifier = Modifier.size(40.dp), // Tamaño del botón
+                shape = RoundedCornerShape(50), // Circular
+                contentPadding = PaddingValues(0.dp), // Sin padding interno
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.Transparent, // Fondo transparente
+                    contentColor = Color.Unspecified // Mantiene el color de la imagen
+                ),
+                elevation = ButtonDefaults.buttonElevation(defaultElevation = 0.dp) // Sin sombra
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.AddCircle,
+                    contentDescription = null,
+                    tint = Blue,
+                    modifier = Modifier.size(32.dp)
+                )
+            }
 
         }
 
@@ -271,11 +294,13 @@ fun GameIndicator(
                 .align(Alignment.CenterStart),
             contentAlignment = Alignment.Center
         ) {
-            Image(
-                painter = painterResource(id = R.drawable.dolar),
-                contentDescription = "Reloj de arena",
-                modifier = Modifier.size(24.dp)
-            )
+
+                Image(
+                    painter = painterResource(id = R.drawable.dolar),
+                    contentDescription = "Moneda",
+                    modifier = Modifier.size(24.dp)
+                )
+
         }
     }
 }

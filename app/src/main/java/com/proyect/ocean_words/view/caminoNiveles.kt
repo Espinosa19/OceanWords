@@ -29,6 +29,7 @@ import com.proyect.ocean_words.view.theme.Blue
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.proyect.ocean_words.view.screens.configuracionView
@@ -100,7 +101,7 @@ fun caminoNiveles(
         ) {
             //1. Fondo
             Image(
-                painter = painterResource(id = R.drawable.fondoazul),
+                painter = painterResource(id = R.drawable.fondo_o),
                 contentDescription = "Fondo submarino",
                 modifier = Modifier.fillMaxSize(),
                 contentScale = ContentScale.Crop
@@ -173,16 +174,6 @@ fun caminoNiveles(
                 contentScale = ContentScale.Fit
             )
 
-            // 4. Algas
-            Image(
-                painter = painterResource(id = R.drawable.alga),
-                contentDescription = "Algas decorativas",
-                modifier = Modifier
-                    .size(width = 200.dp, height = 300.dp)
-                    .align(Alignment.BottomEnd)
-                    .offset(x = 10.dp, y = 10.dp),
-                contentScale = ContentScale.Crop
-            )
 
             // 5. Monedas
             GameIndicator(
@@ -269,6 +260,7 @@ fun GameIndicator(
 
                 color = Color.White,
                 fontSize = 16.sp,
+                style = MaterialTheme.typography.labelMedium,
                 fontWeight = FontWeight.Bold
             )
             Icon(imageVector = Icons.Filled.AddCircle, contentDescription = null, tint = Blue, modifier = Modifier.size(32.dp))
@@ -367,7 +359,7 @@ fun LevelNode(
         )
 
         Text(
-            text = if (level.isUnlocked) "⭐⭐⭐" else "🔒",
+            text = if (level.isUnlocked) "" else "🔒",
             fontSize = 20.sp,
             modifier = Modifier
                 .align(Alignment.BottomCenter)
@@ -377,8 +369,7 @@ fun LevelNode(
         Text(
             text = "${level.id}",
             color = Color.Black,
-            fontSize = 30.sp,
-            fontWeight = FontWeight.Bold,
+            style = MaterialTheme.typography.titleSmall,
             modifier = Modifier.align(Alignment.Center)
         )
     }

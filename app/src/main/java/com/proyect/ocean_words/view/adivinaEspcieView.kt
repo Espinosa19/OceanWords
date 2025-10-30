@@ -48,6 +48,8 @@ import com.proyect.ocean_words.view.theme.Orange
 //import com.proyect.ocean_words.view.theme.OrangeDeep
 import com.proyect.ocean_words.view.screens.HeaderSection
 import com.proyect.ocean_words.view.screens.NavegacionDrawerMenu
+import com.proyect.ocean_words.view.theme.LightOlive
+import com.proyect.ocean_words.view.theme.VerdeClaro
 import com.proyect.ocean_words.viewmodels.AdivinaEspecieViewModel
 import kotlinx.coroutines.delay
 import java.util.concurrent.TimeUnit
@@ -57,7 +59,7 @@ import java.util.concurrent.TimeUnit
 fun OceanWordsGameUI(
     navController: NavController,
     levelId: Int = 1,
-    animal: String ="pez lampara",
+    animal: String ="ballena",
     dificultad:String="normal",
     animalQuestion: String = "¿QUÉ ANIMAL ES ESTE?",
 ) {
@@ -290,7 +292,7 @@ fun ResponseArea(
                         val indexForCallback = currentIndex
 
                         val colorDeFondo = when (slotEstado?.esCorrecto) {
-                            true -> Color.Green.copy(alpha = 0.8f)
+                            true -> VerdeClaro.copy(alpha = 0.8f)
                             false -> Color.Red.copy(alpha = 0.8f)
                             else -> LightBlue.copy(alpha = 0.8f)
                         }
@@ -514,24 +516,4 @@ fun BotonDeInterfaz(
         Icon(imageVector = icon, contentDescription = null, tint = Color.White, modifier = Modifier.size(32.dp))
     }
 }
-@Composable
-fun TemporizadorRegresivo(
-    tiempoInicialSegundos: Long = 600 // 10 minutos = 600 segundos
-): String {
-    var tiempoRestante by remember { mutableStateOf(tiempoInicialSegundos) }
-
-    LaunchedEffect(Unit) {
-        while (tiempoRestante > 0) {
-            delay(1000L)
-            tiempoRestante -= 1
-        }
-    }
-
-    // Convertimos segundos a hh:mm:ss
-    val minutos = TimeUnit.SECONDS.toMinutes(tiempoRestante) % 60
-    val segundos = tiempoRestante % 60
-
-    return String.format("%02d:%02d", minutos, segundos)
-}
-
 

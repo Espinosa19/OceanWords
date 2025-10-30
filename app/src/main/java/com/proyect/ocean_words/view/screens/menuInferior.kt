@@ -17,6 +17,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.proyect.ocean_words.R
+import com.proyect.ocean_words.model.NavItemEstado
 import com.proyect.ocean_words.view.theme.whiteBoxColor
 import com.proyect.ocean_words.view.rutas.Rutas
 
@@ -29,17 +30,17 @@ fun BottomNavBar(
     val currentRoute = navBackStackEntry?.destination?.route
 
     val items = listOf(
-        NavItem(
+        NavItemEstado(
             label = "Tienda",
             drawableResId = R.drawable.mariscos,
             route = Rutas.TIENDA
         ),
-        NavItem(
+        NavItemEstado(
             label = "Inicio",
             drawableResId = R.drawable.concha,
             route = Rutas.CAMINO_NIVELES
         ),
-        NavItem(
+        NavItemEstado(
             label = "Acuario",
             drawableResId = R.drawable.pecera,
             route = Rutas.ACUARIO
@@ -89,7 +90,7 @@ fun BottomNavBar(
                         )
                     }
                 },
-                label = { Text(item.label, fontSize = 17.sp, color = whiteBoxColor) },
+                label = { Text(item.label, style = MaterialTheme.typography.labelMedium, color = whiteBoxColor) },
                 colors = NavigationBarItemDefaults.colors(
                     selectedIconColor = Color(0xFF076C8C),
                     unselectedIconColor = Color.White,
@@ -100,8 +101,3 @@ fun BottomNavBar(
     }
 }
 
-data class NavItem(
-    val label: String,
-    @androidx.annotation.DrawableRes val drawableResId: Int,
-    val route: String
-)
