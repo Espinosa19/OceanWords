@@ -1,5 +1,6 @@
 package com.proyect.ocean_words.view
 
+import android.icu.text.CaseMap.Upper
 import androidx.annotation.DrawableRes
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
@@ -48,6 +49,11 @@ import com.proyect.ocean_words.view.theme.Orange
 //import com.proyect.ocean_words.view.theme.OrangeDeep
 import com.proyect.ocean_words.view.screens.HeaderSection
 import com.proyect.ocean_words.view.screens.NavegacionDrawerMenu
+import com.proyect.ocean_words.view.theme.Boogaloo
+import com.proyect.ocean_words.view.theme.BricolageGrotesque
+import com.proyect.ocean_words.view.theme.Delius
+import com.proyect.ocean_words.view.theme.Gabriela
+import com.proyect.ocean_words.view.theme.Gorditas
 import com.proyect.ocean_words.view.theme.LightOlive
 import com.proyect.ocean_words.view.theme.VerdeClaro
 import com.proyect.ocean_words.viewmodels.AdivinaEspecieViewModel
@@ -149,7 +155,7 @@ fun JuegoAnimal(animal: String, dificultad: String, animalQuestion: String,navCo
                 .fillMaxWidth()
                 .height(130.dp)
                 .align(Alignment.BottomCenter)
-                .background(Color(0xFF2EB2DA))
+                .background(Color(0xFFE98516))
                 .padding(bottom = 38.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -189,7 +195,7 @@ fun QuestionAndImageSection(
                 .padding(vertical = 12.dp, horizontal = horizontalPadding),
             contentAlignment = Alignment.Center
         ) {
-            Text(text = question, fontSize = 24.sp, fontWeight = FontWeight.Black, color = Color.Black, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
+            Text(text = question, fontSize = 24.sp, fontFamily = Boogaloo, fontWeight = FontWeight.Black, color = Color.Black, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
         }
         Box(modifier = Modifier.fillMaxWidth()){
             Box(
@@ -311,6 +317,7 @@ fun ResponseArea(
                             Text(
                                 text = responseChar?.toString() ?: "",
                                 color = Color.Black,
+                                fontFamily = Delius,
                                 fontSize = 20.sp,
                                 fontWeight = FontWeight.Bold,
                                 textAlign = TextAlign.Center
@@ -361,6 +368,7 @@ fun tecladoInteractivo(
                             Text(
                                 text = animalRandom[j].toString(),
                                 color = Color.Black,
+                                fontFamily = Delius,
                                 fontSize = 20.sp,
                                 fontWeight = FontWeight.Bold,
                                 textAlign = TextAlign.Center
@@ -375,7 +383,7 @@ fun tecladoInteractivo(
 
 @Composable
 fun accionesEspecíficas(onResetGame: () -> Unit, onGoBackGame: () -> Unit, obtenerPista: () -> Unit) {
-    val dividerColor = Color(0xFF2EB2DA)
+    val dividerColor = Color(0xFFE98516)
     val dividerWidth = 2.dp
     val imageSize = 40.dp
 
@@ -383,7 +391,7 @@ fun accionesEspecíficas(onResetGame: () -> Unit, onGoBackGame: () -> Unit, obte
         modifier = Modifier
             .fillMaxWidth()
             .height(100.dp)
-            .background(Color(0xFF2EB2DA)),
+            .background(Color(0xFFE98516)),
         horizontalArrangement = Arrangement.SpaceAround,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -404,6 +412,7 @@ fun accionesEspecíficas(onResetGame: () -> Unit, onGoBackGame: () -> Unit, obte
             Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = "Reiniciar",
+                fontFamily = BricolageGrotesque,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = Color.White
@@ -430,13 +439,14 @@ fun accionesEspecíficas(onResetGame: () -> Unit, onGoBackGame: () -> Unit, obte
         ) {
             Image(
                 // Reemplaza 'R.drawable.deshacer_icon' con el ID de tu imagen
-                painter = painterResource(id = R.drawable.deshacer2),
+                painter = painterResource(id = R.drawable.recargar),
                 contentDescription = "Deshacer",
                 modifier = Modifier.size(imageSize)
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = "Deshacer",
+                fontFamily = BricolageGrotesque,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = Color.White
@@ -467,7 +477,7 @@ fun accionesEspecíficas(onResetGame: () -> Unit, onGoBackGame: () -> Unit, obte
                 contentAlignment = Alignment.Center
             ) {
                 Image(
-                    painter = painterResource(id = R.drawable.pistas),
+                    painter = painterResource(id = R.drawable.idea),
                     contentDescription = "Pista",
                     modifier = Modifier.size(imageSize)
                 )
@@ -492,6 +502,7 @@ fun accionesEspecíficas(onResetGame: () -> Unit, onGoBackGame: () -> Unit, obte
             Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = "Pista",
+                fontFamily = BricolageGrotesque,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = Color.White

@@ -32,7 +32,7 @@ fun BottomNavBar(
     val items = listOf(
         NavItemEstado(
             label = "Tienda",
-            drawableResId = R.drawable.mariscos,
+            drawableResId = R.drawable.tienda_pez,
             route = Rutas.TIENDA
         ),
         NavItemEstado(
@@ -42,7 +42,7 @@ fun BottomNavBar(
         ),
         NavItemEstado(
             label = "Acuario",
-            drawableResId = R.drawable.pecera,
+            drawableResId = R.drawable.alimento,
             route = Rutas.ACUARIO
         )
     )

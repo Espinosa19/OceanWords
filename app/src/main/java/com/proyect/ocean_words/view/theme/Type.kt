@@ -16,6 +16,16 @@ val Gabriela = FontFamily(
 val Lato_regular = FontFamily(
     Font(R.font.lato_regular, FontWeight.Normal),
 )
+val Boogaloo = FontFamily(
+    Font(R.font.boogaloo_regular, FontWeight.Normal)
+)
+val Gorditas = FontFamily(
+    Font(R.font.gorditas_regular, FontWeight.Normal)
+)
+val Delius = FontFamily(
+    Font(R.font.delius_regular, FontWeight.Normal)
+)
+
 // Set of Material typography styles to start with
 val Typography = Typography(
     bodyLarge = TextStyle(
