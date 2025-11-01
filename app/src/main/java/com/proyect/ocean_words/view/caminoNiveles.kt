@@ -57,12 +57,17 @@ fun caminoNiveles(
     val infiniteTransition = rememberInfiniteTransition(label = "general_animations")
 
     val fish1XOffset by infiniteTransition.animateFloat(
-        initialValue = -500f, targetValue = 1500f,
-        animationSpec = infiniteRepeatable(animation = tween(20000, easing = LinearEasing), repeatMode = RepeatMode.Restart), label = "fish1_offset_x"
+        initialValue = 1500f,
+        targetValue = -500f,
+        animationSpec = infiniteRepeatable(animation = tween(20000, easing = LinearEasing), repeatMode = RepeatMode.Restart),
+        label = "fish1_offset_x"
     )
+
     val fish1YOffset by infiniteTransition.animateFloat(
-        initialValue = 0f, targetValue = 25f,
-        animationSpec = infiniteRepeatable(animation = tween(4000, easing = EaseInOut), repeatMode = RepeatMode.Reverse), label = "fish1_offset_y"
+        initialValue = 0f,
+        targetValue = 25f,
+        animationSpec = infiniteRepeatable(animation = tween(4000, easing = EaseInOut), repeatMode = RepeatMode.Reverse),
+        label = "fish1_offset_y"
     )
 
     val fish2XOffset by infiniteTransition.animateFloat(
@@ -81,6 +86,15 @@ fun caminoNiveles(
     val fish3YOffset by infiniteTransition.animateFloat(
         initialValue = 0f, targetValue = 10f,
         animationSpec = infiniteRepeatable(animation = tween(2500, easing = EaseInOut), repeatMode = RepeatMode.Reverse), label = "fish3_offset_y"
+    )
+
+    val fish4XOffset by infiniteTransition.animateFloat(
+        initialValue = -500f, targetValue = 1500f,
+        animationSpec = infiniteRepeatable(animation = tween(25000, easing = LinearEasing), repeatMode = RepeatMode.Restart), label = "fish5_offset_x"
+    )
+    val fish4YOffset by infiniteTransition.animateFloat(
+        initialValue = 0f, targetValue = 30f,
+        animationSpec = infiniteRepeatable(animation = tween(5000, easing = EaseInOut), repeatMode = RepeatMode.Reverse), label = "fish5_offset_y"
     )
 
     val levelNodeScale by infiniteTransition.animateFloat(
@@ -134,26 +148,41 @@ fun caminoNiveles(
 
             // 3. Peces Animados
             Image(
-
-                painter = painterResource(id = R.drawable.grupopeces),
+                painter = painterResource(id = R.drawable.pez_azul),
                 contentDescription = "Pez 1",
                 modifier = Modifier
-                    .size(width = 120.dp, height = 60.dp)
+                    .size(width = 90.dp, height = 45.dp)
                     .offset(
                         x = with(density) { fish1XOffset.toDp() },
-                        y = 500.dp + with(density) { fish1YOffset.toDp() }
+                        y = 600.dp + with(density) { fish1YOffset.toDp() }
+                    )
+                    .graphicsLayer {
+                        scaleX = -1f
+                    },
+                contentScale = ContentScale.Fit
+            )
+
+            Image(
+
+                painter = painterResource(id = R.drawable.pez_triangulo),
+                contentDescription = "Pez 2",
+                modifier = Modifier
+                    .size(width = 90.dp, height = 45.dp)
+                    .offset(
+                        x = with(density) { fish4XOffset.toDp() },
+                        y = 400.dp + with(density) { fish4YOffset.toDp() }
                     ),
                 contentScale = ContentScale.Fit
             )
 
             Image(
-                painter = painterResource(id = R.drawable.grupopeces),
-                contentDescription = "Pez 2",
+                painter = painterResource(id = R.drawable.pez_naranja),
+                contentDescription = "Pez 3",
                 modifier = Modifier
-                    .size(width = 200.dp, height = 100.dp)
+                    .size(width = 80.dp, height = 40.dp)
                     .offset(
                         x = with(density) { fish2XOffset.toDp() },
-                        y = 300.dp + with(density) { fish2YOffset.toDp() }
+                        y = 250.dp + with(density) { fish2YOffset.toDp() }
                     )
                     .graphicsLayer {
                         scaleX = -1f // Voltea la imagen para que mire a la izquierda
@@ -163,13 +192,13 @@ fun caminoNiveles(
             )
 
             Image(
-                painter = painterResource(id = R.drawable.grupopeces),
-                contentDescription = "Pez 3",
+                painter = painterResource(id = R.drawable.pez_payaso),
+                contentDescription = "Pez 4",
                 modifier = Modifier
-                    .size(width = 150.dp, height = 75.dp)
+                    .size(width = 75.dp, height = 37.5.dp)
                     .offset(
                         x = with(density) { fish3XOffset.toDp() },
-                        y = 100.dp + with(density) { fish3YOffset.toDp() }
+                        y = 80.dp + with(density) { fish3YOffset.toDp() }
                     ),
                 contentScale = ContentScale.Fit
             )
