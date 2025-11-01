@@ -55,6 +55,7 @@ import com.proyect.ocean_words.view.theme.Delius
 import com.proyect.ocean_words.view.theme.Gabriela
 import com.proyect.ocean_words.view.theme.Gorditas
 import com.proyect.ocean_words.view.theme.LightOlive
+import com.proyect.ocean_words.view.theme.MomoTrustDisplay
 import com.proyect.ocean_words.view.theme.VerdeClaro
 import com.proyect.ocean_words.viewmodels.AdivinaEspecieViewModel
 import kotlinx.coroutines.delay
@@ -368,7 +369,7 @@ fun tecladoInteractivo(
                             Text(
                                 text = animalRandom[j].toString(),
                                 color = Color.Black,
-                                fontFamily = Delius,
+                                fontFamily = MomoTrustDisplay,
                                 fontSize = 20.sp,
                                 fontWeight = FontWeight.Bold,
                                 textAlign = TextAlign.Center

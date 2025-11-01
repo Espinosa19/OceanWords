@@ -34,12 +34,17 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.font.createFontFamilyResolver
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.proyect.ocean_words.R
+import com.proyect.ocean_words.view.theme.Boogaloo
+import com.proyect.ocean_words.view.theme.BricolageGrotesque
+import com.proyect.ocean_words.view.theme.Delius
 import com.proyect.ocean_words.view.theme.LightOlive
+import com.proyect.ocean_words.view.theme.MomoTrustDisplay
 import com.proyect.ocean_words.view.theme.OceanBackground
 import com.proyect.ocean_words.view.theme.arena
 import com.proyect.ocean_words.view.theme.azulCeleste
@@ -75,8 +80,6 @@ animalQuestion: String = "¿Qué animal es este?"
             WhaleInfoCard(whaleImageRes = R.drawable.ballena)
 
         }
-
-
         // Barra inferior fija
     }
 }
@@ -109,6 +112,7 @@ fun WhaleInfoCard(whaleImageRes: Int) {
             ) {
                 Text(
                     text = "¡CORRECTO!",
+                    fontFamily = MomoTrustDisplay,
                     color = Color.White,
                     fontWeight = FontWeight.Bold,
                     fontSize = 18.sp
@@ -127,6 +131,7 @@ fun WhaleInfoCard(whaleImageRes: Int) {
             // Título
             Text(
                 text = "BALLENA",
+                fontFamily = MomoTrustDisplay,
                 fontWeight = FontWeight.Black,
                 fontSize = 20.sp
             )
@@ -134,6 +139,7 @@ fun WhaleInfoCard(whaleImageRes: Int) {
             // Subtítulo
             Text(
                 text = "DATOS CURIOSOS:",
+                fontFamily = Delius,
                 fontWeight = FontWeight.Bold,
                 fontSize = 18.sp,
                 modifier = Modifier.padding(top = 16.dp)
@@ -145,7 +151,8 @@ fun WhaleInfoCard(whaleImageRes: Int) {
                     .padding(horizontal = 34.dp, vertical = 8.dp),
                 horizontalAlignment = Alignment.Start
             ) {
-                CuriousFact("Son los animales más grandes del planeta.")
+                CuriousFact("Son los animales más grandes del planeta."
+                )
                 CuriousFact("Se comunican a través de cantos.")
 
             }
@@ -180,6 +187,8 @@ fun WhaleInfoCard(whaleImageRes: Int) {
 private fun CuriousFact(text: String) {
     Text(
         text = "• $text",
+        fontFamily = Delius,
+        fontWeight = FontWeight.Bold,
         fontSize = 14.sp,
         textAlign = TextAlign.Start,
         modifier = Modifier.padding(vertical = 1.dp)
@@ -233,7 +242,7 @@ fun BotonInferiorIcon(
     Button(
         onClick = onClick,
         modifier = Modifier
-            .width(120.dp)
+            .width(130.dp)
             .height(55.dp),
         shape = RoundedCornerShape(16.dp),
         elevation = ButtonDefaults.elevatedButtonElevation(6.dp),
@@ -254,6 +263,7 @@ fun BotonInferiorIcon(
             )
             Text(
                 text = texto,
+                fontFamily = BricolageGrotesque,
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold
             )

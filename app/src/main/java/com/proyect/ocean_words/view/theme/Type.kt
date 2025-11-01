@@ -25,7 +25,9 @@ val Gorditas = FontFamily(
 val Delius = FontFamily(
     Font(R.font.delius_regular, FontWeight.Normal)
 )
-
+val MomoTrustDisplay = FontFamily(
+    Font(R.font.momotrustdisplay_regular, FontWeight.Normal)
+)
 // Set of Material typography styles to start with
 val Typography = Typography(
     bodyLarge = TextStyle(
