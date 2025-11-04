@@ -1,7 +1,6 @@
 package com.proyect.ocean_words.view.rutas
 
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -24,7 +23,6 @@ import com.proyect.ocean_words.view.OceanWordsGameUI
 import com.proyect.ocean_words.view.caminoNiveles
 import com.proyect.ocean_words.view.screens.BottomNavBar
 import com.proyect.ocean_words.view.screens.GameShopScreen
-import com.proyect.ocean_words.view.screens.burbujas
 import com.proyect.ocean_words.view.screens.caracteristicasEspecieView
 
 // --- Rutas de la Aplicación ---
@@ -88,7 +86,8 @@ fun NavManager() {
                     caminoNiveles (
                         onStartTransitionAndNavigate = { levelId ->
                             targetLevelId = levelId
-                        }
+                        },
+                        navController
                     )
                 }
             }

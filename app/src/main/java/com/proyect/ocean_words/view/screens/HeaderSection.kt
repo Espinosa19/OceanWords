@@ -132,7 +132,7 @@ fun HeaderIndicatorRow(
             }
 
             // Elemento 3: Indicador de Monedas
-            GameIndicator(value = "500",redireccionarClick)
+            GameIndicator(value = "500",redireccionarClick,true)
         }
     }
 }
@@ -233,7 +233,8 @@ fun LifeRechargeBubble(timeRemaining: String, modifier: Modifier = Modifier) {
 @Composable
 fun GameIndicator(
     value: String,
-    redireccionarClick: () -> Unit
+    redireccionarClick: () -> Unit,
+    visible: Boolean
 ) {
     // CAMBIO CLAVE 2: Usamos wrapContentWidth(unconstrained) para que el indicador crezca solo lo necesario.
     Box(
@@ -264,36 +265,36 @@ fun GameIndicator(
                 color = Color.White,
                 style = MaterialTheme.typography.labelMedium,
             )
-            Button(
-                onClick =redireccionarClick,
-                modifier = Modifier.size(40.dp), // Tamaño del botón
-                shape = RoundedCornerShape(50), // Circular
-                contentPadding = PaddingValues(0.dp), // Sin padding interno
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.Transparent, // Fondo transparente
-                    contentColor = Color.Unspecified // Mantiene el color de la imagen
-                ),
-                elevation = ButtonDefaults.buttonElevation(defaultElevation = 0.dp) // Sin sombra
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.AddCircle,
-                    contentDescription = null,
-                    tint = Blue,
-                    modifier = Modifier.size(32.dp)
-                )
+            if(visible) {
+
+                Button(
+                    onClick = redireccionarClick,
+                    modifier = Modifier.size(40.dp), // Tamaño del botón
+                    shape = RoundedCornerShape(50), // Circular
+                    contentPadding = PaddingValues(0.dp), // Sin padding interno
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color.Transparent, // Fondo transparente
+                        contentColor = Color.Unspecified // Mantiene el color de la imagen
+                    ),
+                    elevation = ButtonDefaults.buttonElevation(defaultElevation = 0.dp) // Sin sombra
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.AddCircle,
+                        contentDescription = null,
+                        tint = Blue,
+                        modifier = Modifier.size(32.dp)
+                    )
+                }
             }
-
         }
-
-        // Icono dentro de un círculo
-        Box(
-            modifier = Modifier
-                .size(38.dp)
-                .clip(CircleShape)
-                .background(Blue)
-                .align(Alignment.CenterStart),
-            contentAlignment = Alignment.Center
-        ) {
+            Box(
+                modifier = Modifier
+                    .size(38.dp)
+                    .clip(CircleShape)
+                    .background(Blue)
+                    .align(Alignment.CenterStart),
+                contentAlignment = Alignment.Center
+            ) {
 
                 Image(
                     painter = painterResource(id = R.drawable.dolar),
@@ -301,6 +302,9 @@ fun GameIndicator(
                     modifier = Modifier.size(24.dp)
                 )
 
-        }
+            }
+
+        // Icono dentro de un círculo
+
     }
 }

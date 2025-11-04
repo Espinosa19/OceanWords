@@ -47,6 +47,7 @@ import com.proyect.ocean_words.model.PistaEstado
 import com.proyect.ocean_words.model.sampleShopItems
 import com.proyect.ocean_words.view.theme.Blue
 import com.proyect.ocean_words.view.theme.LightOlive
+import com.proyect.ocean_words.view.theme.MomoTrustDisplay
 import com.proyect.ocean_words.view.theme.azulCeleste
 @Composable
 fun ShopItemCard(item: PistaEstado, onBuyClicked: (PistaEstado) -> Unit) {
@@ -172,15 +173,14 @@ fun GameShopScreen(
                     Text(
                         text = "Tienda",
                         fontSize = 32.sp,
+                        fontFamily = MomoTrustDisplay,
                         fontWeight = FontWeight.Bold,
                         color = Color.White,
                         modifier = Modifier.weight(1f),
                         textAlign = TextAlign.Center
                     )
 
-                    GameIndicator(value = "500",redireccionarClick={
-                        navController.navigate("game_shop") // Usa una ruta clara, por ejemplo, "game_shop"
-                    })
+                    GameIndicator(value = "500",redireccionarClick={navController.navigate("game_shop")},false)
                 }
             }
 
@@ -197,6 +197,7 @@ fun GameShopScreen(
                 Text(
                     text = "COMPRAR",
                     fontSize = 24.sp,
+                    fontFamily = MomoTrustDisplay,
                     fontWeight = FontWeight.ExtraBold,
                     color = Color.Black
                 )

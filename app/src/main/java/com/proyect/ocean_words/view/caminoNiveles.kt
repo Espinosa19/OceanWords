@@ -5,6 +5,7 @@ import androidx.compose.foundation.*
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -32,6 +33,8 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.navigation.NavHostController
+import com.proyect.ocean_words.view.screens.GameIndicator
 import com.proyect.ocean_words.view.screens.configuracionView
 
 
@@ -49,6 +52,7 @@ val niveles = List(TotalLevels) { index ->
 @Composable
 fun caminoNiveles(
     onStartTransitionAndNavigate: (levelId: Int) -> Unit,
+    navController: NavHostController,
 ) {
     val listState = rememberLazyListState()
     val density = LocalDensity.current
@@ -204,34 +208,41 @@ fun caminoNiveles(
             )
 
 
-            // 5. Monedas
-            GameIndicator(
-                value = "1500",
+            Row(
                 modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .offset(
-                        x = (-16).dp,
-                        y = 45.dp
-                    )
-            )
+                    .fillMaxWidth() // Ocupa todo el ancho de la pantalla/contenedor
+                    .height(60.dp) // Mantiene la altura que definiste
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                    .offset(y = 24.dp), // Padding para no pegar a los bordes
 
-            IconButton(
-                onClick = { showConfigDialog = true },
-                modifier = Modifier
-                    .align(Alignment.TopStart)
-                    .offset(
-                        x = 10.dp,
-                        y = 40.dp
-                    )
+                // 1. **La Clave**: Espacia los elementos hacia los extremos
+                horizontalArrangement = Arrangement.SpaceBetween,
 
+                // 2. Centra los elementos a lo largo del eje vertical (el centro de los 60.dp de altura)
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(
-                    imageVector = Icons.Filled.Settings,
-                    contentDescription = "Ajustes",
-                    tint = Color.White,
-                    modifier = Modifier.size(32.dp)
-                )
-            }
+                IconButton(
+                    onClick = { showConfigDialog = true },
+
+                    ) {
+                    Icon(
+                        imageVector = Icons.Filled.Settings,
+                        contentDescription = "Ajustes",
+                        tint = Color.White,
+                        modifier = Modifier.size(32.dp)
+                    )
+                }
+                    GameIndicator(
+                        value = "1500",
+                        redireccionarClick = { navController.navigate("game_shop") },
+                        true,
+
+                        )
+
+
+                }
+
+
 
             if (showConfigDialog) {
                 Dialog(
@@ -257,62 +268,6 @@ fun caminoNiveles(
 }
 
 
-@Composable
-fun GameIndicator(
-    value: String,
-    modifier: Modifier = Modifier
-) {
-    Box(
-        modifier = modifier
-            .wrapContentWidth(Alignment.Start)
-            .clip(RoundedCornerShape(30.dp))
-            .background(Color(0xFFB3E5FC).copy(alpha = 0.65f))
-            .border(
-                width = 2.dp,
-                color = Color.White.copy(alpha = 0.5f),
-                shape = RoundedCornerShape(30.dp)
-            )
-            .height(40.dp)
-            .padding(start = 10.dp),
-        contentAlignment = Alignment.CenterStart
-    ) {
-        Row(
-            modifier = Modifier
-                .padding(start = 45.dp, end = 12.dp)
-                .width(70.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = "$value",
-
-                color = Color.White,
-                fontSize = 16.sp,
-                style = MaterialTheme.typography.labelMedium,
-                fontWeight = FontWeight.Bold
-            )
-            Icon(imageVector = Icons.Filled.AddCircle, contentDescription = null, tint = Blue, modifier = Modifier.size(32.dp))
-
-        }
-
-        Box(
-            modifier = Modifier
-                .size(38.dp)
-                .clip(CircleShape)
-                .background(Blue)
-                .align(Alignment.CenterStart),
-            contentAlignment = Alignment.Center
-        ) {
-            Image(
-                painter = painterResource(id = R.drawable.dolar),
-                contentDescription = "Monedas",
-                modifier = Modifier.size(24.dp)
-            )
-        }
-    }
-
-}
 
 @Composable
 fun LevelNode(
