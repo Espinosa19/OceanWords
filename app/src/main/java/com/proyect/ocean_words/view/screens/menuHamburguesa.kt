@@ -37,7 +37,6 @@ fun NavegacionDrawerMenu(
 
     var showConfigDialog by remember { mutableStateOf(false) }
 
-    // El Box ahora actúa como un fondo transparente que cierra el menú al hacer clic en cualquier parte.
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -82,7 +81,6 @@ fun NavegacionDrawerMenu(
                 contentDescription = "Pistas",
                 onClick = {
                     onCloseMenu() // Cierra el Drawer antes de navegar
-                    // 🎯 NAVEGA a la ruta de la tienda.
                     navController.navigate("game_shop") // Usa una ruta clara, por ejemplo, "game_shop"
 
                 }
@@ -90,8 +88,7 @@ fun NavegacionDrawerMenu(
 
             Divider(modifier = Modifier.padding(horizontal = 8.dp), color = Color.Gray.copy(alpha = 0.3f))
 
-            // Segundo botón (ejemplo usando un recurso alternativo)
-            // Asumo que R.drawable.settings_icon existe para este ejemplo
+
             MenuButtonOnlyImage(
                 resourceId = R.drawable.configuraciones, // Usa tu propio recurso de ícono
                 contentDescription = "Configuraciones",

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "438998684991",
+    "project_id": "oceanwords-20718",
+    "storage_bucket": "oceanwords-20718.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:438998684991:android:a288925413e9592da06f8a",
+        "android_client_info": {
+          "package_name": "com.proyect.ocean_words"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC0dUCW7PuQUWxCxTdSZYcCyrXz60zUvps"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
