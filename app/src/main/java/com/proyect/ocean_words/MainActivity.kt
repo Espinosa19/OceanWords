@@ -10,10 +10,14 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.rememberNavController
 import com.jakewharton.threetenabp.AndroidThreeTen
+import com.proyect.ocean_words.utils.MusicManager
 import com.proyect.ocean_words.view.theme.Ocean_wordsTheme
 import com.proyect.ocean_words.view.rutas.NavManager
 
 class MainActivity : ComponentActivity() {
+
+    private lateinit var musicManager: MusicManager
+
     @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     override fun onCreate(savedInstanceState: Bundle?) {
         AndroidThreeTen.init(this)
@@ -21,12 +25,14 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
+        musicManager = MusicManager(this)
+
         setContent {
             Ocean_wordsTheme {
                 val navController = rememberNavController()
 
                 Scaffold(modifier = Modifier.fillMaxSize()) {
-                    NavManager()
+                    NavManager(musicManager)
                 }
             }
         }

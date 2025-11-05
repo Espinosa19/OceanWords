@@ -18,6 +18,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.proyect.ocean_words.model.PistaEstado
 import com.proyect.ocean_words.model.sampleShopItems
+import com.proyect.ocean_words.utils.MusicManager
 import com.proyect.ocean_words.view.InicioJuegoView // Importa tu vista de Splash
 import com.proyect.ocean_words.view.OceanWordsGameUI
 import com.proyect.ocean_words.view.caminoNiveles
@@ -45,8 +46,7 @@ fun createAdivinaEspecieRoute(levelId: Int): String {
 private const val ANTES_TRANSCION = 800L
 private const val TRANSICION_BURBUJAS = 1500L
 @Composable
-fun NavManager() {
-    // El NavController siempre se crea dentro del NavManager
+fun NavManager(musicManager: MusicManager) {
     val navController = rememberNavController()
     var targetLevelId by remember { mutableStateOf<Int?>(null) }
     NavHost(
@@ -55,7 +55,7 @@ fun NavManager() {
     ) {
         // DESTINO: Pantalla de Carga (Splash)
         composable(Rutas.SPLASH) {
-            // Le pasamos la acción de navegación a InicioJuegoView
+            LaunchedEffect(Unit) { musicManager.playMenuMusic() }
             InicioJuegoView(
                 onNavigationToGame = {
                     navController.navigate(Rutas.CAMINO_NIVELES) {
@@ -73,11 +73,13 @@ fun NavManager() {
                 }
             )
         ) { backStackEntry ->
+            LaunchedEffect(Unit) { musicManager.playLevelMusic() }
             val levelId = backStackEntry.arguments?.getInt("levelId") ?: 1
             OceanWordsGameUI(navController,levelId = levelId)
         }
 
         composable(Rutas.CAMINO_NIVELES) {
+            LaunchedEffect(Unit) { musicManager.playMenuMusic() }
             Scaffold (
                 containerColor = Color.Transparent,
                 bottomBar = { BottomNavBar(navController) }
@@ -94,12 +96,15 @@ fun NavManager() {
         }
 
         composable(Rutas.CONFIGURACION) {
-            // Llama al Composable de tu vista principal
+            LaunchedEffect(Unit) { musicManager.playMenuMusic() }
+
         }
         composable(Rutas.CARACTERISTICAS) {
+            LaunchedEffect(Unit) { musicManager.playLevelMusic() }
             caracteristicasEspecieView(navController)
         }
         composable(Rutas.TIENDA) {
+            LaunchedEffect(Unit) { musicManager.playMenuMusic() }
             Scaffold(
                 bottomBar = { BottomNavBar(navController) }
             ) { innerPadding ->
@@ -120,6 +125,7 @@ fun NavManager() {
         }
 
         composable(Rutas.ACUARIO) {
+            LaunchedEffect(Unit) { musicManager.playMenuMusic() }
             Scaffold(
                 bottomBar = { BottomNavBar(navController) }
             ) { innerPadding ->
