@@ -1,5 +1,6 @@
 package com.proyect.ocean_words.view.rutas
 
+import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
@@ -45,10 +46,13 @@ fun createAdivinaEspecieRoute(levelId: Int): String {
 }
 private const val ANTES_TRANSCION = 800L
 private const val TRANSICION_BURBUJAS = 1500L
+
 @Composable
-fun NavManager(musicManager: MusicManager) {
+fun NavManager(musicManager: MusicManager, isAppInForeground: Boolean) {
     val navController = rememberNavController()
     var targetLevelId by remember { mutableStateOf<Int?>(null) }
+    var isMusicGloballyEnabled by remember { mutableStateOf(true) }
+
     NavHost(
         navController = navController,
         startDestination = Rutas.SPLASH // La aplicación comienza en la pantalla de carga
@@ -73,38 +77,110 @@ fun NavManager(musicManager: MusicManager) {
                 }
             )
         ) { backStackEntry ->
-            LaunchedEffect(Unit) { musicManager.playLevelMusic() }
+            // Controla la reproducción/reanudación al navegar o volver de segundo plano
+            LaunchedEffect(isMusicGloballyEnabled, isAppInForeground) {
+                if (isMusicGloballyEnabled && isAppInForeground) {
+                    musicManager.playLevelMusic()
+                } else {
+                    musicManager.stopAllMusic()
+                }
+            }
             val levelId = backStackEntry.arguments?.getInt("levelId") ?: 1
-            OceanWordsGameUI(navController,levelId = levelId)
+            OceanWordsGameUI(
+                navController,
+                levelId = levelId,
+                musicManager = musicManager,
+                onMusicToggle = { isEnabled ->
+                    isMusicGloballyEnabled = isEnabled
+                    if (!isEnabled) {
+                        musicManager.stopAllMusic()
+                    } else {
+                        musicManager.playLevelMusic()
+                    }
+                },
+                isMusicEnabled = isMusicGloballyEnabled
+            )
         }
 
         composable(Rutas.CAMINO_NIVELES) {
-            LaunchedEffect(Unit) { musicManager.playMenuMusic() }
+            // Controla la reproducción/reanudación al navegar o volver de segundo plano
+            LaunchedEffect(isMusicGloballyEnabled, isAppInForeground) {
+                if (isMusicGloballyEnabled && isAppInForeground) {
+                    musicManager.playMenuMusic()
+                } else {
+                    musicManager.stopAllMusic()
+                }
+            }
             Scaffold (
                 containerColor = Color.Transparent,
-                bottomBar = { BottomNavBar(navController) }
+                bottomBar = {
+                    BottomNavBar(navController)
+                }
             ) { innerPadding ->
                 Box(modifier = Modifier.padding(innerPadding)) {
                     caminoNiveles (
                         onStartTransitionAndNavigate = { levelId ->
                             targetLevelId = levelId
                         },
-                        navController
+                        navController,
+                        musicManager = musicManager,
+                        onMusicToggle = { isEnabled ->
+                            isMusicGloballyEnabled = isEnabled
+                            if (!isEnabled) {
+                                musicManager.stopAllMusic()
+                            } else {
+                                musicManager.playMenuMusic()
+                            }
+                        },
+                        isMusicEnabled = isMusicGloballyEnabled
                     )
                 }
             }
         }
 
         composable(Rutas.CONFIGURACION) {
-            LaunchedEffect(Unit) { musicManager.playMenuMusic() }
 
+            com.proyect.ocean_words.view.screens.configuracionView(
+                onBack = {
+                    navController.popBackStack()
+
+                    if (isMusicGloballyEnabled) {
+                        musicManager.playMenuMusic()
+                    }
+                },
+                musicManager = musicManager, // **Pasamos el MusicManager**
+                onMusicToggle = { isEnabled ->
+                    isMusicGloballyEnabled = isEnabled
+                    if (!isEnabled) {
+                        musicManager.stopAllMusic()
+                    }else {
+                        musicManager.playMenuMusic()
+                    }
+                },
+                isMusicEnabled = isMusicGloballyEnabled
+            )
         }
         composable(Rutas.CARACTERISTICAS) {
-            LaunchedEffect(Unit) { musicManager.playLevelMusic() }
+            // Controla la reproducción/reanudación al navegar o volver de segundo plano
+            LaunchedEffect(isMusicGloballyEnabled, isAppInForeground) {
+                if (isMusicGloballyEnabled && isAppInForeground) {
+                    musicManager.playLevelMusic()
+                } else {
+                    musicManager.stopAllMusic()
+                }
+            }
             caracteristicasEspecieView(navController)
         }
         composable(Rutas.TIENDA) {
-            LaunchedEffect(Unit) { musicManager.playMenuMusic() }
+            // Controla la reproducción/reanudación al navegar o volver de segundo plano
+            LaunchedEffect(isMusicGloballyEnabled, isAppInForeground) {
+                Log.d("MusicDebug", "Navigating to TIENDA. isMusicGloballyEnabled: $isMusicGloballyEnabled") // <-- Añade esto
+                if (isMusicGloballyEnabled && isAppInForeground) {
+                    musicManager.playMenuMusic()
+                } else {
+                    musicManager.stopAllMusic()
+                }
+            }
             Scaffold(
                 bottomBar = { BottomNavBar(navController) }
             ) { innerPadding ->
@@ -125,7 +201,14 @@ fun NavManager(musicManager: MusicManager) {
         }
 
         composable(Rutas.ACUARIO) {
-            LaunchedEffect(Unit) { musicManager.playMenuMusic() }
+            // Controla la reproducción/reanudación al navegar o volver de segundo plano
+            LaunchedEffect(isMusicGloballyEnabled, isAppInForeground) {
+                if (isMusicGloballyEnabled && isAppInForeground) {
+                    musicManager.playMenuMusic()
+                } else {
+                    musicManager.stopAllMusic()
+                }
+            }
             Scaffold(
                 bottomBar = { BottomNavBar(navController) }
             ) { innerPadding ->
@@ -154,7 +237,6 @@ fun NavManager(musicManager: MusicManager) {
         //burbujas(modifier = Modifier.fillMaxSize())
 
         val currentLevelId = targetLevelId!!
-
         LaunchedEffect(currentLevelId) {
             //kotlinx.coroutines.delay(ANTES_TRANSCION)
             navController.navigate(createAdivinaEspecieRoute(currentLevelId))
