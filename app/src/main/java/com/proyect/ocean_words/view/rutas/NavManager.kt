@@ -46,8 +46,9 @@ fun createAdivinaEspecieRoute(levelId: Int): String {
 }
 private const val ANTES_TRANSCION = 800L
 private const val TRANSICION_BURBUJAS = 1500L
+
 @Composable
-fun NavManager(musicManager: MusicManager) {
+fun NavManager(musicManager: MusicManager, isAppInForeground: Boolean) {
     val navController = rememberNavController()
     var targetLevelId by remember { mutableStateOf<Int?>(null) }
     var isMusicGloballyEnabled by remember { mutableStateOf(true) }
@@ -76,9 +77,12 @@ fun NavManager(musicManager: MusicManager) {
                 }
             )
         ) { backStackEntry ->
-            LaunchedEffect(Unit) {
-                if (isMusicGloballyEnabled) { // <-- ¡Añadir esta condición!
+            // Controla la reproducción/reanudación al navegar o volver de segundo plano
+            LaunchedEffect(isMusicGloballyEnabled, isAppInForeground) {
+                if (isMusicGloballyEnabled && isAppInForeground) {
                     musicManager.playLevelMusic()
+                } else {
+                    musicManager.stopAllMusic()
                 }
             }
             val levelId = backStackEntry.arguments?.getInt("levelId") ?: 1
@@ -91,7 +95,6 @@ fun NavManager(musicManager: MusicManager) {
                     if (!isEnabled) {
                         musicManager.stopAllMusic()
                     } else {
-                        // 💡 Iniciar la música de nivel si se enciende desde la vista de juego
                         musicManager.playLevelMusic()
                     }
                 },
@@ -100,9 +103,12 @@ fun NavManager(musicManager: MusicManager) {
         }
 
         composable(Rutas.CAMINO_NIVELES) {
-            LaunchedEffect(Unit) {
-                if (isMusicGloballyEnabled) {
+            // Controla la reproducción/reanudación al navegar o volver de segundo plano
+            LaunchedEffect(isMusicGloballyEnabled, isAppInForeground) {
+                if (isMusicGloballyEnabled && isAppInForeground) {
                     musicManager.playMenuMusic()
+                } else {
+                    musicManager.stopAllMusic()
                 }
             }
             Scaffold (
@@ -155,18 +161,24 @@ fun NavManager(musicManager: MusicManager) {
             )
         }
         composable(Rutas.CARACTERISTICAS) {
-            LaunchedEffect(Unit) {
-                if (isMusicGloballyEnabled) {
+            // Controla la reproducción/reanudación al navegar o volver de segundo plano
+            LaunchedEffect(isMusicGloballyEnabled, isAppInForeground) {
+                if (isMusicGloballyEnabled && isAppInForeground) {
                     musicManager.playLevelMusic()
+                } else {
+                    musicManager.stopAllMusic()
                 }
             }
             caracteristicasEspecieView(navController)
         }
         composable(Rutas.TIENDA) {
-            LaunchedEffect(Unit) {
+            // Controla la reproducción/reanudación al navegar o volver de segundo plano
+            LaunchedEffect(isMusicGloballyEnabled, isAppInForeground) {
                 Log.d("MusicDebug", "Navigating to TIENDA. isMusicGloballyEnabled: $isMusicGloballyEnabled") // <-- Añade esto
-                if (isMusicGloballyEnabled) {
+                if (isMusicGloballyEnabled && isAppInForeground) {
                     musicManager.playMenuMusic()
+                } else {
+                    musicManager.stopAllMusic()
                 }
             }
             Scaffold(
@@ -189,9 +201,12 @@ fun NavManager(musicManager: MusicManager) {
         }
 
         composable(Rutas.ACUARIO) {
-            LaunchedEffect(Unit) {
-                if (isMusicGloballyEnabled) {
+            // Controla la reproducción/reanudación al navegar o volver de segundo plano
+            LaunchedEffect(isMusicGloballyEnabled, isAppInForeground) {
+                if (isMusicGloballyEnabled && isAppInForeground) {
                     musicManager.playMenuMusic()
+                } else {
+                    musicManager.stopAllMusic()
                 }
             }
             Scaffold(
