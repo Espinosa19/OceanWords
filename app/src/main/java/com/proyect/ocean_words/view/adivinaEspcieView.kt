@@ -42,6 +42,7 @@ import androidx.navigation.NavController
 import com.proyect.ocean_words.R
 import com.proyect.ocean_words.model.AdivinaEspecieViewModelFactory
 import com.proyect.ocean_words.model.SlotEstado
+import com.proyect.ocean_words.utils.MusicManager
 import com.proyect.ocean_words.view.theme.Blue
 import com.proyect.ocean_words.view.theme.LightBlue
 import com.proyect.ocean_words.view.theme.OceanBackground
@@ -69,6 +70,9 @@ fun OceanWordsGameUI(
     animal: String ="ballena",
     dificultad:String="normal",
     animalQuestion: String = "¿QUÉ ANIMAL ES ESTE?",
+    musicManager: MusicManager,
+    onMusicToggle: (Boolean) -> Unit,
+    isMusicEnabled: Boolean
 ) {
 
 
@@ -96,7 +100,7 @@ fun OceanWordsGameUI(
             Spacer(modifier = Modifier.height(20.dp))
 
             // 2. Aquí se llama al componente principal del juego con toda la lógica de estado
-            JuegoAnimal(animal, dificultad, animalQuestion,navController)
+            JuegoAnimal(animal, dificultad, animalQuestion, navController, musicManager, onMusicToggle, isMusicEnabled)
         }
 
 
@@ -104,7 +108,7 @@ fun OceanWordsGameUI(
 }
 
 @Composable
-fun JuegoAnimal(animal: String, dificultad: String, animalQuestion: String,navController:NavController) {
+fun JuegoAnimal(animal: String, dificultad: String, animalQuestion: String,navController:NavController, musicManager: MusicManager, onMusicToggle: (Boolean) -> Unit, isMusicEnabled: Boolean) {
         val viewModel: AdivinaEspecieViewModel = viewModel(
             factory = AdivinaEspecieViewModelFactory(animal, dificultad)
         )
@@ -138,7 +142,7 @@ fun JuegoAnimal(animal: String, dificultad: String, animalQuestion: String,navCo
         val screenWidthDp = configuration.screenWidthDp.dp
         val bottomPadding = if (screenWidthDp > 420.dp) { 180.dp } else { 150.dp }
 
-        QuestionAndImageSection( navController,animalQuestion, animal, respuestaJugador, onLetterRemoved)
+        QuestionAndImageSection( navController,animalQuestion, animal, respuestaJugador, onLetterRemoved, musicManager, onMusicToggle, isMusicEnabled)
 
 
         Column(
@@ -171,7 +175,10 @@ fun QuestionAndImageSection(
     animal: String,
     // 💡 NUEVOS ARGUMENTOS
     respuestaJugador: MutableList<SlotEstado?>,
-    onLetterRemoved: (Int) -> Unit
+    onLetterRemoved: (Int) -> Unit,
+    musicManager: MusicManager,
+    onMusicToggle: (Boolean) -> Unit,
+    isMusicEnabled: Boolean
 ) {
     var statusMenu by remember { mutableStateOf(false) }
 
@@ -235,7 +242,13 @@ fun QuestionAndImageSection(
                 )
             }
             if (statusMenu) {
-                NavegacionDrawerMenu(navController,onCloseMenu = { statusMenu = false }    )
+                NavegacionDrawerMenu(
+                    navController = navController,
+                    onCloseMenu = { statusMenu = false },
+                    musicManager = musicManager,
+                    onMusicToggle = onMusicToggle,
+                    isMusicEnabled = isMusicEnabled
+                )
             }
         }
 

@@ -33,16 +33,21 @@ import androidx.compose.material3.SwitchDefaults
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import com.proyect.ocean_words.R
+import com.proyect.ocean_words.utils.MusicManager
 import com.proyect.ocean_words.view.theme.azulRey
 
 @Composable
 fun configuracionView(
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    musicManager: MusicManager,
+    onMusicToggle: (Boolean) -> Unit,
+    isMusicEnabled: Boolean
 ) {
 
-    var musicaActivada by remember { mutableStateOf(true) }
+    var musicaActivada by remember { mutableStateOf(isMusicEnabled) }
     var sonidoActivado by remember { mutableStateOf(true) }
     var notificacionesActivadas by remember { mutableStateOf(false) }
+
 
     Box(
         modifier = Modifier
@@ -73,7 +78,13 @@ fun configuracionView(
                     modifier = Modifier.padding(bottom = 20.dp)
                 )
 
-                ConfigRow(label = "MÚSICA", isChecked = musicaActivada) { musicaActivada = it }
+                ConfigRow(label = "MÚSICA", isChecked = musicaActivada) { nuevoEstado ->
+                    musicaActivada = nuevoEstado
+                    onMusicToggle(nuevoEstado)
+                    if (!nuevoEstado) {
+                        musicManager.stopAllMusic()
+                    }
+                }
                 Divider(color = Color(0xFF003D69).copy(alpha = 0.3f), thickness = 1.dp, modifier = Modifier.padding(horizontal = 5.dp))
 
                 ConfigRow(label = "SONIDO", isChecked = sonidoActivado) { sonidoActivado = it }
