@@ -133,7 +133,8 @@ fun WhaleInfoCard(whaleImageRes: Int) {
                 text = "BALLENA",
                 fontFamily = MomoTrustDisplay,
                 fontWeight = FontWeight.Black,
-                fontSize = 20.sp
+                fontSize = 20.sp,
+                color = Color.Black
             )
 
             // Subtítulo
@@ -142,7 +143,8 @@ fun WhaleInfoCard(whaleImageRes: Int) {
                 fontFamily = Delius,
                 fontWeight = FontWeight.Bold,
                 fontSize = 18.sp,
-                modifier = Modifier.padding(top = 16.dp)
+                modifier = Modifier.padding(top = 16.dp),
+                color = Color.Black
             )
 
             // Lista de datos curiosos
@@ -191,7 +193,8 @@ private fun CuriousFact(text: String) {
         fontWeight = FontWeight.Bold,
         fontSize = 14.sp,
         textAlign = TextAlign.Start,
-        modifier = Modifier.padding(vertical = 1.dp)
+        modifier = Modifier.padding(vertical = 1.dp),
+        color = Color.Black
     )
 }
 
