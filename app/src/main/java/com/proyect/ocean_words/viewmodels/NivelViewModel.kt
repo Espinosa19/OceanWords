@@ -36,24 +36,26 @@ class NivelViewModel : ViewModel() {
     fun markSplashAsShown() {
         _isSplashShown.value = true
     }
-
     fun mostrarNiveles() {
         viewModelScope.launch {
-            nivelRepository.mostrarNiveles() // El Repository devuelve Flow<List<NivelEstado>>
+            nivelRepository.mostrarNiveles()
                 .onStart {
-                    // 3. Establece la carga ANTES de empezar a escuchar el Flow.
                     _isLoading.value = true
                 }
                 .catch { exception ->
-                    // 3. Manejo de errores que vienen del Repository (ej. error de Firebase).
                     _error.emit("Error al cargar los niveles: ${exception.message}")
-                    _niveles.value = emptyList() // Limpiar datos en caso de fallo
+                    _niveles.value = emptyList()
                 }
-                .collect { listaActualizada ->
-                    // 2. COLECCIÓN: El ViewModel recibe la lista cada vez que cambia en la DB.
-                    _niveles.value = listaActualizada
+                .collect { listaOriginal ->
+                    val listaConEspecieAleatoria = listaOriginal.map { nivel ->
+                        val especieAleatoria = nivel.especies_id.orEmpty().randomOrNull()
 
-                    // 3. Ocultar la carga SOLO después de la primera emisión exitosa.
+                        nivel.copy(especies_id = especieAleatoria?.let { listOf(it) }
+                            ?: emptyList())
+                    }
+
+                    _niveles.value = listaConEspecieAleatoria
+
                     _isLoading.value = false
                 }
         }

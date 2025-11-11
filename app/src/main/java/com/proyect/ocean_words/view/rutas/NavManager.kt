@@ -52,7 +52,6 @@ fun NavManager(
     musicManager: MusicManager,
     isAppInForeground: Boolean,
     nivelViewModel: NivelViewModel,
-    especieViewModel: EspecieViewModel
 ) {
     val navController = rememberNavController()
     var targetLevelId by remember { mutableStateOf<Int?>(null) }
@@ -91,7 +90,6 @@ fun NavManager(
                 levelId = levelId,
                 musicManager = musicManager,
                 isAppInForeground = isAppInForeground,
-                viewModel = especieViewModel
             )
         }
 

@@ -31,24 +31,23 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import com.proyect.ocean_words.model.LevelEstado
+import com.proyect.ocean_words.model.NivelEstado
 import com.proyect.ocean_words.utils.MusicManager
 import com.proyect.ocean_words.view.screens.BottomNavBar
 import com.proyect.ocean_words.view.screens.GameIndicator
 import com.proyect.ocean_words.view.screens.configuracionView
 import com.proyect.ocean_words.viewmodels.NivelViewModel
+import java.util.logging.Level
 
 
 val LevelSpacing = 40.dp
 val PaddingVertical = 50.dp
 val TotalLevels = 5
 
-data class Level(val id: Int, val isUnlocked: Boolean)
 
-val niveles = List(TotalLevels) { index ->
-    Level(id = index + 1, isUnlocked = index < 2)
-}
+
 
 
 @Composable
@@ -57,7 +56,8 @@ fun caminoNiveles(
     navController: NavHostController,
     musicManager: MusicManager,
     onMusicToggle: (Boolean) -> Unit,
-    isMusicEnabled: Boolean
+    isMusicEnabled: Boolean,
+    niveles: List<NivelEstado>
 ) {
 
 
@@ -116,7 +116,13 @@ fun caminoNiveles(
             repeatMode = RepeatMode.Reverse
         ), label = "level_node_scale"
     )
-
+    val nivelesFinal = niveles.mapIndexed { index, nivel ->
+        LevelEstado(
+            id = index + 1, // El ID basado en la posición
+            especie_id = nivel.especies_id.toString(), // Usamos la lista de especies del nivel original
+            isUnlocked = index < 2 // El desbloqueo basado en la posición
+        )
+    }
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -146,7 +152,7 @@ fun caminoNiveles(
                 verticalArrangement = Arrangement.spacedBy(LevelSpacing),
                 reverseLayout = true
             ) {
-                itemsIndexed(niveles) { index, level ->
+                itemsIndexed(nivelesFinal) { index, level ->
                     LevelNode(
                         level = level,
                         index = index,
@@ -283,7 +289,7 @@ fun caminoNiveles(
 
 @Composable
 fun LevelNode(
-    level: Level,
+    level: com.proyect.ocean_words.model.LevelEstado,
     index: Int,
     onLevelClick: (levelId: Int) -> Unit, // 👈 Así es correcto
     animatedScale: Float
@@ -405,7 +411,7 @@ fun CaminoNivelesRoute(
         Box(modifier = Modifier.padding(innerPadding)) {
             caminoNiveles(
                 navController = navController,
-//        niveles = niveles,
+                niveles = niveles,
                 onStartTransitionAndNavigate = { levelId ->
                     navController.navigate("nivel/$levelId")
                 },

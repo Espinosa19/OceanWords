@@ -551,12 +551,12 @@ fun OceanWordsGameRoute(
     levelId: Int,
     isAppInForeground: Boolean,
     musicManager: MusicManager,
-    viewModel: EspecieViewModel
+//    viewModel: EspecieViewModel
 
 ) {
 //    val viewModel: NivelViewModel = viewModel()
-    val especies by viewModel.especies.collectAsState(initial = emptyList())
-    Log.i("Niveles","$especies")
+//    val especies by viewModel.especies.collectAsState(initial = emptyList())
+//    Log.i("Niveles","$especies")
     var isMusicGloballyEnabled by remember { mutableStateOf(true) }
     LaunchedEffect(isMusicGloballyEnabled, isAppInForeground) {
         if (isMusicGloballyEnabled && isAppInForeground) {
