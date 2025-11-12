@@ -99,7 +99,7 @@ fun OceanWordsGameUI(
             Spacer(modifier = Modifier.height(20.dp))
 
             // 2. Aquí se llama al componente principal del juego con toda la lógica de estado
-            JuegoAnimal(animal, dificultad, animalQuestion, navController, musicManager, onMusicToggle, isMusicEnabled)
+            JuegoAnimal(animal, dificultad, animalQuestion, navController, musicManager, onMusicToggle, isMusicEnabled,especieId)
         }
 
 
@@ -108,7 +108,16 @@ fun OceanWordsGameUI(
 
 @Composable
 
-fun JuegoAnimal(animal: String, dificultad: String, animalQuestion: String,navController:NavController, musicManager: MusicManager, onMusicToggle: (Boolean) -> Unit, isMusicEnabled: Boolean) {
+fun JuegoAnimal(
+    animal: String,
+    dificultad: String,
+    animalQuestion: String,
+    navController: NavController,
+    musicManager: MusicManager,
+    onMusicToggle: (Boolean) -> Unit,
+    isMusicEnabled: Boolean,
+    especieId: String
+) {
     val viewModel: EspecieViewModel = viewModel(
         factory = AdivinaEspecieViewModelFactory(animal, dificultad)
     )
@@ -126,13 +135,10 @@ fun JuegoAnimal(animal: String, dificultad: String, animalQuestion: String,navCo
     val obtenerPista : () -> Unit = viewModel::obtenerPista
     LaunchedEffect (navegarAExito) {
         if (navegarAExito) {
-            // 1. Navegar a la pantalla de éxito
-            navController.navigate("caracteristicas") {
-                popUpTo("ruta_del_juego") { inclusive = true } // O la lógica de back stack que necesites
-            }
+
 
             // 2. Consumir el evento de navegación reseteando la LiveData
-            viewModel.navegacionAExitoCompleta() // Debes implementar esta función en el VM
+            navController.navigate("caracteristicas/$especieId")
         }
     }
 

@@ -1,5 +1,6 @@
 package com.proyect.ocean_words.view.screens
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -53,10 +54,12 @@ val StarColor = Color(0xFFFFCC00)
 @Composable
 fun caracteristicasEspecieView(
     navController: NavController,
+    especie_id: String,
 animal: String = "Pez lámpara",
 dificultad: String = "Difícil",
 animalQuestion: String = "¿Qué animal es este?"
 ) {
+    Log.i("Unidos","$especie_id")
     Box(
         modifier = Modifier
             .fillMaxSize()

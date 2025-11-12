@@ -108,6 +108,24 @@ fun NavManager(
                 }
             }
         }
+        composable(
+            route = "caracteristicas/{especie_id}",
+            arguments = listOf(
+                navArgument("especie_id") { type = NavType.StringType },
+            )
+        ) { backStackEntry ->
+            val especie_id =backStackEntry.arguments?.getString("especie_id")
+            LaunchedEffect(isMusicGloballyEnabled, isAppInForeground) {
+                if (isMusicGloballyEnabled && isAppInForeground) {
+                    musicManager.playLevelMusic()
+                } else {
+                    musicManager.stopAllMusic()
+                }
+            }
+            if (especie_id != null) {
+                caracteristicasEspecieView(navController,especie_id)
+            }
+        }
 
 
 
@@ -133,17 +151,7 @@ fun NavManager(
                 isMusicEnabled = isMusicGloballyEnabled
             )
         }
-        composable(Rutas.CARACTERISTICAS) {
-            // Controla la reproducción/reanudación al navegar o volver de segundo plano
-            LaunchedEffect(isMusicGloballyEnabled, isAppInForeground) {
-                if (isMusicGloballyEnabled && isAppInForeground) {
-                    musicManager.playLevelMusic()
-                } else {
-                    musicManager.stopAllMusic()
-                }
-            }
-            caracteristicasEspecieView(navController)
-        }
+
         composable(Rutas.TIENDA) {
             // Controla la reproducción/reanudación al navegar o volver de segundo plano
             LaunchedEffect(isMusicGloballyEnabled, isAppInForeground) {
