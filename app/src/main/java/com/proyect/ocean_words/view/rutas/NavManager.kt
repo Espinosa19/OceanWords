@@ -24,7 +24,6 @@ import com.proyect.ocean_words.view.OceanWordsGameRoute
 import com.proyect.ocean_words.view.screens.BottomNavBar
 import com.proyect.ocean_words.view.screens.GameShopScreen
 import com.proyect.ocean_words.view.screens.caracteristicasEspecieView
-import com.proyect.ocean_words.viewmodels.EspecieViewModel
 import com.proyect.ocean_words.viewmodels.NivelViewModel
 
 // --- Rutas de la Aplicación ---
@@ -44,9 +43,7 @@ object Rutas {
 
 private const val ANTES_TRANSCION = 800L
 private const val TRANSICION_BURBUJAS = 1500L
-fun createAdivinaEspecieRoute(levelId: Int): String {
-    return "juego_principal/$levelId"
-}
+
 @Composable
 fun NavManager(
     musicManager: MusicManager,
@@ -81,17 +78,37 @@ fun NavManager(
 
         }
         composable(
-            route = "nivel/{id}", // <- La clave es la ruta con el argumento
-            arguments = listOf(navArgument("id") { type = NavType.IntType })
-        ) { backStackEntry ->
-            val levelId = backStackEntry.arguments?.getInt("id") ?: 1
-            OceanWordsGameRoute(
-                navController = navController,
-                levelId = levelId,
-                musicManager = musicManager,
-                isAppInForeground = isAppInForeground,
+            route = "nivel/{id}/{especie_id}/{nombre}/{dificultad}",
+            arguments = listOf(
+                navArgument("id") { type = NavType.IntType },
+                navArgument("especie_id") { type = NavType.StringType },
+                navArgument("nombre") { type = NavType.StringType },
+                navArgument("dificultad") { type = NavType.StringType }
             )
+        ) { backStackEntry ->
+            val levelId = backStackEntry.arguments?.getInt("id")
+            val especie_id =backStackEntry.arguments?.getString("especie_id")
+            val nombre = backStackEntry.arguments?.getString("nombre")
+            val dificultad = backStackEntry.arguments?.getString("dificultad")
+            if (levelId != null) {
+                if (nombre != null) {
+                    if (dificultad != null) {
+                        if (especie_id != null) {
+                            OceanWordsGameRoute(
+                                navController = navController,
+                                levelId = levelId,
+                                isAppInForeground = isAppInForeground,
+                                musicManager = musicManager,
+                                nombre =nombre,
+                                dificultad =dificultad,
+                                especieId = especie_id
+                            )
+                        }
+                    }
+                }
+            }
         }
+
 
 
         composable(Rutas.CONFIGURACION) {

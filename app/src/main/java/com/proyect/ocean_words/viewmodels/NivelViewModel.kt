@@ -35,8 +35,7 @@ class NivelViewModel : ViewModel() {
 
     fun markSplashAsShown() {
         _isSplashShown.value = true
-    }
-    fun mostrarNiveles() {
+    }fun mostrarNiveles() {
         viewModelScope.launch {
             nivelRepository.mostrarNiveles()
                 .onStart {
@@ -45,21 +44,26 @@ class NivelViewModel : ViewModel() {
                 .catch { exception ->
                     _error.emit("Error al cargar los niveles: ${exception.message}")
                     _niveles.value = emptyList()
+                    _isLoading.value = false
                 }
                 .collect { listaOriginal ->
-                    val listaConEspecieAleatoria = listaOriginal.map { nivel ->
-                        val especieAleatoria = nivel.especies_id.orEmpty().randomOrNull()
 
-                        nivel.copy(especies_id = especieAleatoria?.let { listOf(it) }
-                            ?: emptyList())
+                    // Para cada nivel, seleccionamos una especie aleatoria de su lista
+                    val listaConEspecieAleatoria = listaOriginal.map { nivel ->
+                        val especieAleatoria = nivel.especies_id.randomOrNull()
+
+                        nivel.copy(
+                            especies_id = especieAleatoria?.let { listOf(it) } ?: emptyList()
+                        )
                     }
 
+                    // Actualizamos el estado con la nueva lista procesada
                     _niveles.value = listaConEspecieAleatoria
-
                     _isLoading.value = false
                 }
         }
     }
+
 }
 
     // Si tienes que cargar los datos inmediatamente al crear el ViewModel,

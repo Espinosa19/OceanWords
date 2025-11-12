@@ -25,7 +25,7 @@ class MainActivity : ComponentActivity() {
     private lateinit var musicManager: MusicManager
     var isAppInForeground by mutableStateOf(true)
     private val nivelViewModel: NivelViewModel by viewModels()
-//    private val especieViewModel: EspecieViewModel by viewModels()
+    private val especieViewModel: EspecieViewModel by viewModels()
 
     @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     override fun onCreate(savedInstanceState: Bundle?) {

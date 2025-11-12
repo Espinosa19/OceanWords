@@ -4,22 +4,29 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.proyect.ocean_words.model.EspecieEstado
 import com.proyect.ocean_words.model.SlotEstado
 import com.proyect.ocean_words.repositories.EspecieRepository
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.launch
 
 class EspecieViewModel (
     animal: String,
     dificultad: String
 ) : ViewModel() {
-    val EspecieRepository = EspecieRepository()
-    private val _especies= MutableStateFlow<List<EspecieEstado>>(emptyList())
-    val especies : StateFlow<List<EspecieEstado>> = _especies
-    private val _especie = MutableStateFlow(EspecieEstado())
-    val especie : StateFlow<EspecieEstado> = _especie
+    private val repository = EspecieRepository()
+
+    private val _especie = MutableStateFlow<EspecieEstado?>(null)
+    val especie = _especie.asStateFlow()
+
     val animalSinEspacios: String = animal.trim().replace(" ", "")
     private val tamanoTeclado: Int
     private val _navegarAExito = MutableLiveData<Boolean>()
@@ -206,5 +213,16 @@ class EspecieViewModel (
             return text.toList().shuffled().joinToString("")
         }
 
+//    fun mostrarEspeciePorId(idEspecie: String) {
+//        viewModelScope.launch {
+//            repository.buscarEspeciePorId(idEspecie)
+//                .catch {
+//                    _especie.value = null
+//                }
+//                .collect { especieEncontrada ->
+//                    _especie.value = especieEncontrada
+//                }
+//        }
+//    }
 
 }

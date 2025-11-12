@@ -30,17 +30,21 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.proyect.ocean_words.R
-import com.proyect.ocean_words.viewmodels.AdivinaEspecieViewModelFactory
 import com.proyect.ocean_words.view.theme.Blue // Asumo que son colores definidos en tu tema
 import com.proyect.ocean_words.view.theme.LightOlive
+import com.proyect.ocean_words.viewmodels.AdivinaEspecieViewModelFactory
 import com.proyect.ocean_words.viewmodels.EspecieViewModel
 
 // NOTA: Tu código original usaba IndicatorBackgroundColor, Orange, OrangeDeep, y Purple40
 // pero no estaban definidos en el código que enviaste. Asumo que se definen en el archivo theme.
 
 @Composable
-fun HeaderSection(animal : String,dificultad : String,navController: NavController) {
-    val viewModel: EspecieViewModel = viewModel(
+fun HeaderSection(
+    animal: String,
+    dificultad: String,
+    navController: NavController
+    ) {
+    val viewModel: EspecieViewModel = viewModel (
         factory = AdivinaEspecieViewModelFactory(animal, dificultad)
     )
     val vidas by viewModel.vidas.collectAsState()

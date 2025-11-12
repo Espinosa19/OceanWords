@@ -117,12 +117,19 @@ fun caminoNiveles(
         ), label = "level_node_scale"
     )
     val nivelesFinal = niveles.mapIndexed { index, nivel ->
+        // Escoge una especie aleatoria de la lista de especies del nivel
+        val especieAleatoria = nivel.especies_id.randomOrNull()
+
         LevelEstado(
-            id = index + 1, // El ID basado en la posición
-            especie_id = nivel.especies_id.toString(), // Usamos la lista de especies del nivel original
-            isUnlocked = index < 2 // El desbloqueo basado en la posición
+            id = index + 1,
+            especie_id = especieAleatoria?.id ?: "0",
+            nombreEspecie = especieAleatoria?.nombre ?: "Desconocida",
+            dificultad = especieAleatoria?.dificultad ?: "Sin definir",
+            imagen = especieAleatoria?.imagen ?: "",
+            isUnlocked = index < 2 // Los dos primeros niveles desbloqueados
         )
     }
+
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -385,10 +392,9 @@ fun CaminoNivelesRoute(
 ) {
     val isSplashShown by viewModel.isSplashShown.collectAsState()
     val niveles by viewModel.niveles.collectAsState(initial = emptyList())
-    Log.i("Niveles","$niveles")
     var targetLevelId by remember { mutableStateOf<Int?>(null) }
     var isMusicGloballyEnabled by remember { mutableStateOf(true) }
-
+    Log.i("Niveles_info","$niveles")
     LaunchedEffect(isMusicGloballyEnabled, isAppInForeground) {
         if (isMusicGloballyEnabled && isAppInForeground) {
             musicManager.playMenuMusic()
@@ -413,8 +419,25 @@ fun CaminoNivelesRoute(
                 navController = navController,
                 niveles = niveles,
                 onStartTransitionAndNavigate = { levelId ->
-                    navController.navigate("nivel/$levelId")
-                },
+                    // Buscar el nivel correspondiente
+                    val nivel = niveles.find { it.numero_nivel == levelId }
+
+                    // Extraer la primera especie (si existe)
+                    val especie = nivel?.especies_id?.firstOrNull()
+
+                    // Verificar si existe una especie válida
+                    if (especie != null) {
+                        var especie_id =especie.id
+                        val nombre = especie.nombre
+                        val dificultad = especie.dificultad
+
+                        // Navegar pasando los parámetros
+                        navController.navigate("nivel/$levelId/$especie_id/$nombre/$dificultad")
+                    } else {
+                        Log.e("CaminoNivelesRoute", "No se encontró especie para el nivel $levelId")
+                    }
+                }
+                ,
                 musicManager = musicManager,
                 onMusicToggle = { isEnabled ->
                     // Asumiendo que 'isMusicGloballyEnabled' está definido como un MutableState

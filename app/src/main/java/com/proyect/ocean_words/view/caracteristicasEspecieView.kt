@@ -34,13 +34,12 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.font.createFontFamilyResolver
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.proyect.ocean_words.R
-import com.proyect.ocean_words.view.theme.Boogaloo
 import com.proyect.ocean_words.view.theme.BricolageGrotesque
 import com.proyect.ocean_words.view.theme.Delius
 import com.proyect.ocean_words.view.theme.LightOlive
@@ -75,7 +74,7 @@ animalQuestion: String = "¿Qué animal es este?"
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            HeaderSection(animal,dificultad,navController) // Encabezado superior (corazones, monedas, etc.)
+            HeaderSection(animal, dificultad, navController ) // Encabezado superior (corazones, monedas, etc.)
             Spacer(modifier = Modifier.height(20.dp))
             WhaleInfoCard(whaleImageRes = R.drawable.ballena)
 

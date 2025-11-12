@@ -1,7 +1,5 @@
 package com.proyect.ocean_words.view
 
-import android.content.ContentValues.TAG
-import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeOut
@@ -14,7 +12,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.getValue // Esta es la importación clave que faltaimport androidx.compose.runtime.remember
 import androidx.compose.runtime.mutableStateOf
@@ -54,7 +51,6 @@ import com.proyect.ocean_words.view.theme.Delius
 import com.proyect.ocean_words.view.theme.MomoTrustDisplay
 import com.proyect.ocean_words.view.theme.VerdeClaro
 import com.proyect.ocean_words.viewmodels.EspecieViewModel
-import com.proyect.ocean_words.viewmodels.NivelViewModel
 
 
 @Composable
@@ -63,11 +59,12 @@ fun OceanWordsGameUI(
     levelId: Int = 1,
     musicManager: MusicManager,
     isAppInForeground: Boolean,
-    animal: String ="ballena",
-    dificultad:String="normal",
+    animal: String = "ballena",
+    dificultad: String = "normal",
     animalQuestion: String = "¿QUÉ ANIMAL ES ESTE?",
     onMusicToggle: (Boolean) -> Unit,
-    isMusicEnabled: Boolean
+    isMusicEnabled: Boolean,
+    especieId: String
 ) {
     var isMusicGloballyEnabled by remember { mutableStateOf(true) }
 
@@ -112,22 +109,22 @@ fun OceanWordsGameUI(
 @Composable
 
 fun JuegoAnimal(animal: String, dificultad: String, animalQuestion: String,navController:NavController, musicManager: MusicManager, onMusicToggle: (Boolean) -> Unit, isMusicEnabled: Boolean) {
-        val viewModel: EspecieViewModel = viewModel(
-            factory = AdivinaEspecieViewModelFactory(animal, dificultad)
-        )
+    val viewModel: EspecieViewModel = viewModel(
+        factory = AdivinaEspecieViewModelFactory(animal, dificultad)
+    )
 
-        val animalRandom = viewModel.animalRandom
-        val letrasPorFila = 7 // Asumiendo que esta es una constante de la UI
+    val animalRandom = viewModel.animalRandom
+    val letrasPorFila = 7 // Asumiendo que esta es una constante de la UI
 
-        val visible = viewModel.visible
-        val respuestaJugador = viewModel.respuestaJugador
-        val navegarAExito by viewModel.navegarAExito.observeAsState(initial = false)
-        val onLetterSelected: (Char, Int) -> Unit = viewModel::selectLetter
-        val onLetterRemoved: (Int) -> Unit = viewModel::removeLetter
-        val onResetGame: () -> Unit = viewModel::resetGame
-        val onGoBackGame: () -> Unit = viewModel::goBackGame
-        val obtenerPista : () -> Unit = viewModel::obtenerPista
-        LaunchedEffect (navegarAExito) {
+    val visible = viewModel.visible
+    val respuestaJugador = viewModel.respuestaJugador
+    val navegarAExito by viewModel.navegarAExito.observeAsState(initial = false)
+    val onLetterSelected: (Char, Int) -> Unit = viewModel::selectLetter
+    val onLetterRemoved: (Int) -> Unit = viewModel::removeLetter
+    val onResetGame: () -> Unit = viewModel::resetGame
+    val onGoBackGame: () -> Unit = viewModel::goBackGame
+    val obtenerPista : () -> Unit = viewModel::obtenerPista
+    LaunchedEffect (navegarAExito) {
         if (navegarAExito) {
             // 1. Navegar a la pantalla de éxito
             navController.navigate("caracteristicas") {
@@ -221,10 +218,10 @@ fun QuestionAndImageSection(
                     modifier = Modifier
                         .size(200.dp)
                         .offset(y = offsetPadding)
-                            ,colorFilter = ColorFilter.tint(
-                            color = Color.Black.copy(alpha = 1f),
-                    blendMode = BlendMode.SrcAtop
-                )
+                    ,colorFilter = ColorFilter.tint(
+                        color = Color.Black.copy(alpha = 1f),
+                        blendMode = BlendMode.SrcAtop
+                    )
                 )
                 // 💡 LLAMADA A RESPONSEAREA CON EL ESTADO Y CALLBACK
                 ResponseArea(animal, respuestaJugador, onLetterRemoved)
@@ -543,7 +540,7 @@ fun BotonDeInterfaz(
     ) {
         Icon(imageVector = icon, contentDescription = null, tint = Color.White, modifier = Modifier.size(32.dp))
     }
-    
+
 }
 @Composable
 fun OceanWordsGameRoute(
@@ -551,12 +548,11 @@ fun OceanWordsGameRoute(
     levelId: Int,
     isAppInForeground: Boolean,
     musicManager: MusicManager,
-//    viewModel: EspecieViewModel
 
+    nombre: String,
+    dificultad: String,
+    especieId: String
 ) {
-//    val viewModel: NivelViewModel = viewModel()
-//    val especies by viewModel.especies.collectAsState(initial = emptyList())
-//    Log.i("Niveles","$especies")
     var isMusicGloballyEnabled by remember { mutableStateOf(true) }
     LaunchedEffect(isMusicGloballyEnabled, isAppInForeground) {
         if (isMusicGloballyEnabled && isAppInForeground) {
@@ -565,8 +561,7 @@ fun OceanWordsGameRoute(
             musicManager.stopAllMusic()
         }
     }
-    val defaultAnimal = "ballena" // o el valor que desees
-    val defaultDificultad = "normal"
+
     val defaultQuestion = "¿QUÉ ANIMAL ES ESTE?"
 
     OceanWordsGameUI(
@@ -575,15 +570,15 @@ fun OceanWordsGameRoute(
         musicManager = musicManager,
         isAppInForeground = isAppInForeground, // ✅ Pasamos el valor que recibimos
 
-        animal = defaultAnimal,
-        dificultad = defaultDificultad,
+        animal = nombre,
+        dificultad = dificultad,
         animalQuestion = defaultQuestion,
 
         onMusicToggle = { isEnabled ->
             isMusicGloballyEnabled = isEnabled
         },
-        isMusicEnabled = isMusicGloballyEnabled
+        isMusicEnabled = isMusicGloballyEnabled,
+        especieId = especieId
     )
 }
-
 

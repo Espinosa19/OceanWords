@@ -41,9 +41,7 @@ class NivelRepository(
                 return@map nivelesList
             }
             .catch { exception ->
-                // 4. Captura errores de la base de datos (red, permisos, etc.)
                 Log.e("NivelRepository", "Error en la escucha de Firestore", exception)
-                // Relanza la excepción para que el .catch() del ViewModel la maneje
                 throw exception
             }
     }
