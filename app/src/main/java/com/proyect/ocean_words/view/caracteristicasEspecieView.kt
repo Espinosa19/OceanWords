@@ -4,32 +4,19 @@ import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
@@ -38,34 +25,34 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.proyect.ocean_words.R
-import com.proyect.ocean_words.view.theme.BricolageGrotesque
-import com.proyect.ocean_words.view.theme.Delius
-import com.proyect.ocean_words.view.theme.LightOlive
-import com.proyect.ocean_words.view.theme.MomoTrustDisplay
-import com.proyect.ocean_words.view.theme.OceanBackground
-import com.proyect.ocean_words.view.theme.arena
-import com.proyect.ocean_words.view.theme.azulCeleste
-import com.proyect.ocean_words.view.theme.whiteBoxColor
+import com.proyect.ocean_words.model.EspecieEstado
+import com.proyect.ocean_words.view.theme.*
+import com.proyect.ocean_words.viewmodels.CaracteristicasEspecieViewModels
 
 val StarColor = Color(0xFFFFCC00)
+
 @Composable
 fun caracteristicasEspecieView(
     navController: NavController,
-    especie_id: String,
-animal: String = "Pez lámpara",
-dificultad: String = "Difícil",
-animalQuestion: String = "¿Qué animal es este?"
+    especie_id: String
 ) {
-    Log.i("Unidos","$especie_id")
+    val viewModel: CaracteristicasEspecieViewModels = viewModel()
+    val especieState by viewModel.especie.collectAsState()
+
+    LaunchedEffect(especie_id) {
+        Log.i("Firebase", "Cargando especie con ID: $especie_id")
+        viewModel.getEspeciePorId(especie_id)
+    }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(OceanBackground)
     ) {
-        // Fondo
         Image(
             painter = painterResource(id = R.drawable.fondo_juego),
             contentDescription = null,
@@ -73,166 +60,180 @@ animalQuestion: String = "¿Qué animal es este?"
             modifier = Modifier.matchParentSize()
         )
 
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            HeaderSection(animal, dificultad, navController ) // Encabezado superior (corazones, monedas, etc.)
-            Spacer(modifier = Modifier.height(20.dp))
-            WhaleInfoCard(whaleImageRes = R.drawable.ballena)
+        when (val especie = especieState) {
+            null -> {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator(color = azulCeleste)
+                }
+            }
 
+            else -> {
+                CaracteristicasModal(
+                    especie = especie,
+                    onClose = { navController.popBackStack() }
+                )
+            }
         }
-        // Barra inferior fija
     }
 }
 
 @Composable
-fun WhaleInfoCard(whaleImageRes: Int) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth(0.98f)
-            .wrapContentHeight() // 👈 importante
-            .padding(horizontal = 24.dp, vertical = 16.dp)
-            .border(width = 13.dp, color = arena, shape = RoundedCornerShape(24.dp)),
-        shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(containerColor = whiteBoxColor),
-        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
-    ) {
-        Column(
+fun CaracteristicasModal(
+    especie: EspecieEstado,
+    onClose: () -> Unit
+) {
+    Dialog(onDismissRequest = { onClose() }) {
+        Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 10.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+                .fillMaxHeight(0.85f)
+                .border(8.dp, arena, shape = RoundedCornerShape(25.dp)),
+            shape = RoundedCornerShape(25.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = whiteBoxColor.copy(alpha = 0.97f)
+            ),
+            elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
         ) {
-            // Título superior
             Box(
                 modifier = Modifier
-                    .fillMaxWidth(0.9f)
-                    .background(azulCeleste)
-                    .padding(vertical = 8.dp),
-                contentAlignment = Alignment.Center
+                    .background(
+                        Brush.verticalGradient(
+                            listOf(Color(0xFFE0F7FA), Color(0xFFB2EBF2))
+                        )
+                    )
+                    .padding(12.dp)
             ) {
-                Text(
-                    text = "¡CORRECTO!",
-                    fontFamily = MomoTrustDisplay,
-                    color = Color.White,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 18.sp
-                )
-            }
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState())
+                        .padding(12.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    // Botón cerrar
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.End
+                    ) {
+                        IconButton(onClick = { onClose() }) {
+                            Icon(
+                                imageVector = Icons.Default.Close,
+                                contentDescription = "Cerrar",
+                                tint = Color.Black
+                            )
+                        }
+                    }
 
-            // Imagen del animal
-            Image(
-                painter = painterResource(id = whaleImageRes),
-                contentDescription = "Ballena",
-                modifier = Modifier
-                    .size(150.dp)
-                    .padding(top = 10.dp)
-            )
+                    Text(
+                        text = "¡CORRECTO!",
+                        fontFamily = MomoTrustDisplay,
+                        color = azulCeleste,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 22.sp
+                    )
 
-            // Título
-            Text(
-                text = "BALLENA",
-                fontFamily = MomoTrustDisplay,
-                fontWeight = FontWeight.Black,
-                fontSize = 20.sp,
-                color = Color.Black
-            )
+                    Spacer(modifier = Modifier.height(8.dp))
 
-            // Subtítulo
-            Text(
-                text = "DATOS CURIOSOS:",
-                fontFamily = Delius,
-                fontWeight = FontWeight.Bold,
-                fontSize = 18.sp,
-                modifier = Modifier.padding(top = 16.dp),
-                color = Color.Black
-            )
+                    Image(
+                        painter = painterResource(id = R.drawable.ballena),
+                        contentDescription = especie.nombre,
+                        modifier = Modifier
+                            .size(160.dp)
+                            .padding(6.dp)
+                    )
 
-            // Lista de datos curiosos
-            Column(
-                modifier = Modifier
-                    .padding(horizontal = 34.dp, vertical = 8.dp),
-                horizontalAlignment = Alignment.Start
-            ) {
-                CuriousFact("Son los animales más grandes del planeta."
-                )
-                CuriousFact("Se comunican a través de cantos.")
+                    Spacer(modifier = Modifier.height(8.dp))
 
-            }
+                    Text(
+                        text = especie.nombre.uppercase(),
+                        fontFamily = MomoTrustDisplay,
+                        fontWeight = FontWeight.Black,
+                        fontSize = 24.sp,
+                        color = Color.Black
+                    )
 
-            // Puntos ganados
+                    Spacer(modifier = Modifier.height(12.dp))
 
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 24.dp, vertical = 10.dp)
-                    .height(100.dp),
-                horizontalArrangement = Arrangement.spacedBy(22.dp, Alignment.CenterHorizontally),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                BotonInferiorIcon(
-                    icon = Icons.Default.Home,
-                    texto = "Inicio",
-                    onClick = { /* Acción */ }
-                )
+                    CaracteristicaTexto("Tipo", especie.tipo)
+                    CaracteristicaTexto("Hábitat", especie.habitat)
+                    CaracteristicaTexto("Agua", especie.agua)
 
-                BotonInferiorIcon(
-                    icon = Icons.Default.ArrowForward,
-                    texto = "Siguiente",
-                    onClick = { /* Acción */ }
-                )
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Text(
+                        text = "DESCRIPCIÓN",
+                        fontFamily = Delius,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 18.sp,
+                        color = Color.Black
+                    )
+
+                    Text(
+                        text = especie.descripcion,
+                        fontFamily = Delius,
+                        fontSize = 15.sp,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.padding(16.dp),
+                        color = Color.Black
+                    )
+
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 10.dp),
+                        horizontalArrangement = Arrangement.spacedBy(20.dp, Alignment.CenterHorizontally)
+                    ) {
+                        BotonInferiorIcon(
+                            icon = Icons.Default.Home,
+                            texto = "Inicio",
+                            onClick = { onClose() }
+                        )
+
+                        BotonInferiorIcon(
+                            icon = Icons.Default.ArrowForward,
+                            texto = "Siguiente",
+                            onClick = { /* Acción siguiente */ }
+                        )
+                    }
+                }
             }
         }
     }
 }
 
 @Composable
-private fun CuriousFact(text: String) {
-    Text(
-        text = "• $text",
-        fontFamily = Delius,
-        fontWeight = FontWeight.Bold,
-        fontSize = 14.sp,
-        textAlign = TextAlign.Start,
-        modifier = Modifier.padding(vertical = 1.dp),
-        color = Color.Black
-    )
-}
-
-
-@Composable
-fun BotonInferior(
-    iconRes: Int,
-    texto: String,
-    onClick: () -> Unit
-) {
-    Button(
-        onClick = onClick,
+fun CaracteristicaTexto(label: String, value: String) {
+    Surface(
         modifier = Modifier
-            .width(120.dp)
-            .height(55.dp),
-        shape = RoundedCornerShape(16.dp),
-        elevation = ButtonDefaults.elevatedButtonElevation(6.dp),
-        colors = ButtonDefaults.buttonColors(
-            containerColor = LightOlive,
-            contentColor = Color.Black
-        ),
-        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp)
+            .fillMaxWidth(0.9f)
+            .padding(vertical = 4.dp),
+        shape = RoundedCornerShape(12.dp),
+        color = Color.White.copy(alpha = 0.8f),
+        shadowElevation = 4.dp
     ) {
         Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 12.dp, vertical = 8.dp),
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Image(
-                painter = painterResource(id = iconRes),
-                contentDescription = texto,
-                modifier = Modifier.size(28.dp)
+            Text(
+                text = "$label:",
+                fontFamily = Delius,
+                fontWeight = FontWeight.Bold,
+                fontSize = 16.sp,
+                color = Color.Black
             )
             Text(
-                text = texto,
+                text = value,
+                fontFamily = Delius,
                 fontSize = 16.sp,
-                fontWeight = FontWeight.Bold
+                color = Color.DarkGray
             )
         }
     }
@@ -249,8 +250,8 @@ fun BotonInferiorIcon(
         modifier = Modifier
             .width(130.dp)
             .height(55.dp),
-        shape = RoundedCornerShape(16.dp),
-        elevation = ButtonDefaults.elevatedButtonElevation(6.dp),
+        shape = RoundedCornerShape(18.dp),
+        elevation = ButtonDefaults.elevatedButtonElevation(8.dp),
         colors = ButtonDefaults.buttonColors(
             containerColor = LightOlive,
             contentColor = Color.Black
@@ -264,14 +265,15 @@ fun BotonInferiorIcon(
             Icon(
                 imageVector = icon,
                 contentDescription = texto,
-                modifier = Modifier.size(28.dp)
+                modifier = Modifier.size(26.dp)
             )
             Text(
                 text = texto,
                 fontFamily = BricolageGrotesque,
-                fontSize = 16.sp,
+                fontSize = 15.sp,
                 fontWeight = FontWeight.Bold
             )
         }
     }
 }
+
