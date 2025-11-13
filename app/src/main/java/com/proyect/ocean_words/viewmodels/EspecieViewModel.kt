@@ -8,6 +8,8 @@ import androidx.lifecycle.viewModelScope
 import com.proyect.ocean_words.model.EspecieEstado
 import com.proyect.ocean_words.model.SlotEstado
 import com.proyect.ocean_words.repositories.EspecieRepository
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -16,6 +18,7 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class EspecieViewModel (
@@ -34,7 +37,8 @@ class EspecieViewModel (
     private val letrasPorFila = 7
     private val _vidas = MutableStateFlow(listOf(true, true, true))
     val vidas = _vidas.asStateFlow()
-
+    private var regenerationJob: Job? = null
+    private val REGEN_TIME_MS = 5000L
     // Función para perder una vida (de derecha a izquierda)
     fun perderVida() {
         val index = _vidas.value.indexOfLast { it } // encuentra la última vida activa
@@ -49,14 +53,64 @@ class EspecieViewModel (
     fun reiniciarVidas() {
         _vidas.value = listOf(true, true, true)
     }
+    private fun manageRegenerationTimer(currentVidas: List<Boolean>) {
+        val allLivesActive = currentVidas.all { it }
+        val livesLost = currentVidas.any { !it }
+
+        if (livesLost && regenerationJob == null) {
+            startRegenerationTimer()
+        } else if (allLivesActive && regenerationJob != null) {
+            stopRegenerationTimer()
+        }
+    }
+
+    private fun startRegenerationTimer() {
+        regenerationJob = viewModelScope.launch {
+            while (true) {
+                delay(REGEN_TIME_MS)
+                regenerateOneLife()
+            }
+        }
+    }
+
+    private fun stopRegenerationTimer() {
+        regenerationJob?.cancel()
+        regenerationJob = null
+    }
+
+    private fun regenerateOneLife() {
+        _vidas.update { currentVidas ->
+            val firstLostIndex = currentVidas.indexOf(false)
+            if (firstLostIndex != -1) {
+                currentVidas.toMutableList().apply {
+                    this[firstLostIndex] = true
+                }
+            } else {
+                currentVidas
+            }
+        }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        stopRegenerationTimer()
+    }
+
     val animalRandom: String = if (dificultad != "dificil") {
             shuffleText(animalSinEspacios)
         } else {
             val letrasRandom = getTwoRandomLetters() // Implementa estas funciones en el VM o inyectalas
             shuffleText(animalSinEspacios + letrasRandom.joinToString(""))
         }
+
+
         init {
             tamanoTeclado = animalRandom.length
+            viewModelScope.launch {
+                _vidas.collect { currentVidas ->
+                    manageRegenerationTimer(currentVidas)
+                }
+            }
         }
 
         val visible = mutableStateListOf<Boolean>().apply {
