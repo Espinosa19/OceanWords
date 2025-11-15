@@ -77,10 +77,24 @@ fun NavManager(
 //        }
 
         composable(Rutas.CAMINO_NIVELES) {
+            LaunchedEffect(isMusicGloballyEnabled, isAppInForeground) {
+                if (isMusicGloballyEnabled && isAppInForeground) {
+                    musicManager.playMenuMusic()
+                } else {
+                    musicManager.stopAllMusic()
+                }
+            }
 
-
-            CaminoNivelesRoute(navController,musicManager,isAppInForeground,nivelViewModel)
-
+            CaminoNivelesRoute(
+                navController = navController,
+                musicManager = musicManager,
+                isAppInForeground = isAppInForeground,
+                viewModel = nivelViewModel,
+                isMusicGloballyEnabled = isMusicGloballyEnabled,
+                onMusicToggle = { isEnabled ->
+                    isMusicGloballyEnabled = isEnabled
+                }
+            )
         }
         composable(
             route = "nivel/{id}/{especie_id}/{nombre}/{dificultad}",
@@ -91,6 +105,13 @@ fun NavManager(
                 navArgument("dificultad") { type = NavType.StringType }
             )
         ) { backStackEntry ->
+            LaunchedEffect(isMusicGloballyEnabled, isAppInForeground) {
+                if (isMusicGloballyEnabled && isAppInForeground) {
+                    musicManager.playLevelMusic()
+                } else {
+                    musicManager.stopAllMusic()
+                }
+            }
             val levelId = backStackEntry.arguments?.getInt("id")
             val especie_id =backStackEntry.arguments?.getString("especie_id")
             val nombre = backStackEntry.arguments?.getString("nombre")
@@ -106,7 +127,11 @@ fun NavManager(
                                 musicManager = musicManager,
                                 nombre =nombre,
                                 dificultad =dificultad,
-                                especieId = especie_id
+                                especieId = especie_id,
+                                isMusicGloballyEnabled = isMusicGloballyEnabled,
+                                onMusicToggle = { isEnabled ->
+                                    isMusicGloballyEnabled = isEnabled
+                                }
                             )
                         }
                     }
@@ -144,7 +169,7 @@ fun NavManager(
                         musicManager.playMenuMusic()
                     }
                 },
-                musicManager = musicManager, // **Pasamos el MusicManager**
+                musicManager = musicManager,
                 onMusicToggle = { isEnabled ->
                     isMusicGloballyEnabled = isEnabled
                     if (!isEnabled) {

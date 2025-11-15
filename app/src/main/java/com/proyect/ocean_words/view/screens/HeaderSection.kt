@@ -1,5 +1,8 @@
 package com.proyect.ocean_words.view.screens
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -16,8 +19,11 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -25,13 +31,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.proyect.ocean_words.R
 import com.proyect.ocean_words.view.theme.Blue // Asumo que son colores definidos en tu tema
 import com.proyect.ocean_words.view.theme.LightOlive
+import com.proyect.ocean_words.view.theme.azulCeleste
 import com.proyect.ocean_words.viewmodels.AdivinaEspecieViewModelFactory
 import com.proyect.ocean_words.viewmodels.EspecieViewModel
 
@@ -48,7 +57,26 @@ fun HeaderSection(
         factory = AdivinaEspecieViewModelFactory(animal, dificultad)
     )
     val vidas by viewModel.vidas.collectAsState()
+    val timeToNextLife by viewModel.timeToNextLife.collectAsState()
+    val showNoLivesDialog = remember { mutableStateOf(false) }
+    val allLivesLost = vidas.all { !it }
 
+    LaunchedEffect(allLivesLost) {
+        if (allLivesLost) {
+            showNoLivesDialog.value = true
+        }
+    }
+    CustomNoLivesDialog(
+        showDialog = showNoLivesDialog.value,
+        onDismiss = { showNoLivesDialog.value = false },
+        onBuyClick = {
+            showNoLivesDialog.value = false
+            navController.navigate("game_shop")
+        },
+        onWaitClick = {
+            showNoLivesDialog.value = false
+        }
+    )
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -72,13 +100,15 @@ fun HeaderSection(
             )
             Spacer(modifier = Modifier.height(10.dp))
 
-            HeaderIndicatorRow(vidas,
+            HeaderIndicatorRow(
+                vidas = vidas,
+                timeToNextLife = timeToNextLife,
                 onBackClick = {
                     navController.popBackStack()
                 },
                 redireccionarClick={
-                    navController.navigate("game_shop") // Usa una ruta clara, por ejemplo, "game_shop"
-            })
+                    navController.navigate("game_shop")
+                })
         }
 
 
@@ -86,57 +116,188 @@ fun HeaderSection(
 }@Composable
 fun HeaderIndicatorRow(
     vidas: List<Boolean>,
+    timeToNextLife: String,
     onBackClick: () -> Unit,
     redireccionarClick: () -> Unit
 ) {
-    val InformaTemporizador = vidas.indexOfLast { !it }
-    val rechargeTime = "04:59"
-    // Altura aproximada de la burbuja (ajustar si es necesario)
-    val bubbleHeight = 35.dp
+    val isRechargeNeeded = vidas.any { !it }
+    val isTimerRunning = timeToNextLife.isNotEmpty()
+
+    val bubbleHeight = 35.dp // Altura aproximada de la burbuja
 
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 12.dp),
-        horizontalArrangement = Arrangement.Center, // Centra el grupo de 3 elementos
+        horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // Row que agrupa Back, Vidas, y Monedas
         Row(
             horizontalArrangement = Arrangement.spacedBy(15.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Elemento 1: Botón de Retroceso
             CustomBackButton(onClick = onBackClick)
 
-            // Elemento 2: Contenedor de Vidas con Burbuja de Recarga (Clave)
             Box(
-                // Alineamos el contenido de este Box al Centro
                 contentAlignment = Alignment.Center
             ) {
-                // Indicador de Vidas (CentralIndicatorBox) - El contenido principal
                 CentralIndicatorBox(vidas = vidas)
 
-                // Burbuja de Tiempo: Posicionada CONDICIONALMENTE
-                if (InformaTemporizador !=-1 ) {
+                if (isRechargeNeeded && isTimerRunning) {
                     LifeRechargeBubble(
-                        timeRemaining = rechargeTime,
+                        timeRemaining = timeToNextLife,
                         modifier = Modifier
-                            // Alinea la burbuja en la esquina superior izquierda del Box
                             .align(Alignment.TopStart)
-                            // Aplica un offset para moverla ligeramente fuera del borde
-
-                            .offset(x = (-2).dp, y = (-bubbleHeight / 2) + 60.dp) // Ajustar valores para centrado visual
+                            .offset(x = (-2).dp, y = (-bubbleHeight / 2) + 60.dp)
                     )
                 }
             }
 
-            // Elemento 3: Indicador de Monedas
             GameIndicator(value = "500",redireccionarClick,true)
         }
     }
 }
+@Composable
+fun CustomNoLivesDialog(
+    showDialog: Boolean,
+    onDismiss: () -> Unit,
+    onBuyClick: () -> Unit,
+    onWaitClick: () -> Unit
+) {
+    AnimatedVisibility(
+        visible = showDialog,
+        enter = fadeIn(),
+        exit = fadeOut()
+    ) {
+        Dialog(
+            onDismissRequest = onDismiss,
+            properties = androidx.compose.ui.window.DialogProperties(
+                dismissOnBackPress = false,
+                dismissOnClickOutside = false
+            )
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth(0.9f)
+                    .wrapContentHeight()
+                    .clip(RoundedCornerShape(20.dp))
+                    .background(Color.White)
+                    .border(
+                        width = 4.dp,
+                        color = Color(0xFFFED128),
+                        shape = RoundedCornerShape(20.dp)
+                    )
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 20.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(15.dp)
+                ) {
+                    // Título superior con fondo azul celeste
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp))
+                            .background(azulCeleste)
+                            .padding(vertical = 12.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "¡OH NO!",
+                            fontSize = 28.sp,
+                            fontWeight = FontWeight.ExtraBold,
+                            color = Color.White,
+                            textAlign = TextAlign.Center
+                        )
+                    }
 
+                    // Contenido principal del diálogo
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 20.dp, vertical = 10.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        Image(
+                            painter = painterResource(id = R.drawable.nome_gusta),
+                            contentDescription = "Sin Vidas",
+                            modifier = Modifier.size(90.dp),
+                            contentScale = ContentScale.Fit
+                        )
+
+                        Text(
+                            text = "¡Te has quedado sin vidas!",
+                            fontSize = 22.sp,
+                            fontWeight = FontWeight.Black,
+                            color = Color.DarkGray,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+
+                        Text(
+                            text = "Necesitas vidas para continuar jugando. Puedes esperar a la recarga automática o conseguir más en la tienda.",
+                            fontSize = 15.sp,
+                            color = Color.Gray,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(15.dp))
+
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 20.dp),
+                        horizontalArrangement = Arrangement.SpaceAround,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Button(
+                            onClick = onWaitClick,
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(50.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = LightOlive),
+                            shape = RoundedCornerShape(12.dp),
+                            elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp),
+                            contentPadding = PaddingValues(horizontal = 10.dp)
+                        ) {
+                            Text(
+                                text = "Esperar",
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                color = Color.White
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.width(15.dp))
+
+                        Button(
+                            onClick = onBuyClick,
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(50.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = Blue),
+                            shape = RoundedCornerShape(12.dp),
+                            elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp),
+                            contentPadding = PaddingValues(horizontal = 10.dp)
+                        ) {
+                            Text(
+                                text = "Comprar",
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                color = Color.White
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
 // -------------------------------------------------------------------------------------------------
 
 /**
