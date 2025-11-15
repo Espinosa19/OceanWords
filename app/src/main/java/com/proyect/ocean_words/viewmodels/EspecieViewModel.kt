@@ -8,24 +8,23 @@ import androidx.lifecycle.viewModelScope
 import com.proyect.ocean_words.model.EspecieEstado
 import com.proyect.ocean_words.model.SlotEstado
 import com.proyect.ocean_words.repositories.EspecieRepository
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.delay
 
 class EspecieViewModel (
     animal: String,
     dificultad: String
 ) : ViewModel() {
     private val repository = EspecieRepository()
+    private val MAX_LIVES = 3
+    private val RECHARGE_COOLDOWN_MS = 1 * 60 * 1000L
 
     private val _especie = MutableStateFlow<EspecieEstado?>(null)
     val especie = _especie.asStateFlow()
@@ -35,95 +34,99 @@ class EspecieViewModel (
     private val _navegarAExito = MutableLiveData<Boolean>()
     val navegarAExito: LiveData<Boolean> = _navegarAExito
     private val letrasPorFila = 7
+
     private val _vidas = MutableStateFlow(listOf(true, true, true))
     val vidas = _vidas.asStateFlow()
-    private var regenerationJob: Job? = null
-    private val REGEN_TIME_MS = 5000L
-    // Función para perder una vida (de derecha a izquierda)
+
+    private val _lastLifeLossTime = MutableStateFlow<Long?>(null)
+
+    val timeToNextLife: StateFlow<String> = flow {
+        while(true) {
+            val lastLoss = _lastLifeLossTime.value
+            if (lastLoss != null) {
+                val timeElapsed = System.currentTimeMillis() - lastLoss
+                val timeLeft = RECHARGE_COOLDOWN_MS - timeElapsed
+
+                if (timeLeft > 0) {
+                    emit(formatTime(timeLeft))
+                } else {
+                    regenerateOneLifeAndCheckRestart()
+                }
+            } else {
+                emit("")
+            }
+            delay(1000)
+        }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "")
+
+    private fun formatTime(ms: Long): String {
+        val totalSeconds = ms / 1000
+        val minutes = totalSeconds / 60
+        val seconds = totalSeconds % 60
+        return String.format("%02d:%02d", minutes, seconds)
+    }
+
     fun perderVida() {
-        val index = _vidas.value.indexOfLast { it } // encuentra la última vida activa
+        val index = _vidas.value.indexOfLast { it }
         if (index != -1) {
             val nuevasVidas = _vidas.value.toMutableList()
             nuevasVidas[index] = false
             _vidas.value = nuevasVidas
-        }
-    }
 
-    // Función para reiniciar todas las vidas
-    fun reiniciarVidas() {
-        _vidas.value = listOf(true, true, true)
-    }
-    private fun manageRegenerationTimer(currentVidas: List<Boolean>) {
-        val allLivesActive = currentVidas.all { it }
-        val livesLost = currentVidas.any { !it }
-
-        if (livesLost && regenerationJob == null) {
-            startRegenerationTimer()
-        } else if (allLivesActive && regenerationJob != null) {
-            stopRegenerationTimer()
-        }
-    }
-
-    private fun startRegenerationTimer() {
-        regenerationJob = viewModelScope.launch {
-            while (true) {
-                delay(REGEN_TIME_MS)
-                regenerateOneLife()
+            if (_lastLifeLossTime.value == null && nuevasVidas.count { it } < MAX_LIVES) {
+                _lastLifeLossTime.value = System.currentTimeMillis()
             }
         }
     }
 
-    private fun stopRegenerationTimer() {
-        regenerationJob?.cancel()
-        regenerationJob = null
-    }
-
-    private fun regenerateOneLife() {
+    private fun regenerateOneLifeAndCheckRestart() {
         _vidas.update { currentVidas ->
             val firstLostIndex = currentVidas.indexOf(false)
             if (firstLostIndex != -1) {
-                currentVidas.toMutableList().apply {
+                val newVidas = currentVidas.toMutableList().apply {
                     this[firstLostIndex] = true
                 }
+
+                if (newVidas.count { it } < MAX_LIVES) {
+                    _lastLifeLossTime.value = System.currentTimeMillis()
+                } else {
+                    _lastLifeLossTime.value = null
+                }
+                return@update newVidas
             } else {
-                currentVidas
+                _lastLifeLossTime.value = null
+                return@update currentVidas
             }
         }
     }
 
-    override fun onCleared() {
-        super.onCleared()
-        stopRegenerationTimer()
+    fun reiniciarVidas() {
+        _vidas.value = listOf(true, true, true)
+        _lastLifeLossTime.value = null
     }
 
     val animalRandom: String = if (dificultad != "dificil") {
-            shuffleText(animalSinEspacios)
-        } else {
-            val letrasRandom = getTwoRandomLetters() // Implementa estas funciones en el VM o inyectalas
-            shuffleText(animalSinEspacios + letrasRandom.joinToString(""))
-        }
+        shuffleText(animalSinEspacios)
+    } else {
+        val letrasRandom = getTwoRandomLetters()
+        shuffleText(animalSinEspacios + letrasRandom.joinToString(""))
+    }
 
+    init {
+        tamanoTeclado = animalRandom.length
+    }
 
-        init {
-            tamanoTeclado = animalRandom.length
-            viewModelScope.launch {
-                _vidas.collect { currentVidas ->
-                    manageRegenerationTimer(currentVidas)
-                }
-            }
-        }
+    val visible = mutableStateListOf<Boolean>().apply {
+        repeat(tamanoTeclado) { add(true) }
+    }
 
-        val visible = mutableStateListOf<Boolean>().apply {
-            repeat(tamanoTeclado) { add(true) }
-        }
+    val respuestaJugador = mutableStateListOf<SlotEstado?>().apply {
+        repeat(animalSinEspacios.length) { add(SlotEstado()) }
+    }
 
-        val respuestaJugador = mutableStateListOf<SlotEstado?>().apply {
-            repeat(animalSinEspacios.length) { add(SlotEstado()) }
-        }
-
-        val botonADondeFue = mutableStateListOf<Int>().apply {
-            repeat(tamanoTeclado) { add(-1) }
-        }
+    val botonADondeFue = mutableStateListOf<Int>().apply {
+        repeat(tamanoTeclado) { add(-1) }
+    }
 
     private fun validarPalabraCompleta() {
 
@@ -135,7 +138,7 @@ class EspecieViewModel (
                 val currentChar = respuestaJugador[i]?.char
                 respuestaJugador[i] = SlotEstado(char = currentChar, esCorrecto = true)
             }
-            _navegarAExito.value = true // O un objeto de evento más específico
+            _navegarAExito.value = true
 
         } else {
             perderVida()
@@ -151,7 +154,7 @@ class EspecieViewModel (
                     respuestaJugador[i] = SlotEstado(char = letraJugador, esCorrecto = true)
                 } else {
                     respuestaJugador[i] = SlotEstado(char = letraJugador, esCorrecto = false)
-                    indicesIncorrectos.add(i) // Guardar el índice para la remoción
+                    indicesIncorrectos.add(i)
                 }
             }
 
@@ -183,58 +186,60 @@ class EspecieViewModel (
             }
         }
     }
-        fun selectLetter(char: Char, originalIndex: Int) {
-            val quedanVidas = _vidas.value.any { it }
 
-            val posicionAsignada = respuestaJugador.indexOfFirst { it?.char == null }
-            if(quedanVidas){
+    fun selectLetter(char: Char, originalIndex: Int) {
+        val quedanVidas = _vidas.value.any { it }
 
-                if (posicionAsignada != -1) {
-                    respuestaJugador[posicionAsignada] = SlotEstado(char = char, esCorrecto = null)
-                    visible[originalIndex] = false
-                    botonADondeFue[originalIndex] = posicionAsignada
+        val posicionAsignada = respuestaJugador.indexOfFirst { it?.char == null }
+        if(quedanVidas){
 
-                    val slotsVaciosRestantes = respuestaJugador.count { it?.char == null }
+            if (posicionAsignada != -1) {
+                respuestaJugador[posicionAsignada] = SlotEstado(char = char, esCorrecto = null)
+                visible[originalIndex] = false
+                botonADondeFue[originalIndex] = posicionAsignada
 
-                    if (slotsVaciosRestantes == 0) {
-                        validarPalabraCompleta()
-                    }
+                val slotsVaciosRestantes = respuestaJugador.count { it?.char == null }
+
+                if (slotsVaciosRestantes == 0) {
+                    validarPalabraCompleta()
                 }
             }
-            else{
+        }
+        else{
 
+        }
+    }
+
+    fun removeLetter(responseSlotIndex: Int) {
+        respuestaJugador[responseSlotIndex] = SlotEstado(char = null, esCorrecto = null)
+
+        val originalButtonIndex = botonADondeFue.indexOf(responseSlotIndex)
+        if (originalButtonIndex != -1) {
+            botonADondeFue[originalButtonIndex] = -1
+            visible[originalButtonIndex] = true
+        }
+    }
+
+    fun goBackGame() {
+        var slotVaciado = -1
+
+        for (i in respuestaJugador.indices.reversed()){
+            if (respuestaJugador[i]?.char != null) {
+                respuestaJugador[i] = SlotEstado(char = null, esCorrecto = null)
+                slotVaciado = i
+                break
             }
         }
 
-        fun removeLetter(responseSlotIndex: Int) {
-            respuestaJugador[responseSlotIndex] = SlotEstado(char = null, esCorrecto = null)
-
-            val originalButtonIndex = botonADondeFue.indexOf(responseSlotIndex)
+        if (slotVaciado != -1) {
+            val originalButtonIndex = botonADondeFue.indexOf(slotVaciado)
             if (originalButtonIndex != -1) {
                 botonADondeFue[originalButtonIndex] = -1
                 visible[originalButtonIndex] = true
             }
         }
+    }
 
-        fun goBackGame() {
-            var slotVaciado = -1
-
-            for (i in respuestaJugador.indices.reversed()){
-                if (respuestaJugador[i]?.char != null) {
-                    respuestaJugador[i] = SlotEstado(char = null, esCorrecto = null)
-                    slotVaciado = i
-                    break
-                }
-            }
-
-            if (slotVaciado != -1) {
-                val originalButtonIndex = botonADondeFue.indexOf(slotVaciado)
-                if (originalButtonIndex != -1) {
-                    botonADondeFue[originalButtonIndex] = -1
-                    visible[originalButtonIndex] = true
-                }
-            }
-        }
     fun obtenerPista() {
         // 1️⃣ Encuentra todos los índices donde la letra aún no está colocada
         val indicesVacios = respuestaJugador.mapIndexedNotNull { index, slot ->
@@ -253,20 +258,20 @@ class EspecieViewModel (
 
 
     fun resetGame() {
-            visible.indices.forEach { i -> visible[i] = true }
-            botonADondeFue.indices.forEach { i -> botonADondeFue[i] = -1 }
-            respuestaJugador.indices.forEach { i ->
-                respuestaJugador[i] = SlotEstado(char = null, esCorrecto = null)
-            }
+        visible.indices.forEach { i -> visible[i] = true }
+        botonADondeFue.indices.forEach { i -> botonADondeFue[i] = -1 }
+        respuestaJugador.indices.forEach { i ->
+            respuestaJugador[i] = SlotEstado(char = null, esCorrecto = null)
         }
+    }
 
-        private fun getTwoRandomLetters(): List<Char> {
-            val abecedario =('a'..'z')
-            return List(2) { abecedario.random() } }
-        private fun shuffleText(text: String): String {
-            return text.toList().shuffled().joinToString("")
-        }
+    private fun getTwoRandomLetters(): List<Char> {
+        val abecedario =('a'..'z')
+        return List(2) { abecedario.random() } }
 
+    private fun shuffleText(text: String): String {
+        return text.toList().shuffled().joinToString("")
+    }
 //    fun mostrarEspeciePorId(idEspecie: String) {
 //        viewModelScope.launch {
 //            repository.buscarEspeciePorId(idEspecie)
@@ -278,5 +283,4 @@ class EspecieViewModel (
 //                }
 //        }
 //    }
-
 }

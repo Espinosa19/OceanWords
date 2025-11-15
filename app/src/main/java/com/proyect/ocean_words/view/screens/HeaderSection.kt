@@ -57,6 +57,7 @@ fun HeaderSection(
         factory = AdivinaEspecieViewModelFactory(animal, dificultad)
     )
     val vidas by viewModel.vidas.collectAsState()
+    val timeToNextLife by viewModel.timeToNextLife.collectAsState()
     val showNoLivesDialog = remember { mutableStateOf(false) }
     val allLivesLost = vidas.all { !it }
 
@@ -99,13 +100,15 @@ fun HeaderSection(
             )
             Spacer(modifier = Modifier.height(10.dp))
 
-            HeaderIndicatorRow(vidas,
+            HeaderIndicatorRow(
+                vidas = vidas,
+                timeToNextLife = timeToNextLife,
                 onBackClick = {
                     navController.popBackStack()
                 },
                 redireccionarClick={
-                    navController.navigate("game_shop") // Usa una ruta clara, por ejemplo, "game_shop"
-            })
+                    navController.navigate("game_shop")
+                })
         }
 
 
@@ -113,52 +116,43 @@ fun HeaderSection(
 }@Composable
 fun HeaderIndicatorRow(
     vidas: List<Boolean>,
+    timeToNextLife: String,
     onBackClick: () -> Unit,
     redireccionarClick: () -> Unit
 ) {
-    val InformaTemporizador = vidas.indexOfLast { !it }
-    val rechargeTime = "04:59"
-    // Altura aproximada de la burbuja (ajustar si es necesario)
-    val bubbleHeight = 35.dp
+    val isRechargeNeeded = vidas.any { !it }
+    val isTimerRunning = timeToNextLife.isNotEmpty()
+
+    val bubbleHeight = 35.dp // Altura aproximada de la burbuja
 
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 12.dp),
-        horizontalArrangement = Arrangement.Center, // Centra el grupo de 3 elementos
+        horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // Row que agrupa Back, Vidas, y Monedas
         Row(
             horizontalArrangement = Arrangement.spacedBy(15.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Elemento 1: Botón de Retroceso
             CustomBackButton(onClick = onBackClick)
 
-            // Elemento 2: Contenedor de Vidas con Burbuja de Recarga (Clave)
             Box(
-                // Alineamos el contenido de este Box al Centro
                 contentAlignment = Alignment.Center
             ) {
-                // Indicador de Vidas (CentralIndicatorBox) - El contenido principal
                 CentralIndicatorBox(vidas = vidas)
 
-                // Burbuja de Tiempo: Posicionada CONDICIONALMENTE
-                if (InformaTemporizador !=-1 ) {
+                if (isRechargeNeeded && isTimerRunning) {
                     LifeRechargeBubble(
-                        timeRemaining = rechargeTime,
+                        timeRemaining = timeToNextLife,
                         modifier = Modifier
-                            // Alinea la burbuja en la esquina superior izquierda del Box
                             .align(Alignment.TopStart)
-                            // Aplica un offset para moverla ligeramente fuera del borde
-
-                            .offset(x = (-2).dp, y = (-bubbleHeight / 2) + 60.dp) // Ajustar valores para centrado visual
+                            .offset(x = (-2).dp, y = (-bubbleHeight / 2) + 60.dp)
                     )
                 }
             }
 
-            // Elemento 3: Indicador de Monedas
             GameIndicator(value = "500",redireccionarClick,true)
         }
     }
@@ -175,7 +169,13 @@ fun CustomNoLivesDialog(
         enter = fadeIn(),
         exit = fadeOut()
     ) {
-        Dialog(onDismissRequest = onDismiss) {
+        Dialog(
+            onDismissRequest = onDismiss,
+            properties = androidx.compose.ui.window.DialogProperties(
+                dismissOnBackPress = false,
+                dismissOnClickOutside = false
+            )
+        ) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth(0.9f)
@@ -221,7 +221,6 @@ fun CustomNoLivesDialog(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
-                        // Corazón negro grande (asumiendo que 'nome_gusta' es el corazón negro)
                         Image(
                             painter = painterResource(id = R.drawable.nome_gusta),
                             contentDescription = "Sin Vidas",
@@ -249,7 +248,6 @@ fun CustomNoLivesDialog(
 
                     Spacer(modifier = Modifier.height(15.dp))
 
-                    // Botones en Row horizontal (SIN ICONOS, como en la imagen de "¡OH NO!")
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -257,7 +255,6 @@ fun CustomNoLivesDialog(
                         horizontalArrangement = Arrangement.SpaceAround,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        // Botón "Esperar" (Color LightOlive, SIN Icono)
                         Button(
                             onClick = onWaitClick,
                             modifier = Modifier
@@ -272,13 +269,12 @@ fun CustomNoLivesDialog(
                                 text = "Esperar",
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.SemiBold,
-                                color = Color.White // Texto blanco para contraste
+                                color = Color.White
                             )
                         }
 
                         Spacer(modifier = Modifier.width(15.dp))
 
-                        // Botón "Comprar" (Color Blue, SIN Icono)
                         Button(
                             onClick = onBuyClick,
                             modifier = Modifier
@@ -293,7 +289,7 @@ fun CustomNoLivesDialog(
                                 text = "Comprar",
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.SemiBold,
-                                color = Color.White // Texto blanco para contraste
+                                color = Color.White
                             )
                         }
                     }
