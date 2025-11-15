@@ -66,15 +66,6 @@ fun OceanWordsGameUI(
     isMusicEnabled: Boolean,
     especieId: String
 ) {
-    var isMusicGloballyEnabled by remember { mutableStateOf(true) }
-
-    LaunchedEffect(isMusicGloballyEnabled, isAppInForeground) {
-        if (isMusicGloballyEnabled && isAppInForeground) {
-            musicManager.playMenuMusic()
-        } else {
-            musicManager.stopAllMusic()
-        }
-    }
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -557,16 +548,11 @@ fun OceanWordsGameRoute(
 
     nombre: String,
     dificultad: String,
-    especieId: String
+    especieId: String,
+
+    isMusicGloballyEnabled: Boolean,
+    onMusicToggle: (Boolean) -> Unit
 ) {
-    var isMusicGloballyEnabled by remember { mutableStateOf(true) }
-    LaunchedEffect(isMusicGloballyEnabled, isAppInForeground) {
-        if (isMusicGloballyEnabled && isAppInForeground) {
-            musicManager.playLevelMusic()
-        } else {
-            musicManager.stopAllMusic()
-        }
-    }
 
     val defaultQuestion = "¿QUÉ ANIMAL ES ESTE?"
 
@@ -580,9 +566,7 @@ fun OceanWordsGameRoute(
         dificultad = dificultad,
         animalQuestion = defaultQuestion,
 
-        onMusicToggle = { isEnabled ->
-            isMusicGloballyEnabled = isEnabled
-        },
+        onMusicToggle = onMusicToggle,
         isMusicEnabled = isMusicGloballyEnabled,
         especieId = especieId
     )

@@ -47,9 +47,6 @@ val PaddingVertical = 50.dp
 val TotalLevels = 5
 
 
-
-
-
 @Composable
 fun caminoNiveles(
     onStartTransitionAndNavigate: (levelId: Int) -> Unit,
@@ -59,8 +56,6 @@ fun caminoNiveles(
     isMusicEnabled: Boolean,
     niveles: List<NivelEstado>
 ) {
-
-
     val listState = rememberLazyListState()
     val density = LocalDensity.current
     var showConfigDialog by remember { mutableStateOf(false) }
@@ -133,7 +128,7 @@ fun caminoNiveles(
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
-        
+
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -251,15 +246,15 @@ fun caminoNiveles(
                         modifier = Modifier.size(32.dp)
                     )
                 }
-                    GameIndicator(
-                        value = "1500",
-                        redireccionarClick = { navController.navigate("game_shop") },
-                        true,
+                GameIndicator(
+                    value = "1500",
+                    redireccionarClick = { navController.navigate("game_shop") },
+                    true,
 
-                        )
+                    )
 
 
-                }
+            }
 
 
 
@@ -287,11 +282,9 @@ fun caminoNiveles(
             }
 
 
-
         }
     }
 }
-
 
 
 @Composable
@@ -388,20 +381,13 @@ fun CaminoNivelesRoute(
     navController: NavHostController,
     musicManager: MusicManager,
     isAppInForeground: Boolean,
-    viewModel: NivelViewModel
+    viewModel: NivelViewModel,
+    isMusicGloballyEnabled: Boolean,
+    onMusicToggle: (Boolean) -> Unit
 ) {
     val isSplashShown by viewModel.isSplashShown.collectAsState()
     val niveles by viewModel.niveles.collectAsState(initial = emptyList())
-    var targetLevelId by remember { mutableStateOf<Int?>(null) }
-    var isMusicGloballyEnabled by remember { mutableStateOf(true) }
     Log.i("Niveles_info","$niveles")
-    LaunchedEffect(isMusicGloballyEnabled, isAppInForeground) {
-        if (isMusicGloballyEnabled && isAppInForeground) {
-            musicManager.playMenuMusic()
-        } else {
-            musicManager.stopAllMusic()
-        }
-    }
 
     if (!isSplashShown) {
         InicioJuegoView(
@@ -410,45 +396,39 @@ fun CaminoNivelesRoute(
             }
         )
     }else {
-    Scaffold (
-        containerColor = Color.Transparent,
-        bottomBar = { BottomNavBar(navController) }
-    ) { innerPadding ->
-        Box(modifier = Modifier.padding(innerPadding)) {
-            caminoNiveles(
-                navController = navController,
-                niveles = niveles,
-                onStartTransitionAndNavigate = { levelId ->
-                    // Buscar el nivel correspondiente
-                    val nivel = niveles.find { it.numero_nivel == levelId }
+        Scaffold (
+            containerColor = Color.Transparent,
+            bottomBar = { BottomNavBar(navController) }
+        ) { innerPadding ->
+            Box(modifier = Modifier.padding(innerPadding)) {
+                caminoNiveles(
+                    navController = navController,
+                    niveles = niveles,
+                    onStartTransitionAndNavigate = { levelId ->
+                        // Buscar el nivel correspondiente
+                        val nivel = niveles.find { it.numero_nivel == levelId }
 
-                    // Extraer la primera especie (si existe)
-                    val especie = nivel?.especies_id?.firstOrNull()
+                        // Extraer la primera especie (si existe)
+                        val especie = nivel?.especies_id?.firstOrNull()
 
-                    // Verificar si existe una especie válida
-                    if (especie != null) {
-                        var especie_id =especie.id
-                        val nombre = especie.nombre
-                        val dificultad = especie.dificultad
+                        // Verificar si existe una especie válida
+                        if (especie != null) {
+                            var especie_id =especie.id
+                            val nombre = especie.nombre
+                            val dificultad = especie.dificultad
 
-                        // Navegar pasando los parámetros
-                        navController.navigate("nivel/$levelId/$especie_id/$nombre/$dificultad")
-                    } else {
-                        Log.e("CaminoNivelesRoute", "No se encontró especie para el nivel $levelId")
+                            // Navegar pasando los parámetros
+                            navController.navigate("nivel/$levelId/$especie_id/$nombre/$dificultad")
+                        } else {
+                            Log.e("CaminoNivelesRoute", "No se encontró especie para el nivel $levelId")
+                        }
                     }
-                }
-                ,
-                musicManager = musicManager,
-                onMusicToggle = { isEnabled ->
-                    // Asumiendo que 'isMusicGloballyEnabled' está definido como un MutableState
-                    // en el ámbito superior.
-                    isMusicGloballyEnabled = isEnabled
-                    // La lógica de play/stop se manejará automáticamente
-                    // en el LaunchedEffect de arriba (punto 2)
-                },
-                isMusicEnabled = isMusicGloballyEnabled
-            )
+                    ,
+                    musicManager = musicManager,
+                    onMusicToggle = onMusicToggle,
+                    isMusicEnabled = isMusicGloballyEnabled
+                )
+            }
         }
-    }
     }
 }
