@@ -31,6 +31,7 @@ import androidx.navigation.NavController
 import com.proyect.ocean_words.R
 import com.proyect.ocean_words.model.EspecieEstado
 import com.proyect.ocean_words.view.theme.*
+import com.proyect.ocean_words.view.rutas.Rutas
 import com.proyect.ocean_words.viewmodels.CaracteristicasEspecieViewModels
 
 val StarColor = Color(0xFFFFCC00)
@@ -72,6 +73,7 @@ fun caracteristicasEspecieView(
 
             else -> {
                 CaracteristicasModal(
+                    navController = navController,
                     especie = especie,
                     onClose = { navController.popBackStack() }
                 )
@@ -82,6 +84,7 @@ fun caracteristicasEspecieView(
 
 @Composable
 fun CaracteristicasModal(
+    navController: NavController,
     especie: EspecieEstado,
     onClose: () -> Unit
 ) {
@@ -113,7 +116,7 @@ fun CaracteristicasModal(
                         .padding(12.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    // Botón cerrar
+
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.End
@@ -186,18 +189,26 @@ fun CaracteristicasModal(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 10.dp),
-                        horizontalArrangement = Arrangement.spacedBy(20.dp, Alignment.CenterHorizontally)
+                        horizontalArrangement = Arrangement.spacedBy(
+                            20.dp,
+                            Alignment.CenterHorizontally
+                        )
                     ) {
                         BotonInferiorIcon(
                             icon = Icons.Default.Home,
                             texto = "Inicio",
-                            onClick = { onClose() }
+                            onClick = {
+                                navController.navigate(Rutas.CAMINO_NIVELES) {
+                                    popUpTo(Rutas.CAMINO_NIVELES) { inclusive = true }
+                                }
+                            }
                         )
-
                         BotonInferiorIcon(
                             icon = Icons.Default.ArrowForward,
                             texto = "Siguiente",
-                            onClick = { /* Acción siguiente */ }
+                            onClick = {
+                                navController.navigate(Rutas.LOADING)
+                            }
                         )
                     }
                 }
@@ -276,4 +287,3 @@ fun BotonInferiorIcon(
         }
     }
 }
-
