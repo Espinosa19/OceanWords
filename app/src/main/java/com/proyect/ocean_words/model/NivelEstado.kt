@@ -14,6 +14,7 @@ data class NivelEstado(
     val recompensa_monedas: Long = 0,
     val especies_id: List<EspecieNivel> = emptyList(),
     val id: String = ""
+
 ) {
     constructor() : this(0, 0, 0, emptyList(), "")
 
