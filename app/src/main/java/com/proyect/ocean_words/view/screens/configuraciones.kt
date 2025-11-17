@@ -45,7 +45,7 @@ fun configuracionView(
 ) {
 
     var musicaActivada by remember { mutableStateOf(isMusicEnabled) }
-    var sonidoActivado by remember { mutableStateOf(musicManager.areSoundEffectsEnabled) }
+    var sonidoActivado by remember { mutableStateOf(true) }
     var notificacionesActivadas by remember { mutableStateOf(false) }
 
 
@@ -79,7 +79,6 @@ fun configuracionView(
                 )
 
                 ConfigRow(label = "MÚSICA", isChecked = musicaActivada) { nuevoEstado ->
-                    musicManager.playClickSound()
                     musicaActivada = nuevoEstado
                     onMusicToggle(nuevoEstado)
                     if (!nuevoEstado) {
@@ -88,17 +87,10 @@ fun configuracionView(
                 }
                 Divider(color = Color(0xFF003D69).copy(alpha = 0.3f), thickness = 1.dp, modifier = Modifier.padding(horizontal = 5.dp))
 
-                ConfigRow(label = "SONIDO", isChecked = sonidoActivado) { nuevoEstado ->
-                    musicManager.playClickSound()
-                    musicManager.areSoundEffectsEnabled = nuevoEstado
-                    sonidoActivado = nuevoEstado
-                }
+                ConfigRow(label = "SONIDO", isChecked = sonidoActivado) { sonidoActivado = it }
                 Divider(color = Color(0xFF003D69).copy(alpha = 0.3f), thickness = 1.dp, modifier = Modifier.padding(horizontal = 5.dp))
 
-                ConfigRow(label = "NOTIFICACIONES", isChecked = notificacionesActivadas) { nuevoEstado ->
-                    musicManager.playClickSound()
-                    notificacionesActivadas = nuevoEstado
-                }
+                ConfigRow(label = "NOTIFICACIONES", isChecked = notificacionesActivadas) { notificacionesActivadas = it }
                 Divider(color = Color(0xFF003D69).copy(alpha = 0.3f), thickness = 1.dp, modifier = Modifier.padding(horizontal = 5.dp))
 
                 LanguageRow()
@@ -108,13 +100,9 @@ fun configuracionView(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    ConfigTextButton(text = "IDIOMA", onClick = {
-                        musicManager.playClickSound()
-                    })
+                    ConfigTextButton(text = "IDIOMA", onClick = { /* Acción de Idioma */ })
 
-                    ConfigTextButton(text = "CRÉDITOS", onClick = {
-                        musicManager.playClickSound()
-                    })
+                    ConfigTextButton(text = "CRÉDITOS", onClick = { /* Acción de Créditos */ })
                 }
             }
         }
