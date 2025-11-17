@@ -158,14 +158,15 @@ fun NavManager(
 
             com.proyect.ocean_words.view.screens.configuracionView(
                 onBack = {
+                    musicManager.playClickSound()
                     navController.popBackStack()
-
                     if (isMusicGloballyEnabled) {
                         musicManager.playMenuMusic()
                     }
                 },
                 musicManager = musicManager,
                 onMusicToggle = { isEnabled ->
+                    musicManager.playClickSound()
                     isMusicGloballyEnabled = isEnabled
                     if (!isEnabled) {
                         musicManager.stopAllMusic()
@@ -173,12 +174,12 @@ fun NavManager(
                         musicManager.playMenuMusic()
                     }
                 },
-                isMusicEnabled = isMusicGloballyEnabled
+                isMusicEnabled = isMusicGloballyEnabled,
+                //onButtonClick = musicManager::playClickSound
             )
         }
 
         composable(Rutas.TIENDA) {
-            // Controla la reproducción/reanudación al navegar o volver de segundo plano
             LaunchedEffect(isMusicGloballyEnabled, isAppInForeground) {
                 Log.d("MusicDebug", "Navigating to TIENDA. isMusicGloballyEnabled: $isMusicGloballyEnabled") // <-- Añade esto
                 if (isMusicGloballyEnabled && isAppInForeground) {
@@ -188,7 +189,7 @@ fun NavManager(
                 }
             }
             Scaffold(
-                bottomBar = { BottomNavBar(navController) }
+                bottomBar = { BottomNavBar(navController, onItemClick = musicManager::playClickSound) }
             ) { innerPadding ->
                 Box(modifier = Modifier.padding(innerPadding)) {
                     val onBuyAction: (PistaEstado) -> Unit = { itemComprado ->
@@ -207,7 +208,6 @@ fun NavManager(
         }
 
         composable(Rutas.ACUARIO) {
-            // Controla la reproducción/reanudación al navegar o volver de segundo plano
             LaunchedEffect(isMusicGloballyEnabled, isAppInForeground) {
                 if (isMusicGloballyEnabled && isAppInForeground) {
                     musicManager.playMenuMusic()
@@ -216,7 +216,7 @@ fun NavManager(
                 }
             }
             Scaffold(
-                bottomBar = { BottomNavBar(navController) }
+                bottomBar = { BottomNavBar(navController, onItemClick = musicManager::playClickSound) }
             ) { innerPadding ->
                 Box(modifier = Modifier.padding(innerPadding)) {
 

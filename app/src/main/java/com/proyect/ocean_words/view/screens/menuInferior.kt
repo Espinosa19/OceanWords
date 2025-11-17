@@ -25,6 +25,7 @@ import com.proyect.ocean_words.view.rutas.Rutas
 fun BottomNavBar(
     navController: NavController,
     modifier: Modifier = Modifier,
+    onItemClick: () -> Unit
 ) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
@@ -63,6 +64,7 @@ fun BottomNavBar(
             NavigationBarItem(
                 selected = isSelected,
                 onClick = {
+                    onItemClick()
                     if (currentRoute != item.route) {
                         navController.navigate(item.route) {
                             popUpTo(navController.graph.startDestinationId) {
