@@ -44,7 +44,6 @@ fun configuracionView(
     isMusicEnabled: Boolean
 ) {
 
-    var musicaActivada by remember { mutableStateOf(isMusicEnabled) }
     var sonidoActivado by remember { mutableStateOf(true) }
     var notificacionesActivadas by remember { mutableStateOf(false) }
 
@@ -78,8 +77,7 @@ fun configuracionView(
                     modifier = Modifier.padding(bottom = 20.dp)
                 )
 
-                ConfigRow(label = "MÚSICA", isChecked = musicaActivada) { nuevoEstado ->
-                    musicaActivada = nuevoEstado
+                ConfigRow(label = "MÚSICA", isChecked = isMusicEnabled) { nuevoEstado ->
                     onMusicToggle(nuevoEstado)
                     if (!nuevoEstado) {
                         musicManager.stopAllMusic()

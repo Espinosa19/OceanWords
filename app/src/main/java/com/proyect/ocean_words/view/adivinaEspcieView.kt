@@ -553,8 +553,13 @@ fun OceanWordsGameRoute(
     dificultad: String,
     especieId: String
 ) {
-    var isMusicGloballyEnabled by remember { mutableStateOf(true) }
-
+    LaunchedEffect(isMusicGloballyEnabled, isAppInForeground) {
+        if (isMusicGloballyEnabled && isAppInForeground) {
+            musicManager.playLevelMusic() // Toca la música de nivel
+        } else {
+            musicManager.stopAllMusic()
+        }
+    }
     val defaultQuestion = "¿QUÉ ANIMAL ES ESTE?"
 
     OceanWordsGameUI(
@@ -567,9 +572,8 @@ fun OceanWordsGameRoute(
         dificultad = dificultad,
         animalQuestion = defaultQuestion,
 
-        onMusicToggle = { isEnabled ->
-            isMusicGloballyEnabled = isEnabled
-        },
+        onMusicToggle = onMusicToggle,
+
         isMusicEnabled = isMusicGloballyEnabled,
         especieId = especieId
     )
