@@ -54,8 +54,7 @@ fun caminoNiveles(
     musicManager: MusicManager,
     onMusicToggle: (Boolean) -> Unit,
     isMusicEnabled: Boolean,
-    niveles: List<NivelEstado>,
-    onItemClick: () -> Unit
+    niveles: List<NivelEstado>
 ) {
     val listState = rememberLazyListState()
     val density = LocalDensity.current
@@ -160,7 +159,6 @@ fun caminoNiveles(
                         level = level,
                         index = index,
                         onLevelClick = { levelId ->
-                            onItemClick()
                             onStartTransitionAndNavigate(levelId) // 👈 Aquí sí puedes hacerlo
                         },
                         animatedScale = levelNodeScale
@@ -238,9 +236,7 @@ fun caminoNiveles(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 IconButton(
-                    onClick = {
-                        showConfigDialog = true
-                        onItemClick()},
+                    onClick = { showConfigDialog = true },
 
                     ) {
                     Icon(
@@ -252,9 +248,7 @@ fun caminoNiveles(
                 }
                 GameIndicator(
                     value = "1500",
-                    redireccionarClick = {
-                        navController.navigate("game_shop")
-                        onItemClick()},
+                    redireccionarClick = { navController.navigate("game_shop") },
                     true,
 
                     )
@@ -266,9 +260,7 @@ fun caminoNiveles(
 
             if (showConfigDialog) {
                 Dialog(
-                    onDismissRequest = {
-                        showConfigDialog = false
-                        onItemClick() },
+                    onDismissRequest = { showConfigDialog = false },
                     properties = DialogProperties(usePlatformDefaultWidth = false)
                 ) {
                     Box(
@@ -280,7 +272,6 @@ fun caminoNiveles(
                         configuracionView(
                             onBack = {
                                 showConfigDialog = false
-                                onItemClick()
                             },
                             musicManager = musicManager,
                             onMusicToggle = onMusicToggle,
@@ -407,7 +398,7 @@ fun CaminoNivelesRoute(
     }else {
         Scaffold (
             containerColor = Color.Transparent,
-            bottomBar = { BottomNavBar(navController, onItemClick = musicManager::playClickSound) }
+            bottomBar = { BottomNavBar(navController) }
         ) { innerPadding ->
             Box(modifier = Modifier.padding(innerPadding)) {
                 caminoNiveles(
@@ -435,8 +426,7 @@ fun CaminoNivelesRoute(
                     ,
                     musicManager = musicManager,
                     onMusicToggle = onMusicToggle,
-                    isMusicEnabled = isMusicGloballyEnabled,
-                    onItemClick = musicManager::playClickSound
+                    isMusicEnabled = isMusicGloballyEnabled
                 )
             }
         }
