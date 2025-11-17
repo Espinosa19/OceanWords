@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -20,6 +21,7 @@ import com.proyect.ocean_words.model.PistaEstado
 import com.proyect.ocean_words.model.sampleShopItems
 import com.proyect.ocean_words.utils.MusicManager
 import com.proyect.ocean_words.view.CaminoNivelesRoute
+import com.proyect.ocean_words.view.LoadingScreenOceanWords
 import com.proyect.ocean_words.view.OceanWordsGameRoute
 import com.proyect.ocean_words.view.screens.BottomNavBar
 import com.proyect.ocean_words.view.screens.GameShopScreen
@@ -35,10 +37,13 @@ object Rutas {
     const val CONFIGURACION = "configuracion" // Nueva ruta
     const val CAMINO_NIVELES = "camino_niveles"
     const val ACUARIO = "acuario"
+    const val LOADING = "loading_screen"
+    //const val LOADING = "loading_screen/{nivel}"
     const val TIENDA = "tienda"
 
     const val ACERCA_DE = "acerca_de"       // Nueva ruta
     const val GAME_SHOP="game_shop"
+    //const val CAMINO_AREAS = "camino_areas" // Nueva ruta añadida
 }
 
 private const val ANTES_TRANSCION = 800L
@@ -237,6 +242,19 @@ fun NavManager(
                 navController
             )
         }
+
+        composable(Rutas.LOADING) {
+            val niveles = nivelViewModel.niveles.collectAsState().value // si tienes Flow o LiveData
+            val levelId = targetLevelId ?: 2 // reemplaza con tu nivel actual
+            LoadingScreenOceanWords(
+                currentLevelId = levelId,
+                niveles = niveles,
+                navController = navController
+            )
+        }
+
+
+
 
     }
 
