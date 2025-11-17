@@ -201,7 +201,8 @@ fun NavManager(
                         items = sampleShopItems,
                         onBuy = onBuyAction,
                         false,
-                        navController
+                        navController,
+                        musicManager
                     )
                 }
             }
@@ -234,7 +235,8 @@ fun NavManager(
                 items = sampleShopItems,
                 onBuy = onBuyAction,
                 true,
-                navController
+                navController,
+                musicManager
             )
         }
 

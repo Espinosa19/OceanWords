@@ -12,6 +12,7 @@ class MusicManager(private val context: Context) {
 
     private lateinit var soundPool: SoundPool
     private var clickSoundId: Int = 0
+    var areSoundEffectsEnabled = true
 
     init {
         soundPool = SoundPool.Builder()
@@ -22,8 +23,9 @@ class MusicManager(private val context: Context) {
     }
 
     fun playClickSound() {
-        soundPool.play(clickSoundId, 1f, 1f, 0, 0, 1f)
-    }
+        if (areSoundEffectsEnabled) {
+            soundPool.play(clickSoundId, 1f, 1f, 0, 0, 1f)
+        }    }
 
     fun stopAllMusic() {
         menuPlayer?.pause()

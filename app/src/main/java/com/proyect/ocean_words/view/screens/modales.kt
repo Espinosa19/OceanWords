@@ -49,8 +49,10 @@ import com.proyect.ocean_words.view.theme.Blue
 import com.proyect.ocean_words.view.theme.LightOlive
 import com.proyect.ocean_words.view.theme.MomoTrustDisplay
 import com.proyect.ocean_words.view.theme.azulCeleste
+import com.proyect.ocean_words.utils.MusicManager
+
 @Composable
-fun ShopItemCard(item: PistaEstado, onBuyClicked: (PistaEstado) -> Unit) {
+fun ShopItemCard(item: PistaEstado, onBuyClicked: (PistaEstado) -> Unit, musicManager: MusicManager) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -60,7 +62,10 @@ fun ShopItemCard(item: PistaEstado, onBuyClicked: (PistaEstado) -> Unit) {
                 color = Color.White.copy(alpha = 0.85f),
                 shape = RoundedCornerShape(16.dp)
             )
-            .clickable { onBuyClicked(item) }
+            .clickable {
+                onBuyClicked(item)
+                musicManager.playClickSound()
+            }
             .padding(vertical = 16.dp, horizontal = 8.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -85,7 +90,9 @@ fun ShopItemCard(item: PistaEstado, onBuyClicked: (PistaEstado) -> Unit) {
 
         // Botón de compra
         Button(
-            onClick = { onBuyClicked(item) },
+            onClick = {
+                onBuyClicked(item)
+                musicManager.playClickSound()},
             shape = RoundedCornerShape(12.dp),
             modifier = Modifier
                 .fillMaxWidth(0.8f)
@@ -108,7 +115,8 @@ fun ShopItemCard(item: PistaEstado, onBuyClicked: (PistaEstado) -> Unit) {
 fun GameShopScreen(
     items: List<PistaEstado>, onBuy: (PistaEstado) -> Unit,
     visible: Boolean,
-    navController: NavController
+    navController: NavController,
+    musicManager: MusicManager
 ) {
     Box(
         modifier = Modifier
@@ -147,7 +155,9 @@ fun GameShopScreen(
                 ) {
                     if (visible){
                         Button(
-                            onClick = { navController.popBackStack() },
+                            onClick = {
+                                navController.popBackStack()
+                                musicManager.playClickSound() },
                             modifier = Modifier.size(40.dp), // Tamaño del botón
                             shape = RoundedCornerShape(50), // Circular
                             contentPadding = PaddingValues(0.dp), // Sin padding interno
@@ -180,7 +190,11 @@ fun GameShopScreen(
                         textAlign = TextAlign.Center
                     )
 
-                    GameIndicator(value = "500",redireccionarClick={navController.navigate("game_shop")},false)
+                    GameIndicator(value = "500",
+                        redireccionarClick={
+                            navController.navigate("game_shop")
+                            musicManager.playClickSound()},
+                        false)
                 }
             }
 
@@ -214,7 +228,7 @@ fun GameShopScreen(
                 modifier = Modifier.weight(1f)
             ) {
                 items(items) { item ->
-                    ShopItemCard(item = item, onBuyClicked = onBuy)
+                    ShopItemCard(item = item, onBuyClicked = onBuy, musicManager = musicManager)
                 }
             }
         }
