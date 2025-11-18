@@ -96,7 +96,7 @@ fun OceanWordsGameUI(
             Spacer(modifier = Modifier.height(20.dp))
 
             // 2. Aquí se llama al componente principal del juego con toda la lógica de estado
-            JuegoAnimal(animal, dificultad, animalQuestion, navController, musicManager, onMusicToggle, isMusicEnabled,especieId, nivelViewModel)
+            JuegoAnimal(animal, dificultad, animalQuestion, navController, musicManager, onMusicToggle, isMusicEnabled,especieId, nivelViewModel, vidas)
         }
 
 
@@ -114,7 +114,8 @@ fun JuegoAnimal(
     onMusicToggle: (Boolean) -> Unit,
     isMusicEnabled: Boolean,
     especieId: String,
-    nivelViewModel: NivelViewModel
+    nivelViewModel: NivelViewModel,
+    vidas: List<Boolean>
 ) {
     val viewModel: EspecieViewModel = viewModel(
         factory = AdivinaEspecieViewModelFactory(animal, dificultad, nivelViewModel)
@@ -131,6 +132,8 @@ fun JuegoAnimal(
     val onResetGame: () -> Unit = viewModel::resetGame
     val onGoBackGame: () -> Unit = viewModel::goBackGame
     val obtenerPista : () -> Unit = viewModel::obtenerPista
+    val allLivesLost = vidas.all { !it }
+    val isGameEnabled = !allLivesLost
     LaunchedEffect (navegarAExito) {
         if (navegarAExito) {
 
@@ -156,7 +159,7 @@ fun JuegoAnimal(
                 .padding(bottom = bottomPadding, start = 10.dp, end = 10.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            tecladoInteractivo(animalRandom, visible, letrasPorFila, onLetterSelected)
+            tecladoInteractivo(animalRandom, visible, letrasPorFila, onLetterSelected, enabled = isGameEnabled)
         }
 
         Column(
@@ -168,7 +171,7 @@ fun JuegoAnimal(
                 .padding(bottom = 38.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            accionesEspecíficas(onResetGame,onGoBackGame,obtenerPista)
+            accionesEspecíficas(onResetGame,onGoBackGame,obtenerPista, enabled = isGameEnabled)
         }
     }
 }
@@ -355,7 +358,8 @@ fun tecladoInteractivo(
     animalRandom: String,
     visible: MutableList<Boolean>,
     letrasPorFila: Int,
-    onLetterSelected: (Char, Int) -> Unit // 💡 NUEVO ARGUMENTO
+    onLetterSelected: (Char, Int) -> Unit, // 💡 NUEVO ARGUMENTO
+    enabled: Boolean
 ) {
     val configuration = LocalConfiguration.current
     val screenWidthDp = configuration.screenWidthDp.dp
@@ -381,7 +385,8 @@ fun tecladoInteractivo(
                             modifier = Modifier.size(38.dp),
                             shape = RoundedCornerShape(12.dp),
                             contentPadding = PaddingValues(0.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = LightBlue)
+                            colors = ButtonDefaults.buttonColors(containerColor = LightBlue),
+                            enabled = enabled
                         ) {
                             Text(
                                 text = animalRandom[j].toString(),
@@ -400,7 +405,7 @@ fun tecladoInteractivo(
 }
 
 @Composable
-fun accionesEspecíficas(onResetGame: () -> Unit, onGoBackGame: () -> Unit, obtenerPista: () -> Unit) {
+fun accionesEspecíficas(onResetGame: () -> Unit, onGoBackGame: () -> Unit, obtenerPista: () -> Unit, enabled: Boolean) {
     val dividerColor = Color(0xFFE98516)
     val dividerWidth = 2.dp
     val imageSize = 40.dp
@@ -417,7 +422,8 @@ fun accionesEspecíficas(onResetGame: () -> Unit, onGoBackGame: () -> Unit, obte
             modifier = Modifier
                 .weight(1f)
                 .fillMaxHeight()
-                .clickable(onClick = onResetGame)
+                .clickable(onClick = if (enabled) onResetGame else ({ /* No hacer nada */ }),
+                    enabled = enabled)
                 .clip(RoundedCornerShape(8.dp)),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
