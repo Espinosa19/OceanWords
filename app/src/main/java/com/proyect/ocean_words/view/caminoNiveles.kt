@@ -42,7 +42,8 @@ import com.proyect.ocean_words.view.screens.LifeRechargeBubble
 import com.proyect.ocean_words.view.screens.configuracionView
 import com.proyect.ocean_words.viewmodels.NivelViewModel
 import java.util.logging.Level
-
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 
 val LevelSpacing = 40.dp
 val PaddingVertical = 50.dp
@@ -121,7 +122,6 @@ fun caminoNiveles(
     val nivelesFinal = niveles.mapIndexed { index, nivel ->
         // Escoge una especie aleatoria de la lista de especies del nivel
         val especieAleatoria = nivel.especies_id.randomOrNull()
-
         LevelEstado(
             id = index + 1,
             especie_id = especieAleatoria?.id ?: "0",
@@ -446,11 +446,10 @@ fun CaminoNivelesRoute(
                         // Verificar si existe una especie válida
                         if (especie != null) {
                             var especie_id =especie.id
-                            val nombre = especie.nombre
+                            val nombre = URLEncoder.encode(especie.nombre, StandardCharsets.UTF_8.toString())
                             val dificultad = especie.dificultad
-
-                            // Navegar pasando los parámetros
-                            navController.navigate("nivel/$levelId/$especie_id/$nombre/$dificultad")
+                            val imagen = URLEncoder.encode(especie.imagen, StandardCharsets.UTF_8.toString()) // 👈 Codificar                            // Navegar pasando los parámetros
+                            navController.navigate("nivel/$levelId/$especie_id/$nombre/$dificultad/$imagen")
                         } else {
                             Log.e("CaminoNivelesRoute", "No se encontró especie para el nivel $levelId")
                         }

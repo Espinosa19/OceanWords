@@ -44,6 +44,7 @@ dependencies {
     implementation("androidx.compose.ui:ui-text-google-fonts:1.7.0")
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation("io.coil-kt:coil-compose:2.6.0") // O la versión más reciente
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation("com.google.firebase:firebase-firestore")

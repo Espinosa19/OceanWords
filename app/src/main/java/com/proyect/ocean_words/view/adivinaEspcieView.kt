@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import coil.compose.AsyncImage
 
 import com.proyect.ocean_words.R
 import com.proyect.ocean_words.viewmodels.AdivinaEspecieViewModelFactory
@@ -67,7 +68,8 @@ fun OceanWordsGameUI(
     onMusicToggle: (Boolean) -> Unit,
     isMusicEnabled: Boolean,
     especieId: String,
-    nivelViewModel: NivelViewModel
+    nivelViewModel: NivelViewModel,
+    imagen: String?
 ) {
     val vidas by nivelViewModel.vidas.collectAsState()
     val timeToNextLife by nivelViewModel.timeToNextLife.collectAsState()
@@ -96,7 +98,7 @@ fun OceanWordsGameUI(
             Spacer(modifier = Modifier.height(20.dp))
 
             // 2. Aquí se llama al componente principal del juego con toda la lógica de estado
-            JuegoAnimal(animal, dificultad, animalQuestion, navController, musicManager, onMusicToggle, isMusicEnabled,especieId, nivelViewModel)
+            JuegoAnimal(animal, dificultad, animalQuestion, navController, musicManager, onMusicToggle, isMusicEnabled,especieId, nivelViewModel,imagen)
         }
 
 
@@ -114,7 +116,8 @@ fun JuegoAnimal(
     onMusicToggle: (Boolean) -> Unit,
     isMusicEnabled: Boolean,
     especieId: String,
-    nivelViewModel: NivelViewModel
+    nivelViewModel: NivelViewModel,
+    imagen: String?
 ) {
     val viewModel: EspecieViewModel = viewModel(
         factory = AdivinaEspecieViewModelFactory(animal, dificultad, nivelViewModel)
@@ -146,7 +149,7 @@ fun JuegoAnimal(
         val screenWidthDp = configuration.screenWidthDp.dp
         val bottomPadding = if (screenWidthDp > 420.dp) { 180.dp } else { 150.dp }
 
-        QuestionAndImageSection( navController,animalQuestion, animal, respuestaJugador, onLetterRemoved, musicManager, onMusicToggle, isMusicEnabled)
+        QuestionAndImageSection( navController,animalQuestion, animal, respuestaJugador, onLetterRemoved, musicManager, onMusicToggle, isMusicEnabled,imagen)
 
 
         Column(
@@ -182,7 +185,8 @@ fun QuestionAndImageSection(
     onLetterRemoved: (Int) -> Unit,
     musicManager: MusicManager,
     onMusicToggle: (Boolean) -> Unit,
-    isMusicEnabled: Boolean
+    isMusicEnabled: Boolean,
+    imagen: String?
 ) {
     var statusMenu by remember { mutableStateOf(false) }
 
@@ -216,13 +220,16 @@ fun QuestionAndImageSection(
                     .height(260.dp),
                 contentAlignment = Alignment.Center
             ){
-                Image(
-                    painter = painterResource(id = R.drawable.ballena),
-                    contentDescription = "Pez Payaso",
+                AsyncImage(
+                    // 👈 Reemplaza 'painterResource' con la URL
+                    model = imagen,
+                    contentDescription = "", // O Ballena, según la imagen
+
+                    // **NOTA:** Mantén los modificadores y el filtro de color
                     modifier = Modifier
                         .size(200.dp)
-                        .offset(y = offsetPadding)
-                    ,colorFilter = ColorFilter.tint(
+                        .offset(y = offsetPadding),
+                    colorFilter = ColorFilter.tint(
                         color = Color.Black.copy(alpha = 1f),
                         blendMode = BlendMode.SrcAtop
                     )
@@ -558,7 +565,8 @@ fun OceanWordsGameRoute(
     nombre: String,
     dificultad: String,
     especieId: String,
-    nivelViewModel: NivelViewModel = viewModel()
+    nivelViewModel: NivelViewModel = viewModel(),
+    imagen: String?
 ) {
     LaunchedEffect(isMusicGloballyEnabled, isAppInForeground) {
         if (isMusicGloballyEnabled && isAppInForeground) {
@@ -577,6 +585,7 @@ fun OceanWordsGameRoute(
 
         animal = nombre,
         dificultad = dificultad,
+        imagen=imagen,
         animalQuestion = defaultQuestion,
 
         onMusicToggle = onMusicToggle,

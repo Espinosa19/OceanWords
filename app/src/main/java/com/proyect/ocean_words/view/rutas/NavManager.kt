@@ -101,14 +101,17 @@ fun NavManager(
             )
         }
         composable(
-            route = "nivel/{id}/{especie_id}/{nombre}/{dificultad}",
+            route = "nivel/{id}/{especie_id}/{nombre}/{dificultad}/{imagen}",
             arguments = listOf(
                 navArgument("id") { type = NavType.IntType },
                 navArgument("especie_id") { type = NavType.StringType },
                 navArgument("nombre") { type = NavType.StringType },
-                navArgument("dificultad") { type = NavType.StringType }
+                navArgument("dificultad") { type = NavType.StringType },
+                navArgument("imagen") { type = NavType.StringType }
+
             )
         ) { backStackEntry ->
+
             LaunchedEffect(isMusicGloballyEnabled, isAppInForeground) {
                 if (isMusicGloballyEnabled && isAppInForeground) {
                     musicManager.playLevelMusic()
@@ -120,6 +123,8 @@ fun NavManager(
             val especie_id =backStackEntry.arguments?.getString("especie_id")
             val nombre = backStackEntry.arguments?.getString("nombre")
             val dificultad = backStackEntry.arguments?.getString("dificultad")
+            val imagen: String? = backStackEntry.arguments?.getString("imagen")
+
             if (levelId != null) {
                 if (nombre != null) {
                     if (dificultad != null) {
@@ -132,6 +137,7 @@ fun NavManager(
                                 nombre =nombre,
                                 dificultad =dificultad,
                                 especieId = especie_id,
+                                imagen=imagen,
                                 isMusicGloballyEnabled = isMusicGloballyEnabled,
                                 onMusicToggle = { isEnabled ->
                                     isMusicGloballyEnabled = isEnabled
