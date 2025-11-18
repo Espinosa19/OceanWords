@@ -257,18 +257,17 @@ fun caminoNiveles(
                     )
                 }
 
-                // 2. 🟢 INDICADOR DE VIDAS Y TIEMPO DE RECARGA
                 Box(
                     contentAlignment = Alignment.Center
                 ) {
-                    CentralIndicatorBox(vidas = vidas) // 👈 Indicador de corazones
+                    CentralIndicatorBox(vidas = vidas)
 
                     if (isRechargeNeeded && isTimerRunning) {
-                        LifeRechargeBubble( // 👈 Burbuja de tiempo
+                        LifeRechargeBubble(
                             timeRemaining = timeToNextLife,
                             modifier = Modifier
                                 .align(Alignment.TopStart)
-                                .offset(x = (-2).dp, y = (-bubbleHeight / 2) + 60.dp) // El error está aquí
+                                .offset(x = (-2).dp, y = (-bubbleHeight / 2) + 60.dp)
                         )
                     }
                 }
