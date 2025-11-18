@@ -12,6 +12,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.getValue // Esta es la importación clave que faltaimport androidx.compose.runtime.remember
 import androidx.compose.runtime.mutableStateOf
@@ -51,6 +52,7 @@ import com.proyect.ocean_words.view.theme.Delius
 import com.proyect.ocean_words.view.theme.MomoTrustDisplay
 import com.proyect.ocean_words.view.theme.VerdeClaro
 import com.proyect.ocean_words.viewmodels.EspecieViewModel
+import com.proyect.ocean_words.viewmodels.NivelViewModel
 
 
 @Composable
@@ -64,8 +66,11 @@ fun OceanWordsGameUI(
     animalQuestion: String = "¿QUÉ ANIMAL ES ESTE?",
     onMusicToggle: (Boolean) -> Unit,
     isMusicEnabled: Boolean,
-    especieId: String
+    especieId: String,
+    nivelViewModel: NivelViewModel
 ) {
+    val vidas by nivelViewModel.vidas.collectAsState()
+    val timeToNextLife by nivelViewModel.timeToNextLife.collectAsState()
 
     Box(
         modifier = Modifier
@@ -86,12 +91,12 @@ fun OceanWordsGameUI(
                 .fillMaxSize()
         ) {
             // 1. Encabezado (Score, Time)
-            HeaderSection(animal,dificultad,navController)
+            HeaderSection(animal,dificultad,navController,vidas = vidas, timeToNextLife = timeToNextLife, nivelViewModel = nivelViewModel)
 
             Spacer(modifier = Modifier.height(20.dp))
 
             // 2. Aquí se llama al componente principal del juego con toda la lógica de estado
-            JuegoAnimal(animal, dificultad, animalQuestion, navController, musicManager, onMusicToggle, isMusicEnabled,especieId)
+            JuegoAnimal(animal, dificultad, animalQuestion, navController, musicManager, onMusicToggle, isMusicEnabled,especieId, nivelViewModel)
         }
 
 
@@ -108,10 +113,11 @@ fun JuegoAnimal(
     musicManager: MusicManager,
     onMusicToggle: (Boolean) -> Unit,
     isMusicEnabled: Boolean,
-    especieId: String
+    especieId: String,
+    nivelViewModel: NivelViewModel
 ) {
     val viewModel: EspecieViewModel = viewModel(
-        factory = AdivinaEspecieViewModelFactory(animal, dificultad)
+        factory = AdivinaEspecieViewModelFactory(animal, dificultad, nivelViewModel)
     )
 
     val animalRandom = viewModel.animalRandom
@@ -551,7 +557,8 @@ fun OceanWordsGameRoute(
 
     nombre: String,
     dificultad: String,
-    especieId: String
+    especieId: String,
+    nivelViewModel: NivelViewModel = viewModel()
 ) {
     LaunchedEffect(isMusicGloballyEnabled, isAppInForeground) {
         if (isMusicGloballyEnabled && isAppInForeground) {
@@ -575,7 +582,8 @@ fun OceanWordsGameRoute(
         onMusicToggle = onMusicToggle,
 
         isMusicEnabled = isMusicGloballyEnabled,
-        especieId = especieId
+        especieId = especieId,
+        nivelViewModel = nivelViewModel
     )
 }
 

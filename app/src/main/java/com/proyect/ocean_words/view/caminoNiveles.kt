@@ -36,7 +36,9 @@ import com.proyect.ocean_words.model.LevelEstado
 import com.proyect.ocean_words.model.NivelEstado
 import com.proyect.ocean_words.utils.MusicManager
 import com.proyect.ocean_words.view.screens.BottomNavBar
+import com.proyect.ocean_words.view.screens.CentralIndicatorBox
 import com.proyect.ocean_words.view.screens.GameIndicator
+import com.proyect.ocean_words.view.screens.LifeRechargeBubble
 import com.proyect.ocean_words.view.screens.configuracionView
 import com.proyect.ocean_words.viewmodels.NivelViewModel
 import java.util.logging.Level
@@ -55,12 +57,16 @@ fun caminoNiveles(
     onMusicToggle: (Boolean) -> Unit,
     isMusicEnabled: Boolean,
     niveles: List<NivelEstado>,
-    onItemClick: () -> Unit
+    onItemClick: () -> Unit,
+    vidas: List<Boolean>,
+    timeToNextLife: String
 ) {
     val listState = rememberLazyListState()
     val density = LocalDensity.current
     var showConfigDialog by remember { mutableStateOf(false) }
-
+    val bubbleHeight = 35.dp
+    val isRechargeNeeded = vidas.any { !it }
+    val isTimerRunning = timeToNextLife.isNotEmpty()
     val infiniteTransition = rememberInfiniteTransition(label = "general_animations")
 
     val fish1XOffset by infiniteTransition.animateFloat(
@@ -250,16 +256,31 @@ fun caminoNiveles(
                         modifier = Modifier.size(32.dp)
                     )
                 }
+
+                // 2. 🟢 INDICADOR DE VIDAS Y TIEMPO DE RECARGA
+                Box(
+                    contentAlignment = Alignment.Center
+                ) {
+                    CentralIndicatorBox(vidas = vidas) // 👈 Indicador de corazones
+
+                    if (isRechargeNeeded && isTimerRunning) {
+                        LifeRechargeBubble( // 👈 Burbuja de tiempo
+                            timeRemaining = timeToNextLife,
+                            modifier = Modifier
+                                .align(Alignment.TopStart)
+                                .offset(x = (-2).dp, y = (-bubbleHeight / 2) + 60.dp) // El error está aquí
+                        )
+                    }
+                }
+
+                // 3. Indicador de Monedas
                 GameIndicator(
                     value = "1500",
                     redireccionarClick = {
                         navController.navigate("game_shop")
                         onItemClick()},
                     true,
-
-                    )
-
-
+                )
             }
 
 
@@ -392,7 +413,9 @@ fun CaminoNivelesRoute(
     isAppInForeground: Boolean,
     viewModel: NivelViewModel,
     isMusicGloballyEnabled: Boolean,
-    onMusicToggle: (Boolean) -> Unit
+    onMusicToggle: (Boolean) -> Unit,
+    vidas: List<Boolean>,
+    timeToNextLife: String
 ) {
     val isSplashShown by viewModel.isSplashShown.collectAsState()
     val niveles by viewModel.niveles.collectAsState(initial = emptyList())
@@ -436,7 +459,9 @@ fun CaminoNivelesRoute(
                     musicManager = musicManager,
                     onMusicToggle = onMusicToggle,
                     isMusicEnabled = isMusicGloballyEnabled,
-                    onItemClick = musicManager::playClickSound
+                    onItemClick = musicManager::playClickSound,
+                    vidas = vidas,
+                    timeToNextLife = timeToNextLife
                 )
             }
         }

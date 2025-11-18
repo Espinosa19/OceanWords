@@ -58,6 +58,8 @@ fun NavManager(
     val navController = rememberNavController()
     var targetLevelId by remember { mutableStateOf<Int?>(null) }
     var isMusicGloballyEnabled by remember { mutableStateOf(true) }
+    val vidas by nivelViewModel.vidas.collectAsState()
+    val timeToNextLife by nivelViewModel.timeToNextLife.collectAsState()
 
     NavHost(
         navController = navController,
@@ -93,7 +95,9 @@ fun NavManager(
                 isMusicGloballyEnabled = isMusicGloballyEnabled,
                 onMusicToggle = { isEnabled ->
                     isMusicGloballyEnabled = isEnabled
-                }
+                },
+                vidas = vidas,
+                timeToNextLife = timeToNextLife
             )
         }
         composable(
@@ -131,7 +135,8 @@ fun NavManager(
                                 isMusicGloballyEnabled = isMusicGloballyEnabled,
                                 onMusicToggle = { isEnabled ->
                                     isMusicGloballyEnabled = isEnabled
-                                }
+                                },
+                                nivelViewModel = nivelViewModel
                             )
                         }
                     }

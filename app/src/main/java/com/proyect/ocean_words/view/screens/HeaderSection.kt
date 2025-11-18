@@ -43,6 +43,7 @@ import com.proyect.ocean_words.view.theme.LightOlive
 import com.proyect.ocean_words.view.theme.azulCeleste
 import com.proyect.ocean_words.viewmodels.AdivinaEspecieViewModelFactory
 import com.proyect.ocean_words.viewmodels.EspecieViewModel
+import com.proyect.ocean_words.viewmodels.NivelViewModel
 
 // NOTA: Tu código original usaba IndicatorBackgroundColor, Orange, OrangeDeep, y Purple40
 // pero no estaban definidos en el código que enviaste. Asumo que se definen en el archivo theme.
@@ -51,13 +52,12 @@ import com.proyect.ocean_words.viewmodels.EspecieViewModel
 fun HeaderSection(
     animal: String,
     dificultad: String,
-    navController: NavController
+    navController: NavController,
+    vidas: List<Boolean>,
+    timeToNextLife: String,
+    nivelViewModel: NivelViewModel
     ) {
-    val viewModel: EspecieViewModel = viewModel (
-        factory = AdivinaEspecieViewModelFactory(animal, dificultad)
-    )
-    val vidas by viewModel.vidas.collectAsState()
-    val timeToNextLife by viewModel.timeToNextLife.collectAsState()
+
     val showNoLivesDialog = remember { mutableStateOf(false) }
     val allLivesLost = vidas.all { !it }
 

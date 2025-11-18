@@ -20,7 +20,8 @@ import kotlinx.coroutines.delay
 
 class EspecieViewModel (
     animal: String,
-    dificultad: String
+    dificultad: String,
+    private val onPerderVidaGlobal: () -> Unit
 ) : ViewModel() {
     private val repository = EspecieRepository()
     private val MAX_LIVES = 3
@@ -35,7 +36,7 @@ class EspecieViewModel (
     val navegarAExito: LiveData<Boolean> = _navegarAExito
     private val letrasPorFila = 7
 
-    private val _vidas = MutableStateFlow(listOf(true, true, true))
+    /*private val _vidas = MutableStateFlow(listOf(true, true, true))
     val vidas = _vidas.asStateFlow()
 
     private val _lastLifeLossTime = MutableStateFlow<Long?>(null)
@@ -57,7 +58,7 @@ class EspecieViewModel (
             }
             delay(1000)
         }
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "")
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "")*/
 
     private fun formatTime(ms: Long): String {
         val totalSeconds = ms / 1000
@@ -67,42 +68,7 @@ class EspecieViewModel (
     }
 
     fun perderVida() {
-        val index = _vidas.value.indexOfLast { it }
-        if (index != -1) {
-            val nuevasVidas = _vidas.value.toMutableList()
-            nuevasVidas[index] = false
-            _vidas.value = nuevasVidas
-
-            if (_lastLifeLossTime.value == null && nuevasVidas.count { it } < MAX_LIVES) {
-                _lastLifeLossTime.value = System.currentTimeMillis()
-            }
-        }
-    }
-
-    private fun regenerateOneLifeAndCheckRestart() {
-        _vidas.update { currentVidas ->
-            val firstLostIndex = currentVidas.indexOf(false)
-            if (firstLostIndex != -1) {
-                val newVidas = currentVidas.toMutableList().apply {
-                    this[firstLostIndex] = true
-                }
-
-                if (newVidas.count { it } < MAX_LIVES) {
-                    _lastLifeLossTime.value = System.currentTimeMillis()
-                } else {
-                    _lastLifeLossTime.value = null
-                }
-                return@update newVidas
-            } else {
-                _lastLifeLossTime.value = null
-                return@update currentVidas
-            }
-        }
-    }
-
-    fun reiniciarVidas() {
-        _vidas.value = listOf(true, true, true)
-        _lastLifeLossTime.value = null
+        onPerderVidaGlobal()
     }
 
     val animalRandom: String = if (dificultad != "dificil") {
@@ -188,7 +154,7 @@ class EspecieViewModel (
     }
 
     fun selectLetter(char: Char, originalIndex: Int) {
-        val quedanVidas = _vidas.value.any { it }
+        val quedanVidas = true
 
         val posicionAsignada = respuestaJugador.indexOfFirst { it?.char == null }
         if(quedanVidas){
