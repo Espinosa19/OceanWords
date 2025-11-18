@@ -568,6 +568,7 @@ fun OceanWordsGameRoute(
     nivelViewModel: NivelViewModel = viewModel(),
     imagen: String?
 ) {
+
     LaunchedEffect(isMusicGloballyEnabled, isAppInForeground) {
         if (isMusicGloballyEnabled && isAppInForeground) {
             musicManager.playLevelMusic() // Toca la música de nivel

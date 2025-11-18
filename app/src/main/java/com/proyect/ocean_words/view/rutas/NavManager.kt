@@ -27,6 +27,8 @@ import com.proyect.ocean_words.view.screens.BottomNavBar
 import com.proyect.ocean_words.view.screens.GameShopScreen
 import com.proyect.ocean_words.view.screens.caracteristicasEspecieView
 import com.proyect.ocean_words.viewmodels.NivelViewModel
+import java.net.URLDecoder
+import java.nio.charset.StandardCharsets
 
 // --- Rutas de la Aplicación ---
 object Rutas {
@@ -124,7 +126,7 @@ fun NavManager(
             val nombre = backStackEntry.arguments?.getString("nombre")
             val dificultad = backStackEntry.arguments?.getString("dificultad")
             val imagen: String? = backStackEntry.arguments?.getString("imagen")
-
+            val nombreLimpio = URLDecoder.decode(nombre, StandardCharsets.UTF_8.toString())
             if (levelId != null) {
                 if (nombre != null) {
                     if (dificultad != null) {
@@ -134,7 +136,7 @@ fun NavManager(
                                 levelId = levelId,
                                 isAppInForeground = isAppInForeground,
                                 musicManager = musicManager,
-                                nombre =nombre,
+                                nombre =nombreLimpio,
                                 dificultad =dificultad,
                                 especieId = especie_id,
                                 imagen=imagen,
