@@ -16,8 +16,10 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -28,6 +30,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import coil.compose.AsyncImage
 import com.proyect.ocean_words.R
 import com.proyect.ocean_words.model.EspecieEstado
 import com.proyect.ocean_words.view.theme.*
@@ -39,7 +42,8 @@ val StarColor = Color(0xFFFFCC00)
 @Composable
 fun caracteristicasEspecieView(
     navController: NavController,
-    especie_id: String
+    especie_id: String,
+    imagen: String?
 ) {
     val viewModel: CaracteristicasEspecieViewModels = viewModel()
     val especieState by viewModel.especie.collectAsState()
@@ -75,7 +79,8 @@ fun caracteristicasEspecieView(
                 CaracteristicasModal(
                     navController = navController,
                     especie = especie,
-                    onClose = { navController.popBackStack() }
+                    onClose = { navController.popBackStack() },
+                    imagen =imagen
                 )
             }
         }
@@ -86,7 +91,8 @@ fun caracteristicasEspecieView(
 fun CaracteristicasModal(
     navController: NavController,
     especie: EspecieEstado,
-    onClose: () -> Unit
+    onClose: () -> Unit,
+    imagen: String?
 ) {
     Dialog(onDismissRequest = { onClose() }) {
         Card(
@@ -139,14 +145,18 @@ fun CaracteristicasModal(
                     )
 
                     Spacer(modifier = Modifier.height(8.dp))
+                    AsyncImage(
+                        // 👈 Reemplaza 'painterResource' con la URL
+                        model = imagen,
+                        contentDescription = "", // O Ballena, según la imagen
 
-                    Image(
-                        painter = painterResource(id = R.drawable.ballena),
-                        contentDescription = especie.nombre,
+                        // **NOTA:** Mantén los modificadores y el filtro de color
                         modifier = Modifier
                             .size(160.dp)
-                            .padding(6.dp)
+                            .padding(6.dp),
+
                     )
+
 
                     Spacer(modifier = Modifier.height(8.dp))
 

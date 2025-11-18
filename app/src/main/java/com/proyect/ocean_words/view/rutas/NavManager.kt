@@ -152,12 +152,15 @@ fun NavManager(
             }
         }
         composable(
-            route = "caracteristicas/{especie_id}",
+            route = "caracteristicas/{especie_id}/{imagen}",
             arguments = listOf(
                 navArgument("especie_id") { type = NavType.StringType },
+                navArgument("imagen") { type = NavType.StringType }
             )
         ) { backStackEntry ->
             val especie_id =backStackEntry.arguments?.getString("especie_id")
+            val imagen: String? = backStackEntry.arguments?.getString("imagen")
+
             LaunchedEffect(isMusicGloballyEnabled, isAppInForeground) {
                 if (isMusicGloballyEnabled && isAppInForeground) {
                     musicManager.playLevelMusic()
@@ -166,7 +169,7 @@ fun NavManager(
                 }
             }
             if (especie_id != null) {
-                caracteristicasEspecieView(navController,especie_id)
+                caracteristicasEspecieView(navController,especie_id,imagen)
             }
         }
 

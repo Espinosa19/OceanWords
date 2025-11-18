@@ -54,6 +54,8 @@ import com.proyect.ocean_words.view.theme.MomoTrustDisplay
 import com.proyect.ocean_words.view.theme.VerdeClaro
 import com.proyect.ocean_words.viewmodels.EspecieViewModel
 import com.proyect.ocean_words.viewmodels.NivelViewModel
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 
 
 @Composable
@@ -137,9 +139,10 @@ fun JuegoAnimal(
     LaunchedEffect (navegarAExito) {
         if (navegarAExito) {
 
+            val imagen = URLEncoder.encode(imagen, StandardCharsets.UTF_8.toString()) // 👈 Codificar                            // Navegar pasando los parámetros
 
             // 2. Consumir el evento de navegación reseteando la LiveData
-            navController.navigate("caracteristicas/$especieId")
+            navController.navigate("caracteristicas/$especieId/$imagen")
         }
     }
 
