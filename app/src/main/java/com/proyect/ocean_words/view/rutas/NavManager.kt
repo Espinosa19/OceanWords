@@ -12,16 +12,22 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.proyect.ocean_words.auth.AuthViewModel
+
+import com.proyect.ocean_words.auth.LoginScreen
+import com.proyect.ocean_words.auth.RegisterScreen
 import com.proyect.ocean_words.model.PistaEstado
 import com.proyect.ocean_words.model.sampleShopItems
 import com.proyect.ocean_words.utils.MusicManager
 import com.proyect.ocean_words.view.CaminoNivelesRoute
 import com.proyect.ocean_words.view.LoadingScreenOceanWords
+import com.proyect.ocean_words.view.LoadingScreenOceanWordsAnimated
 import com.proyect.ocean_words.view.OceanWordsGameRoute
 import com.proyect.ocean_words.view.screens.BottomNavBar
 import com.proyect.ocean_words.view.screens.GameShopScreen
@@ -41,11 +47,13 @@ object Rutas {
     const val ACUARIO = "acuario"
     const val LOADING = "loading_screen"
     //const val LOADING = "loading_screen/{nivel}"
+    const val LOADING_ANIMADO = "loading_animado"
     const val TIENDA = "tienda"
 
     const val ACERCA_DE = "acerca_de"       // Nueva ruta
     const val GAME_SHOP="game_shop"
-    //const val CAMINO_AREAS = "camino_areas" // Nueva ruta añadida
+    const val LOGIN = "login"
+    const val REGISTRO = "registro"
 }
 
 private const val ANTES_TRANSCION = 800L
@@ -65,7 +73,7 @@ fun NavManager(
 
     NavHost(
         navController = navController,
-        startDestination = Rutas.CAMINO_NIVELES // La aplicación comienza en la pantalla de carga
+        startDestination = Rutas.LOADING_ANIMADO // La aplicación comienza en la pantalla de carga
     ) {
         // DESTINO: Pantalla de Carga (Splash)
 //        composable(route = Rutas.JUEGO_PRINCIPAL,
@@ -270,6 +278,19 @@ fun NavManager(
                 navController = navController
             )
         }
+        composable(Rutas.LOGIN) {
+            val authViewModel: AuthViewModel = viewModel()
+            LoginScreen(navController, authViewModel)
+        }
+
+        composable(Rutas.REGISTRO) {
+            val authViewModel: AuthViewModel = viewModel()
+            RegisterScreen(navController, authViewModel)
+        }
+        composable(Rutas.LOADING_ANIMADO) {
+            LoadingScreenOceanWordsAnimated(navController)
+        }
+
 
 
 

@@ -1,3 +1,5 @@
+import org.gradle.kotlin.dsl.implementation
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -51,6 +53,8 @@ dependencies {
     implementation("androidx.navigation:navigation-compose:2.7.4") // Reemplaza 2.7.4 con la versión estable más reciente
     implementation ("androidx.compose.runtime:runtime-livedata:1.6.8") // O la versión actual
     implementation ("com.jakewharton.threetenabp:threetenabp:1.4.4")
+    implementation("com.google.firebase:firebase-auth-ktx:22.3.0")
+    implementation("com.google.firebase:firebase-database-ktx:20.3.0")
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
@@ -63,6 +67,10 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+    //implementation platform('com.google.firebase:firebase-bom:33.1.0')
+    //implementation 'com.google.firebase:firebase-auth-ktx'
+
+    //implementation "com.google.android.gms:play-services-auth:21.2.0"
 
     implementation("androidx.datastore:datastore-preferences:1.1.0")
 }
