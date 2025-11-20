@@ -34,9 +34,9 @@ class AuthViewModel : ViewModel() {
                 }
         }
     }
+
     fun signInWithGoogle(idToken: String) {
         val credential = GoogleAuthProvider.getCredential(idToken, null)
-
         auth.signInWithCredential(credential)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
@@ -68,5 +68,16 @@ class AuthViewModel : ViewModel() {
                     }
                 }
         }
+    }
+
+    fun resetPassword(email: String) {
+        auth.sendPasswordResetEmail(email)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    _authState.value = "Se ha enviado un enlace de recuperación a su correo"
+                } else {
+                    _authState.value = task.exception?.localizedMessage
+                }
+            }
     }
 }
