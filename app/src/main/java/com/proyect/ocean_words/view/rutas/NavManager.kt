@@ -12,21 +12,29 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.proyect.ocean_words.auth.AuthViewModel
+
+import com.proyect.ocean_words.auth.LoginScreen
+import com.proyect.ocean_words.auth.RegisterScreen
 import com.proyect.ocean_words.model.PistaEstado
 import com.proyect.ocean_words.model.sampleShopItems
 import com.proyect.ocean_words.utils.MusicManager
 import com.proyect.ocean_words.view.CaminoNivelesRoute
 import com.proyect.ocean_words.view.LoadingScreenOceanWords
+import com.proyect.ocean_words.view.LoadingScreenOceanWordsAnimated
 import com.proyect.ocean_words.view.OceanWordsGameRoute
 import com.proyect.ocean_words.view.screens.BottomNavBar
 import com.proyect.ocean_words.view.screens.GameShopScreen
 import com.proyect.ocean_words.view.screens.caracteristicasEspecieView
 import com.proyect.ocean_words.viewmodels.NivelViewModel
+import java.net.URLDecoder
+import java.nio.charset.StandardCharsets
 
 // --- Rutas de la Aplicación ---
 object Rutas {
@@ -39,11 +47,13 @@ object Rutas {
     const val ACUARIO = "acuario"
     const val LOADING = "loading_screen"
     //const val LOADING = "loading_screen/{nivel}"
+    const val LOADING_ANIMADO = "loading_animado"
     const val TIENDA = "tienda"
 
     const val ACERCA_DE = "acerca_de"       // Nueva ruta
     const val GAME_SHOP="game_shop"
-    //const val CAMINO_AREAS = "camino_areas" // Nueva ruta añadida
+    const val LOGIN = "login"
+    const val REGISTRO = "registro"
 }
 
 private const val ANTES_TRANSCION = 800L
@@ -63,7 +73,7 @@ fun NavManager(
 
     NavHost(
         navController = navController,
-        startDestination = Rutas.CAMINO_NIVELES // La aplicación comienza en la pantalla de carga
+        startDestination = Rutas.LOADING_ANIMADO // La aplicación comienza en la pantalla de carga
     ) {
         // DESTINO: Pantalla de Carga (Splash)
 //        composable(route = Rutas.JUEGO_PRINCIPAL,
@@ -101,14 +111,17 @@ fun NavManager(
             )
         }
         composable(
-            route = "nivel/{id}/{especie_id}/{nombre}/{dificultad}",
+            route = "nivel/{id}/{especie_id}/{nombre}/{dificultad}/{imagen}",
             arguments = listOf(
                 navArgument("id") { type = NavType.IntType },
                 navArgument("especie_id") { type = NavType.StringType },
                 navArgument("nombre") { type = NavType.StringType },
-                navArgument("dificultad") { type = NavType.StringType }
+                navArgument("dificultad") { type = NavType.StringType },
+                navArgument("imagen") { type = NavType.StringType }
+
             )
         ) { backStackEntry ->
+
             LaunchedEffect(isMusicGloballyEnabled, isAppInForeground) {
                 if (isMusicGloballyEnabled && isAppInForeground) {
                     musicManager.playLevelMusic()
@@ -120,6 +133,8 @@ fun NavManager(
             val especie_id =backStackEntry.arguments?.getString("especie_id")
             val nombre = backStackEntry.arguments?.getString("nombre")
             val dificultad = backStackEntry.arguments?.getString("dificultad")
+            val imagen: String? = backStackEntry.arguments?.getString("imagen")
+            val nombreLimpio = URLDecoder.decode(nombre, StandardCharsets.UTF_8.toString())
             if (levelId != null) {
                 if (nombre != null) {
                     if (dificultad != null) {
@@ -129,9 +144,10 @@ fun NavManager(
                                 levelId = levelId,
                                 isAppInForeground = isAppInForeground,
                                 musicManager = musicManager,
-                                nombre =nombre,
+                                nombre =nombreLimpio,
                                 dificultad =dificultad,
                                 especieId = especie_id,
+                                imagen=imagen,
                                 isMusicGloballyEnabled = isMusicGloballyEnabled,
                                 onMusicToggle = { isEnabled ->
                                     isMusicGloballyEnabled = isEnabled
@@ -144,12 +160,15 @@ fun NavManager(
             }
         }
         composable(
-            route = "caracteristicas/{especie_id}",
+            route = "caracteristicas/{especie_id}/{imagen}",
             arguments = listOf(
                 navArgument("especie_id") { type = NavType.StringType },
+                navArgument("imagen") { type = NavType.StringType }
             )
         ) { backStackEntry ->
             val especie_id =backStackEntry.arguments?.getString("especie_id")
+            val imagen: String? = backStackEntry.arguments?.getString("imagen")
+
             LaunchedEffect(isMusicGloballyEnabled, isAppInForeground) {
                 if (isMusicGloballyEnabled && isAppInForeground) {
                     musicManager.playLevelMusic()
@@ -158,7 +177,7 @@ fun NavManager(
                 }
             }
             if (especie_id != null) {
-                caracteristicasEspecieView(navController,especie_id)
+                caracteristicasEspecieView(navController,especie_id,imagen)
             }
         }
 
@@ -259,6 +278,19 @@ fun NavManager(
                 navController = navController
             )
         }
+        composable(Rutas.LOGIN) {
+            val authViewModel: AuthViewModel = viewModel()
+            LoginScreen(navController, authViewModel)
+        }
+
+        composable(Rutas.REGISTRO) {
+            val authViewModel: AuthViewModel = viewModel()
+            RegisterScreen(navController, authViewModel)
+        }
+        composable(Rutas.LOADING_ANIMADO) {
+            LoadingScreenOceanWordsAnimated(navController)
+        }
+
 
 
 

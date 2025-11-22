@@ -1,3 +1,5 @@
+import org.gradle.kotlin.dsl.implementation
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -44,12 +46,15 @@ dependencies {
     implementation("androidx.compose.ui:ui-text-google-fonts:1.7.0")
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation("io.coil-kt:coil-compose:2.6.0") // O la versión más reciente
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation("com.google.firebase:firebase-firestore")
     implementation("androidx.navigation:navigation-compose:2.7.4") // Reemplaza 2.7.4 con la versión estable más reciente
     implementation ("androidx.compose.runtime:runtime-livedata:1.6.8") // O la versión actual
     implementation ("com.jakewharton.threetenabp:threetenabp:1.4.4")
+    implementation("com.google.firebase:firebase-auth-ktx:22.3.0")
+    implementation("com.google.firebase:firebase-database-ktx:20.3.0")
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
@@ -62,6 +67,19 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+    dependencies {
+        // Import the BoM for the Firebase platform
+        implementation(platform("com.google.firebase:firebase-bom:34.6.0"))
+
+        // Add the dependency for the Firebase Authentication library
+        // When using the BoM, you don't specify versions in Firebase library dependencies
+        implementation("com.google.firebase:firebase-auth")
+
+        // Also add the dependencies for the Credential Manager libraries and specify their versions
+        implementation("androidx.credentials:credentials:1.3.0")
+        implementation("androidx.credentials:credentials-play-services-auth:1.3.0")
+        implementation("com.google.android.libraries.identity.googleid:googleid:1.1.1")
+    }
 
     implementation("androidx.datastore:datastore-preferences:1.1.0")
 }

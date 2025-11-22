@@ -17,6 +17,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.delay
+import kotlin.text.lowercase
 
 class EspecieViewModel (
     animal: String,
@@ -26,11 +27,10 @@ class EspecieViewModel (
     private val repository = EspecieRepository()
     private val MAX_LIVES = 3
     private val RECHARGE_COOLDOWN_MS = 1 * 60 * 1000L
-
     private val _especie = MutableStateFlow<EspecieEstado?>(null)
     val especie = _especie.asStateFlow()
 
-    val animalSinEspacios: String = animal.trim().replace(" ", "")
+    val animalSinEspacios: String = animal.trim().lowercase().replace(" ", "")
     private val tamanoTeclado: Int
     private val _navegarAExito = MutableLiveData<Boolean>()
     val navegarAExito: LiveData<Boolean> = _navegarAExito

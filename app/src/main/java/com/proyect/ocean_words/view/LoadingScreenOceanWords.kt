@@ -23,6 +23,8 @@ import com.proyect.ocean_words.model.NivelEstado
 
 import androidx.compose.runtime.LaunchedEffect
 import kotlinx.coroutines.delay
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 
 @Composable
 fun LoadingScreenOceanWords(
@@ -196,7 +198,8 @@ fun onStartTransitionAndNavigate(
         val nombre = especie.nombre.replace(" ", "%20")
         val dificultad = especie.dificultad
 
-        navController.navigate("nivel/$levelId/$especieId/$nombre/$dificultad")
+        var imagen = URLEncoder.encode(especie.imagen,StandardCharsets.UTF_8.toString())
+        navController.navigate("nivel/$levelId/$especieId/$nombre/$dificultad/$imagen")
     } else {
         Log.e("CaminoNivelesRoute", "No se encontró especie para el nivel $levelId")
     }

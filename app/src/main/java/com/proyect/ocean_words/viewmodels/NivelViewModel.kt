@@ -12,26 +12,24 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.onStart
-import kotlinx.coroutines.flow.flow // 👈 Necesario para el timer
-import kotlinx.coroutines.flow.SharingStarted // 👈 Necesario para el timer
-import kotlinx.coroutines.flow.stateIn // 👈 Necesario para el timer
-import kotlinx.coroutines.flow.update // 👈 Conveniente para actualizar StateFlows
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.delay // 👈 Necesario para el timer
+import kotlinx.coroutines.delay
 
 class NivelViewModel : ViewModel() {
     val nivelRepository = NivelRepository()
     private val _niveles = MutableStateFlow<List<NivelEstado>>(emptyList())
-    // Exponer el StateFlow como un StateFlow inmutable para la View.
     val niveles: StateFlow<List<NivelEstado>> = _niveles.asStateFlow()
 
-    private val _isLoading = MutableStateFlow(true) // 3. Inicialmente es TRUE si se carga en init.
+    private val _isLoading = MutableStateFlow(true)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
     private val _isSplashShown = MutableStateFlow(false)
     val isSplashShown: StateFlow<Boolean> = _isSplashShown.asStateFlow()
 
-    // Un ejemplo de manejo de errores
     private val _error = MutableSharedFlow<String>()
     val error: SharedFlow<String> = _error.asSharedFlow()
 
@@ -40,13 +38,12 @@ class NivelViewModel : ViewModel() {
     }
 
     private val MAX_LIVES = 3
-    // Usamos 1 minuto para pruebas, ajústalo según tu juego (ej. 30 * 60 * 1000L para 30 minutos)
     private val RECHARGE_COOLDOWN_MS = 1 * 60 * 1000L
 
     private val _vidas = MutableStateFlow(listOf(true, true, true))
-    val vidas: StateFlow<List<Boolean>> = _vidas.asStateFlow() // 👈 Fuente de verdad para NavManager
+    val vidas: StateFlow<List<Boolean>> = _vidas.asStateFlow()
 
-    private val _lastLifeLossTime = MutableStateFlow<Long?>(null) // Momento en que la recarga inició
+    private val _lastLifeLossTime = MutableStateFlow<Long?>(null)
 
     // Temporizador de recarga
     val timeToNextLife: StateFlow<String> = flow {
@@ -59,11 +56,10 @@ class NivelViewModel : ViewModel() {
                 if (timeLeft > 0) {
                     emit(formatTime(timeLeft))
                 } else {
-                    // El contador terminó, intentar regenerar
                     regenerateOneLifeAndCheckRestart()
                 }
             } else {
-                emit("") // Contador oculto
+                emit("")
             }
             delay(1000)
         }
@@ -76,7 +72,6 @@ class NivelViewModel : ViewModel() {
         return String.format("%02d:%02d", minutes, seconds)
     }
 
-    // Función que debe ser llamada por el juego (OceanWordsGameRoute) al perder una vida
     fun perderVidaGlobal() {
         val index = _vidas.value.indexOfLast { it }
         if (index != -1) {
@@ -86,7 +81,6 @@ class NivelViewModel : ViewModel() {
                 }
             }
 
-            // Iniciar el contador solo si no estaba corriendo y faltan vidas
             if (_lastLifeLossTime.value == null && _vidas.value.count { !it } > 0) {
                 _lastLifeLossTime.value = System.currentTimeMillis()
             }
@@ -102,10 +96,8 @@ class NivelViewModel : ViewModel() {
                 }
 
                 if (newVidas.count { it } < MAX_LIVES) {
-                    // Si aún quedan vidas perdidas, reinicia el contador para la próxima
                     _lastLifeLossTime.value = System.currentTimeMillis()
                 } else {
-                    // Vidas llenas, detener el contador
                     _lastLifeLossTime.value = null
                 }
                 return@update newVidas
