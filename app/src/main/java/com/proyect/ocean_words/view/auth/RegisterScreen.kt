@@ -200,7 +200,7 @@ fun RegisterScreen(navController: NavController, authViewModel: AuthViewModel) {
                         password.isBlank() -> { errorMessage = "Ingrese contraseña"; showErrorDialog = true }
                         confirmPassword.isBlank() -> { errorMessage = "Confirme su contraseña"; showErrorDialog = true }
                         password != confirmPassword -> { errorMessage = "Las contraseñas no coinciden"; showErrorDialog = true }
-                        else -> authViewModel.registerUser(email, password)
+                        else -> authViewModel.registerUser(fullname,email, password)
                     }
                 },
                 modifier = Modifier.fillMaxWidth().height(55.dp),

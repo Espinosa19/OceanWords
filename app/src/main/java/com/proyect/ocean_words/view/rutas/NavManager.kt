@@ -32,7 +32,9 @@ import com.proyect.ocean_words.view.OceanWordsGameRoute
 import com.proyect.ocean_words.view.screens.BottomNavBar
 import com.proyect.ocean_words.view.screens.GameShopScreen
 import com.proyect.ocean_words.view.screens.caracteristicasEspecieView
+import com.proyect.ocean_words.view.screens.configuracionView
 import com.proyect.ocean_words.viewmodels.NivelViewModel
+import com.proyect.ocean_words.viewmodels.ProgresoViewModel
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
 
@@ -64,6 +66,7 @@ fun NavManager(
     musicManager: MusicManager,
     isAppInForeground: Boolean,
     nivelViewModel: NivelViewModel,
+    progresoViewModel: ProgresoViewModel
 ) {
     val navController = rememberNavController()
     var targetLevelId by remember { mutableStateOf<Int?>(null) }
@@ -152,7 +155,8 @@ fun NavManager(
                                 onMusicToggle = { isEnabled ->
                                     isMusicGloballyEnabled = isEnabled
                                 },
-                                nivelViewModel = nivelViewModel
+                                nivelViewModel = nivelViewModel,
+                                progresoViewModel =progresoViewModel
                             )
                         }
                     }
@@ -185,7 +189,7 @@ fun NavManager(
 
         composable(Rutas.CONFIGURACION) {
 
-            com.proyect.ocean_words.view.screens.configuracionView(
+            configuracionView(
                 onBack = {
                     musicManager.playClickSound()
                     navController.popBackStack()
