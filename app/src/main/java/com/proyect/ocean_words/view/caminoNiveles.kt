@@ -29,9 +29,12 @@ import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.navigation.NavHostController
+import com.proyect.ocean_words.auth.AuthViewModel
+import com.proyect.ocean_words.auth.UserSession
 import com.proyect.ocean_words.model.LevelEstado
 import com.proyect.ocean_words.model.NivelEstado
 import com.proyect.ocean_words.utils.MusicManager
@@ -414,7 +417,7 @@ fun CaminoNivelesRoute(
     isMusicGloballyEnabled: Boolean,
     onMusicToggle: (Boolean) -> Unit,
     vidas: List<Boolean>,
-    timeToNextLife: String
+    timeToNextLife: String,
 ) {
     val isSplashShown by viewModel.isSplashShown.collectAsState()
     val niveles by viewModel.niveles.collectAsState(initial = emptyList())
