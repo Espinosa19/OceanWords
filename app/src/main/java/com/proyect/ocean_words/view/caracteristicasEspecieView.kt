@@ -41,7 +41,8 @@ val StarColor = Color(0xFFFFCC00)
 fun caracteristicasEspecieView(
     navController: NavController,
     especie_id: String,
-    imagen: String?
+    imagen: String?,
+    levelId: Int?
 ) {
     val viewModel: CaracteristicasEspecieViewModels = viewModel()
     val especieState by viewModel.especie.collectAsState()
@@ -78,7 +79,8 @@ fun caracteristicasEspecieView(
                     navController = navController,
                     especie = especie,
                     onClose = { navController.popBackStack() },
-                    imagen = imagen
+                    imagen = imagen,
+                    levelId = levelId
                 )
             }
         }
@@ -90,8 +92,10 @@ fun CaracteristicasModal(
     navController: NavController,
     especie: EspecieEstado,
     onClose: () -> Unit,
-    imagen: String?
+    imagen: String?,
+    levelId: Int?
 ) {
+    val levelId = levelId?.plus(1)
     Dialog(onDismissRequest = { onClose() }) {
         Card(
             modifier = Modifier
@@ -228,7 +232,8 @@ fun CaracteristicasModal(
                             icon = Icons.Default.ArrowForward,
                             texto = "Siguiente",
                             onClick = {
-                                navController.navigate(Rutas.LOADING)
+                                navController.navigate("loading_screen/$levelId")
+
                             }
                         )
                     }

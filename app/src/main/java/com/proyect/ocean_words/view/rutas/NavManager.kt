@@ -47,7 +47,7 @@ object Rutas {
     const val CONFIGURACION = "configuracion" // Nueva ruta
     const val CAMINO_NIVELES = "camino_niveles"
     const val ACUARIO = "acuario"
-    const val LOADING = "loading_screen"
+
     //const val LOADING = "loading_screen/{nivel}"
     const val LOADING_ANIMADO = "loading_animado"
     const val TIENDA = "tienda"
@@ -164,15 +164,17 @@ fun NavManager(
             }
         }
         composable(
-            route = "caracteristicas/{especie_id}/{imagen}",
+            route = "caracteristicas/{especie_id}/{imagen}/{levelId}",
             arguments = listOf(
                 navArgument("especie_id") { type = NavType.StringType },
-                navArgument("imagen") { type = NavType.StringType }
+                navArgument("imagen") { type = NavType.StringType },
+                navArgument("levelId") { type = NavType.IntType }
+
             )
         ) { backStackEntry ->
             val especie_id =backStackEntry.arguments?.getString("especie_id")
             val imagen: String? = backStackEntry.arguments?.getString("imagen")
-
+            val levelId = backStackEntry.arguments?.getInt("levelId")
             LaunchedEffect(isMusicGloballyEnabled, isAppInForeground) {
                 if (isMusicGloballyEnabled && isAppInForeground) {
                     musicManager.playLevelMusic()
@@ -181,7 +183,7 @@ fun NavManager(
                 }
             }
             if (especie_id != null) {
-                caracteristicasEspecieView(navController,especie_id,imagen)
+                caracteristicasEspecieView(navController,especie_id,imagen,levelId)
             }
         }
 
@@ -273,9 +275,12 @@ fun NavManager(
             )
         }
 
-        composable(Rutas.LOADING) {
+        composable(
+            route = "loading_screen/{levelId}",
+            arguments = listOf(navArgument("levelId") { type = NavType.IntType })
+            ) { backStackEntry ->
             val niveles = nivelViewModel.niveles.collectAsState().value // si tienes Flow o LiveData
-            val levelId = targetLevelId ?: 2 // reemplaza con tu nivel actual
+            val levelId = backStackEntry.arguments?.getInt("levelId")
             LoadingScreenOceanWords(
                 currentLevelId = levelId,
                 niveles = niveles,

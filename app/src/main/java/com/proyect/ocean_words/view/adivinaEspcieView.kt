@@ -154,7 +154,7 @@ fun JuegoAnimal(
 
 
             // 2. Consumir el evento de navegación reseteando la LiveData
-            navController.navigate("caracteristicas/$especieId/$imagen")
+            navController.navigate("caracteristicas/$especieId/$imagen/$levelId")
         }
     }
 
