@@ -13,6 +13,7 @@ data class EspecieEstado (
     val zonas: List<Zonas> = emptyList(), // ✅ usa tu clase Zonas
     val dificultad : String ="",
     val agua : String = "",
-    val imagen : String =""
+    val imagen : String ="",
+    val Datos: String = ""
 
     )

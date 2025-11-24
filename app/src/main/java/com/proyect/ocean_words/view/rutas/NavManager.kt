@@ -295,10 +295,6 @@ fun NavManager(
             LoadingScreenOceanWordsAnimated(navController)
         }
 
-
-
-
-
     }
 
 }

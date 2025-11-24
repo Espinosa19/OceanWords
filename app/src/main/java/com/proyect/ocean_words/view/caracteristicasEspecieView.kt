@@ -16,10 +16,8 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -80,7 +78,7 @@ fun caracteristicasEspecieView(
                     navController = navController,
                     especie = especie,
                     onClose = { navController.popBackStack() },
-                    imagen =imagen
+                    imagen = imagen
                 )
             }
         }
@@ -146,17 +144,12 @@ fun CaracteristicasModal(
 
                     Spacer(modifier = Modifier.height(8.dp))
                     AsyncImage(
-                        // 👈 Reemplaza 'painterResource' con la URL
                         model = imagen,
-                        contentDescription = "", // O Ballena, según la imagen
-
-                        // **NOTA:** Mantén los modificadores y el filtro de color
+                        contentDescription = "",
                         modifier = Modifier
                             .size(160.dp)
-                            .padding(6.dp),
-
+                            .padding(6.dp)
                     )
-
 
                     Spacer(modifier = Modifier.height(8.dp))
 
@@ -195,6 +188,24 @@ fun CaracteristicasModal(
 
                     Spacer(modifier = Modifier.height(10.dp))
 
+                    Text(
+                        text = "DATOS CURIOSOS",
+                        fontFamily = Delius,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 18.sp,
+                        color = Color.Black
+                    )
+
+                    Spacer(modifier = Modifier.height(6.dp))
+
+                    especie.Datos.split("*")
+                        .filter { it.isNotBlank() }
+                        .forEach { dato ->
+                            CaracteristicaTexto("•", dato.trim())
+                        }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -232,34 +243,35 @@ fun CaracteristicaTexto(label: String, value: String) {
     Surface(
         modifier = Modifier
             .fillMaxWidth(0.9f)
-            .padding(vertical = 4.dp),
-        shape = RoundedCornerShape(12.dp),
-        color = Color.White.copy(alpha = 0.8f),
-        shadowElevation = 4.dp
+            .padding(vertical = 6.dp),
+        shape = RoundedCornerShape(16.dp),
+        color = Color(0xFFE6F1F5), // Fondo azul claro suave
+        shadowElevation = 6.dp,
+        tonalElevation = 4.dp
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 12.dp, vertical = 8.dp),
-            horizontalArrangement = Arrangement.SpaceBetween
+                .padding(horizontal = 16.dp, vertical = 12.dp),
+            horizontalArrangement = Arrangement.Start
         ) {
             Text(
-                text = "$label:",
+                text = label,
                 fontFamily = Delius,
                 fontWeight = FontWeight.Bold,
                 fontSize = 16.sp,
-                color = Color.Black
+                color = Color(0xFF1B3B4F) // Un azul oscuro suave para el texto del label
             )
+            Spacer(modifier = Modifier.width(8.dp))
             Text(
                 text = value,
                 fontFamily = Delius,
                 fontSize = 16.sp,
-                color = Color.DarkGray
+                color = Color(0xFF1B3B4F) // Mismo azul oscuro para el texto del valor
             )
         }
     }
 }
-
 @Composable
 fun BotonInferiorIcon(
     icon: ImageVector,

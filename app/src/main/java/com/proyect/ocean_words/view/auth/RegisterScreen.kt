@@ -48,6 +48,17 @@ fun RegisterScreen(navController: NavController, authViewModel: AuthViewModel) {
     var errorMessage by remember { mutableStateOf<String?>(null) }
     var showSuccessDialog by remember { mutableStateOf(false) }
 
+    val fullnameFocus = remember { FocusRequester() }
+    val emailFocus = remember { FocusRequester() }
+    val confirmEmailFocus = remember { FocusRequester() }
+    val passwordFocus = remember { FocusRequester() }
+    val confirmPasswordFocus = remember { FocusRequester() }
+
+    // Animación inicial
+    val scaleAnim = remember { Animatable(0.8f) }
+    LaunchedEffect(true) { scaleAnim.animateTo(1f, tween(800)) }
+
+    // Estado de autenticación
     LaunchedEffect(authMessage) {
         when (authMessage) {
             "Registro exitoso" -> showSuccessDialog = true
@@ -57,9 +68,6 @@ fun RegisterScreen(navController: NavController, authViewModel: AuthViewModel) {
             }
         }
     }
-
-    val scaleAnim = remember { Animatable(0.8f) }
-    LaunchedEffect(true) { scaleAnim.animateTo(1f, tween(800)) }
 
     // Ventana de error
     if (showErrorDialog) {
@@ -130,9 +138,15 @@ fun RegisterScreen(navController: NavController, authViewModel: AuthViewModel) {
                 value = fullname,
                 onValueChange = { fullname = it },
                 placeholder = { Text("Nombre completo") },
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .focusRequester(fullnameFocus),
                 shape = RoundedCornerShape(12.dp),
-                isError = fullname.isNotEmpty() && !isValidName(fullname)
+                isError = fullname.isNotEmpty() && !isValidName(fullname),
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                keyboardActions = KeyboardActions(
+                    onNext = { emailFocus.requestFocus() }
+                )
             )
             if (fullname.isNotEmpty() && !isValidName(fullname)) {
                 Text("El nombre solo puede contener letras", color = Color.Red, fontSize = 12.sp)
@@ -140,28 +154,41 @@ fun RegisterScreen(navController: NavController, authViewModel: AuthViewModel) {
 
             Spacer(Modifier.height(10.dp))
 
+            // ------ EMAIL ------
             OutlinedTextField(
                 value = email,
                 onValueChange = { email = it },
                 placeholder = { Text("Correo electrónico") },
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .focusRequester(emailFocus),
                 shape = RoundedCornerShape(12.dp),
-                isError = email.isNotEmpty() && !isValidEmailR(email)
+                isError = email.isNotEmpty() && !isValidEmailR(email),
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                keyboardActions = KeyboardActions(
+                    onNext = { confirmEmailFocus.requestFocus() }
+                )
             )
             if (email.isNotEmpty() && !isValidEmailR(email)) {
                 Text("Correo inválido", color = Color.Red, fontSize = 12.sp)
             }
 
-
             Spacer(Modifier.height(10.dp))
 
+            // ------ CONFIRMAR EMAIL ------
             OutlinedTextField(
                 value = confirmEmail,
                 onValueChange = { confirmEmail = it },
                 placeholder = { Text("Confirmar correo") },
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .focusRequester(confirmEmailFocus),
                 shape = RoundedCornerShape(12.dp),
-                isError = confirmEmail.isNotEmpty() && confirmEmail != email
+                isError = confirmEmail.isNotEmpty() && confirmEmail != email,
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                keyboardActions = KeyboardActions(
+                    onNext = { passwordFocus.requestFocus() }
+                )
             )
             if (confirmEmail.isNotEmpty() && confirmEmail != email) {
                 Text("Los correos no coinciden", color = Color.Red, fontSize = 12.sp)
@@ -169,6 +196,7 @@ fun RegisterScreen(navController: NavController, authViewModel: AuthViewModel) {
 
             Spacer(Modifier.height(10.dp))
 
+            // ------ PASSWORD ------
             OutlinedTextField(
                 value = password,
                 onValueChange = { password = it },
@@ -180,8 +208,14 @@ fun RegisterScreen(navController: NavController, authViewModel: AuthViewModel) {
                         Icon(painterResource(id = icon), contentDescription = null)
                     }
                 },
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .focusRequester(passwordFocus),
+                shape = RoundedCornerShape(12.dp),
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                keyboardActions = KeyboardActions(
+                    onNext = { confirmPasswordFocus.requestFocus() }
+                )
             )
 
             Spacer(Modifier.height(10.dp))
@@ -197,8 +231,27 @@ fun RegisterScreen(navController: NavController, authViewModel: AuthViewModel) {
                         Icon(painterResource(id = icon), contentDescription = null)
                     }
                 },
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .focusRequester(confirmPasswordFocus),
+                shape = RoundedCornerShape(12.dp),
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                keyboardActions = KeyboardActions(
+                    onDone = {
+                        when {
+                            fullname.isBlank() -> { errorMessage = "Ingrese su nombre completo"; showErrorDialog = true }
+                            !isValidName(fullname) -> { errorMessage = "El nombre solo puede contener letras"; showErrorDialog = true }
+                            email.isBlank() -> { errorMessage = "Ingrese correo electrónico"; showErrorDialog = true }
+                            !isValidEmailR(email) -> { errorMessage = "Correo inválido"; showErrorDialog = true }
+                            confirmEmail.isBlank() -> { errorMessage = "Confirme su correo"; showErrorDialog = true }
+                            email != confirmEmail -> { errorMessage = "Los correos no coinciden"; showErrorDialog = true }
+                            password.isBlank() -> { errorMessage = "Ingrese contraseña"; showErrorDialog = true }
+                            confirmPassword.isBlank() -> { errorMessage = "Confirme su contraseña"; showErrorDialog = true }
+                            password != confirmPassword -> { errorMessage = "Las contraseñas no coinciden"; showErrorDialog = true }
+                            else -> authViewModel.registerUser(fullname,email,password)
+                        }
+                    }
+                )
             )
 
             Spacer(Modifier.height(20.dp))
@@ -215,10 +268,12 @@ fun RegisterScreen(navController: NavController, authViewModel: AuthViewModel) {
                         password.isBlank() -> { errorMessage = "Ingrese contraseña"; showErrorDialog = true }
                         confirmPassword.isBlank() -> { errorMessage = "Confirme su contraseña"; showErrorDialog = true }
                         password != confirmPassword -> { errorMessage = "Las contraseñas no coinciden"; showErrorDialog = true }
-                        else -> authViewModel.registerUser(fullname,email, password)
+                        else -> authViewModel.registerUser(fullname,email,password)
                     }
                 },
-                modifier = Modifier.fillMaxWidth().height(55.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(55.dp),
                 shape = RoundedCornerShape(20.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00B0FF))
             ) {
@@ -244,7 +299,10 @@ fun RegisterScreen(navController: NavController, authViewModel: AuthViewModel) {
         )
 
         Box(
-            modifier = Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.5f)).padding(25.dp),
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.Black.copy(alpha = 0.5f))
+                .padding(25.dp),
             contentAlignment = Alignment.Center
         ) {
 
@@ -323,7 +381,9 @@ fun RegisterScreen(navController: NavController, authViewModel: AuthViewModel) {
                             showSuccessDialog = false
                             navController.popBackStack()
                         },
-                        modifier = Modifier.fillMaxWidth(0.7f).height(55.dp),
+                        modifier = Modifier
+                            .fillMaxWidth(0.7f)
+                            .height(55.dp),
                         shape = RoundedCornerShape(20.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6CBBD7))
                     ) {

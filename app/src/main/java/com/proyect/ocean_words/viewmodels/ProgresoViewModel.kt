@@ -5,6 +5,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.firestore.FirebaseFirestore
 import com.proyect.ocean_words.auth.UserSession
 import com.proyect.ocean_words.model.EspecieEstado
 import com.proyect.ocean_words.model.UsuariosEstado
@@ -35,9 +36,7 @@ class ProgresoViewModel : ViewModel() {
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error
 
-    /**
-     * Busca el progreso del usuario usando su ID desde UserSession
-     */
+
     fun buscarProgresoUsuId(level: Int, especieId: String) {
         val usuario: UsuariosEstado? = UserSession.currentUser
 
@@ -106,4 +105,38 @@ class ProgresoViewModel : ViewModel() {
             }
         }
     }
+    fun activarEscuchaTiempoReal() {
+        val usuario = UserSession.currentUser ?: return
+
+        listenUsuarioTiempoReal(usuario.id) { usuarioActualizado: UsuariosEstado? ->
+
+            _usuarioLiveData.postValue(usuarioActualizado)
+
+            usuarioActualizado?.progreso_niveles?.let { progreso ->
+                Log.i("TiempoReal", "Progreso actualizado: $progreso")
+            }
+        }
+    }
+    fun listenUsuarioTiempoReal(
+        userId: String,
+        onChange: (UsuariosEstado?) -> Unit
+    ) {
+        FirebaseFirestore.getInstance()
+            .collection("usuarios")
+            .document(userId)
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    onChange(null)
+                    return@addSnapshotListener
+                }
+
+                if (snapshot != null && snapshot.exists()) {
+                    onChange(snapshot.toObject(UsuariosEstado::class.java))
+                } else {
+                    onChange(null)
+                }
+            }
+    }
+
+
 }
