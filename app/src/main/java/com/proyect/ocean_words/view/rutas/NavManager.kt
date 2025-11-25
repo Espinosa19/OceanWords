@@ -1,6 +1,7 @@
 package com.proyect.ocean_words.view.rutas
 
 import android.util.Log
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
@@ -12,6 +13,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -31,6 +33,7 @@ import com.proyect.ocean_words.view.LoadingScreenOceanWordsAnimated
 import com.proyect.ocean_words.view.OceanWordsGameRoute
 import com.proyect.ocean_words.view.screens.BottomNavBar
 import com.proyect.ocean_words.view.screens.GameShopScreen
+import com.proyect.ocean_words.view.screens.acuario
 import com.proyect.ocean_words.view.screens.caracteristicasEspecieView
 import com.proyect.ocean_words.view.screens.configuracionView
 import com.proyect.ocean_words.viewmodels.NivelViewModel
@@ -252,10 +255,15 @@ fun NavManager(
                 }
             }
             Scaffold(
+                containerColor = Color.Transparent,
                 bottomBar = { BottomNavBar(navController, onItemClick = musicManager::playClickSound) }
             ) { innerPadding ->
-                Box(modifier = Modifier.padding(innerPadding)) {
-
+                Box(
+                    modifier = Modifier
+                        .padding(innerPadding)
+                        .background(Color.Transparent)
+                ) {
+                    acuario()
                 }
             }
         }
