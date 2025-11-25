@@ -99,7 +99,8 @@ fun CaracteristicasModal(
     levelId: Int?,
     musicManager: MusicManager
 ) {
-    val levelId = levelId?.plus(1)
+    val nextLevelId = levelId?.plus(1)
+
     Dialog(onDismissRequest = { onClose() }) {
         Card(
             modifier = Modifier
@@ -238,8 +239,9 @@ fun CaracteristicasModal(
                             texto = "Siguiente",
                             onClick = {
                                 musicManager.playClickSound()
-                                navController.navigate("loading_screen/$levelId")
-
+                                if (nextLevelId != null) {
+                                    navController.navigate("loading_screen/$nextLevelId")
+                                }
                             }
                         )
                     }
@@ -256,7 +258,7 @@ fun CaracteristicaTexto(label: String, value: String) {
             .fillMaxWidth(0.9f)
             .padding(vertical = 6.dp),
         shape = RoundedCornerShape(16.dp),
-        color = Color(0xFFE6F1F5), // Fondo azul claro suave
+        color = Color(0xFFE6F1F5),
         shadowElevation = 6.dp,
         tonalElevation = 4.dp
     ) {
@@ -271,14 +273,14 @@ fun CaracteristicaTexto(label: String, value: String) {
                 fontFamily = Delius,
                 fontWeight = FontWeight.Bold,
                 fontSize = 16.sp,
-                color = Color(0xFF1B3B4F) // Un azul oscuro suave para el texto del label
+                color = Color(0xFF1B3B4F)
             )
             Spacer(modifier = Modifier.width(8.dp))
             Text(
                 text = value,
                 fontFamily = Delius,
                 fontSize = 16.sp,
-                color = Color(0xFF1B3B4F) // Mismo azul oscuro para el texto del valor
+                color = Color(0xFF1B3B4F)
             )
         }
     }

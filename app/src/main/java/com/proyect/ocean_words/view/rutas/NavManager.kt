@@ -3,7 +3,9 @@ package com.proyect.ocean_words.view.rutas
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -12,6 +14,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -47,7 +50,7 @@ object Rutas {
     const val JUEGO_PRINCIPAL = "juego_principal/{levelId}"
     const val CARACTERISTICAS = "caracteristicas"
 
-    const val CONFIGURACION = "configuracion" // Nueva ruta
+    const val CONFIGURACION = "configuracion"
     const val CAMINO_NIVELES = "camino_niveles"
     const val ACUARIO = "acuario"
 
@@ -55,7 +58,7 @@ object Rutas {
     const val LOADING_ANIMADO = "loading_animado"
     const val TIENDA = "tienda"
 
-    const val ACERCA_DE = "acerca_de"       // Nueva ruta
+    const val ACERCA_DE = "acerca_de"
     const val GAME_SHOP="game_shop"
     const val LOGIN = "login"
     const val REGISTRO = "registro"
@@ -79,7 +82,7 @@ fun NavManager(
 
     NavHost(
         navController = navController,
-        startDestination = Rutas.LOADING_ANIMADO // La aplicación comienza en la pantalla de carga
+        startDestination = Rutas.LOADING_ANIMADO
     ) {
         // DESTINO: Pantalla de Carga (Splash)
 //        composable(route = Rutas.JUEGO_PRINCIPAL,
@@ -219,7 +222,7 @@ fun NavManager(
 
         composable(Rutas.TIENDA) {
             LaunchedEffect(isMusicGloballyEnabled, isAppInForeground) {
-                Log.d("MusicDebug", "Navigating to TIENDA. isMusicGloballyEnabled: $isMusicGloballyEnabled") // <-- Añade esto
+                Log.d("MusicDebug", "Navigating to TIENDA. isMusicGloballyEnabled: $isMusicGloballyEnabled")
                 if (isMusicGloballyEnabled && isAppInForeground) {
                     musicManager.playMenuMusic()
                 } else {
@@ -287,13 +290,36 @@ fun NavManager(
             route = "loading_screen/{levelId}",
             arguments = listOf(navArgument("levelId") { type = NavType.IntType })
         ) { backStackEntry ->
-            val niveles = nivelViewModel.niveles.collectAsState().value // si tienes Flow o LiveData
-            val levelId = backStackEntry.arguments?.getInt("levelId")
-            LoadingScreenOceanWords(
-                currentLevelId = levelId,
-                niveles = niveles,
-                navController = navController
-            )
+
+            val niveles by nivelViewModel.niveles.collectAsState()
+            val totalLevels = niveles.size
+
+            val nextLevelId = backStackEntry.arguments?.getInt("levelId")
+
+            val isBeyondLastLevel = nextLevelId != null && nextLevelId > totalLevels
+
+            LaunchedEffect(isBeyondLastLevel) {
+                if (isBeyondLastLevel) {
+                    val caminoNivelesEntry = navController.getBackStackEntry(Rutas.CAMINO_NIVELES)
+                    caminoNivelesEntry.savedStateHandle["GAME_COMPLETED_KEY"] = true
+                    navController.popBackStack(
+                        route = Rutas.CAMINO_NIVELES,
+                        inclusive = false
+                    )
+                }
+            }
+
+            if (nextLevelId != null && !isBeyondLastLevel) {
+                LoadingScreenOceanWords(
+                    currentLevelId = nextLevelId,
+                    niveles = niveles,
+                    navController = navController
+                )
+            } else if (isBeyondLastLevel) {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator(color = Color.White)
+                }
+            }
         }
         composable(Rutas.LOGIN) {
             val authViewModel: AuthViewModel = viewModel()

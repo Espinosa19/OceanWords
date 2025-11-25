@@ -11,11 +11,21 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -31,6 +41,8 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -38,7 +50,6 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.proyect.ocean_words.R
-import com.proyect.ocean_words.auth.UserSession
 import com.proyect.ocean_words.model.LevelEstado
 import com.proyect.ocean_words.model.NivelEstado
 import com.proyect.ocean_words.model.progreso_Niveles
@@ -53,18 +64,11 @@ import com.proyect.ocean_words.viewmodels.ProgresoViewModel
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 
+
 val LevelSpacing = 40.dp
 val PaddingVertical = 50.dp
 val TotalLevels = 5
 
-/**
- * caminoNiveles recibe la lista `progreso` que proviene de Firestore
- * (progreso_niveles del usuario).
- * Lógica:
- * - nivel 1: siempre desbloqueado
- * - nivel N: desbloqueado si existe en progreso un entry con nivel = N-1 y estado = "completado"
- * - se muestra estrella si nivel N aparece en progreso (con cualquier estado, o puedes filtrar por "completado")
- */
 @Composable
 fun caminoNiveles(
     onStartTransitionAndNavigate: (levelId: Int) -> Unit,
@@ -73,7 +77,7 @@ fun caminoNiveles(
     onMusicToggle: (Boolean) -> Unit,
     isMusicEnabled: Boolean,
     niveles: List<NivelEstado>,
-    progreso: List<progreso_Niveles>, // <-- progreso del usuario (Firestore)
+    progreso: List<progreso_Niveles>,
     onItemClick: () -> Unit,
     vidas: List<Boolean>,
     timeToNextLife: String
@@ -86,7 +90,6 @@ fun caminoNiveles(
     val isTimerRunning = timeToNextLife.isNotEmpty()
     val infiniteTransition = rememberInfiniteTransition(label = "general_animations")
 
-    // Animaciones peces
     val fish1XOffset by infiniteTransition.animateFloat(
         initialValue = 1500f,
         targetValue = -500f,
@@ -133,23 +136,16 @@ fun caminoNiveles(
         ), label = "level_node_scale"
     )
 
-    // Construimos un set con los niveles completados para facilitar consultas
-    // Si quieres que la estrella solo salga cuando estado == "completado" cambia el filtro abajo.
     val completadosSet: Set<Int> = progreso
-        .filter { it.estado.equals("completado", ignoreCase = true) } // filtro por completado
+        .filter { it.estado.equals("completado", ignoreCase = true) }
         .mapNotNull { it.nivel }
         .toSet()
 
-    // Mapear niveles reales (nivelesFinal) y decidir desbloqueo secuencial
     val nivelesFinal = niveles.mapIndexed { index, nivel ->
-        // Escoge una especie aleatoria de la lista de especies del nivel
         val especieAleatoria = nivel.especies_id.randomOrNull()
 
         val nivelNumero = index + 1
 
-        // Lógica de desbloqueo secuencial:
-        // Nivel 1 siempre desbloqueado.
-        // Nivel N desbloqueado si existe en completadosSet el nivel N-1.
         val isUnlocked = when (nivelNumero) {
             1 -> true
             else -> (completadosSet.contains(nivelNumero - 1))
@@ -168,7 +164,6 @@ fun caminoNiveles(
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
-        // Fondo
         Image(
             painter = painterResource(id = R.drawable.fondo_o),
             contentDescription = "Fondo submarino",
@@ -176,7 +171,6 @@ fun caminoNiveles(
             contentScale = ContentScale.Crop
         )
 
-        // Nodos de Nivel
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
@@ -190,20 +184,16 @@ fun caminoNiveles(
             reverseLayout = true
         ) {
             itemsIndexed(nivelesFinal) { index, level ->
-                // isCompleted: chequeamos si el nivel actual está en completadosSet
                 val isCompleted = completadosSet.contains(level.id)
 
                 LevelNode(
                     level = level,
                     index = index,
                     onLevelClick = { levelId ->
-                        // Prevención extra: solo navegar si desbloqueado
                         val lvl = nivelesFinal.getOrNull(levelId - 1)
                         if (lvl != null && lvl.isUnlocked) {
-                            onItemClick()
                             onStartTransitionAndNavigate(levelId)
                         } else {
-                            // opcional: feedback visual o sonido aquí
                             Log.i("CaminoNiveles", "Nivel $levelId bloqueado")
                         }
                     },
@@ -213,7 +203,6 @@ fun caminoNiveles(
             }
         }
 
-        // Peces animados
         Image(
             painter = painterResource(id = R.drawable.pez_azul),
             contentDescription = "Pez 1",
@@ -260,7 +249,7 @@ fun caminoNiveles(
             painter = painterResource(id = R.drawable.pez_payaso),
             contentDescription = "Pez 4",
             modifier = Modifier
-                .size(width = 75.dp, height = 37.5.dp)
+                .size(75.dp, 37.5.dp)
                 .offset(
                     x = with(density) { fish3XOffset.toDp() },
                     y = 80.dp + with(density) { fish3YOffset.toDp() }
@@ -268,7 +257,6 @@ fun caminoNiveles(
             contentScale = ContentScale.Fit
         )
 
-        // Barra superior con ajustes / vidas / monedas
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -314,7 +302,6 @@ fun caminoNiveles(
             )
         }
 
-        // Dialogo de configuracion (fullscreen)
         if (showConfigDialog) {
             Dialog(
                 onDismissRequest = {
@@ -350,7 +337,7 @@ fun LevelNode(
     index: Int,
     onLevelClick: (levelId: Int) -> Unit,
     animatedScale: Float,
-    isCompleted: Boolean // nuevo parámetro para mostrar estrella
+    isCompleted: Boolean
 ) {
     val horizontalOffset = if (index % 2 == 0) (-50).dp else 50.dp
 
@@ -425,7 +412,6 @@ fun LevelNode(
             )
         }
 
-        // 🔒 Candado si está bloqueado
         if (!level.isUnlocked) {
             Text(
                 text = "🔒",
@@ -436,7 +422,6 @@ fun LevelNode(
             )
         }
 
-        // Número del nivel
         Text(
             text = "${level.id}",
             color = Color.Black,
@@ -446,10 +431,6 @@ fun LevelNode(
     }
 }
 
-/**
- * Ruta que envuelve y prepara datos: carga niveles y progreso del usuario,
- * luego llama a caminoNiveles pasando la lista de progreso.
- */
 @Composable
 fun CaminoNivelesRoute(
     navController: NavHostController,
@@ -463,18 +444,49 @@ fun CaminoNivelesRoute(
 ) {
     val isSplashShown by viewModel.isSplashShown.collectAsState()
     val niveles by viewModel.niveles.collectAsState(initial = emptyList())
-    Log.i("Niveles_info", "$niveles")
+    val totalNivelesCargados = niveles.size
 
-    // ViewModel de progreso (Firestore)
+    var wasGameCompletionDialogShown by remember { mutableStateOf(false) }
+    var showCompletionDialog by remember { mutableStateOf(false) }
+
     val progresoViewModel: ProgresoViewModel = viewModel()
     val usuarioState by progresoViewModel.usuarioLiveData.observeAsState()
-
-    // extraer lista de progreso_niveles (puede ser null)
     val progresoList: List<progreso_Niveles> = usuarioState?.progreso_niveles ?: emptyList()
 
-    // Cargar escucha en tiempo real al mostrar la pantalla (si el usuario está en sesión)
+    val isGameFinished = totalNivelesCargados > 0 && progresoList.any {
+        it.nivel == totalNivelesCargados && it.estado.equals("completado", ignoreCase = true)
+    }
+
+    LaunchedEffect(isGameFinished) {
+        if (isGameFinished && !wasGameCompletionDialogShown) {
+            showCompletionDialog = true
+            wasGameCompletionDialogShown = true
+        } else if (!isGameFinished) {
+            wasGameCompletionDialogShown = false
+        }
+    }
+
+
+    val onStartTransitionAndNavigate: (levelId: Int) -> Unit = { levelId ->
+
+        val nivel = niveles.find { it.numero_nivel == levelId }
+        val especie = nivel?.especies_id?.firstOrNull()
+
+        if (especie != null) {
+            val especie_id = especie.id
+            val nombre = URLEncoder.encode(especie.nombre, StandardCharsets.UTF_8.toString())
+            val dificultad = especie.dificultad
+            val imagen = URLEncoder.encode(especie.imagen, StandardCharsets.UTF_8.toString())
+
+            musicManager.playClickSound()
+            navController.navigate("nivel/$levelId/$especie_id/$nombre/$dificultad/$imagen")
+
+        } else {
+            Log.e("CaminoNivelesRoute", "No se encontró especie para el nivel $levelId")
+        }
+    }
+
     LaunchedEffect(Unit) {
-        // activarEscuchaTiempoReal actualizará usuarioLiveData -> esto actualizará progresoList automáticamente
         progresoViewModel.activarEscuchaTiempoReal()
     }
 
@@ -493,30 +505,84 @@ fun CaminoNivelesRoute(
                 caminoNiveles(
                     navController = navController,
                     niveles = niveles,
-                    onStartTransitionAndNavigate = { levelId ->
-                        // Buscar el nivel correspondiente por numero_nivel (tu modelo NivelEstado usa numero_nivel)
-                        val nivel = niveles.find { it.numero_nivel == levelId }
-
-                        val especie = nivel?.especies_id?.firstOrNull()
-
-                        if (especie != null) {
-                            val especie_id = especie.id
-                            val nombre = URLEncoder.encode(especie.nombre, StandardCharsets.UTF_8.toString())
-                            val dificultad = especie.dificultad
-                            val imagen = URLEncoder.encode(especie.imagen, StandardCharsets.UTF_8.toString())
-                            navController.navigate("nivel/$levelId/$especie_id/$nombre/$dificultad/$imagen")
-                        } else {
-                            Log.e("CaminoNivelesRoute", "No se encontró especie para el nivel $levelId")
-                        }
-                    },
+                    onStartTransitionAndNavigate = onStartTransitionAndNavigate,
                     musicManager = musicManager,
                     onMusicToggle = onMusicToggle,
                     isMusicEnabled = isMusicGloballyEnabled,
                     onItemClick = musicManager::playClickSound,
                     vidas = vidas,
                     timeToNextLife = timeToNextLife,
-                    progreso = progresoList // <-- aquí pasamos el progreso cargado desde Firestore
+                    progreso = progresoList
                 )
+            }
+        }
+    }
+
+    if (showCompletionDialog) {
+        CompletionDialog(
+            onDismiss = {
+                showCompletionDialog = false
+                musicManager.playClickSound()
+            },
+            onNavigateHome = {
+                showCompletionDialog = false
+                musicManager.playClickSound()
+            },
+            musicManager = musicManager
+        )
+    }
+}
+
+@Composable
+fun CompletionDialog(
+    onDismiss: () -> Unit,
+    onNavigateHome: () -> Unit,
+    musicManager: MusicManager
+) {
+    Dialog(onDismissRequest = onDismiss) {
+        Card(
+            shape = RoundedCornerShape(16.dp),
+            colors = CardDefaults.cardColors(containerColor = Color(0xFFE0F7FA))
+        ) {
+            Column(
+                modifier = Modifier
+                    .padding(24.dp)
+                    .fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.iconos),
+                    contentDescription = "Felicidades",
+                    modifier = Modifier.size(80.dp)
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Text(
+                    text = "¡FELICIDADES!",
+                    fontSize = 28.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    color = Color(0xFF007ACC)
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Text(
+                    text = "Has explorado y completado todos los niveles de Ocean Words. ¡Eres un verdadero experto marino!",
+                    textAlign = TextAlign.Center,
+                    fontSize = 16.sp,
+                    color = Color.Black
+                )
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                Button(
+                    onClick = onNavigateHome,
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6CBBD7)),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Text("Volver al Camino de Niveles", color = Color.White)
+                }
             }
         }
     }
