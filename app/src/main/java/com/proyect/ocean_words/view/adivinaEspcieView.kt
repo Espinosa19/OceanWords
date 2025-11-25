@@ -153,6 +153,7 @@ fun JuegoAnimal(
     val mostrarMensajePistaUsada by viewModel.mostrarMensajePistaUsada.observeAsState(initial = false)
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
+    val pistaUsada by viewModel.pistaUsada.collectAsState()
 
     LaunchedEffect (navegarAExito,levelId,especieId) {
         if (navegarAExito) {
@@ -208,7 +209,7 @@ fun JuegoAnimal(
                     .padding(bottom = 38.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                accionesEspecíficas(onResetGame,onGoBackGame,obtenerPista, enabled = isGameEnabled)
+                accionesEspecíficas(onResetGame,onGoBackGame,obtenerPista, enabled = isGameEnabled, pistaUsada = pistaUsada)
             }
         }
     }
@@ -445,10 +446,12 @@ fun tecladoInteractivo(
 }
 
 @Composable
-fun accionesEspecíficas(onResetGame: () -> Unit, onGoBackGame: () -> Unit, obtenerPista: () -> Unit, enabled: Boolean) {
+fun accionesEspecíficas(onResetGame: () -> Unit, onGoBackGame: () -> Unit, obtenerPista: () -> Unit, enabled: Boolean, pistaUsada: Boolean) {
     val dividerColor = Color(0xFFE98516)
     val dividerWidth = 2.dp
     val imageSize = 40.dp
+
+    val usoPista = if (pistaUsada) "0" else "1"
 
     Row(
         modifier = Modifier
@@ -555,7 +558,7 @@ fun accionesEspecíficas(onResetGame: () -> Unit, onGoBackGame: () -> Unit, obte
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "1",
+                        text = usoPista,
                         color = Color.White,
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Bold
