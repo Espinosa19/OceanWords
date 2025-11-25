@@ -297,12 +297,12 @@ fun NavManager(
         }
         composable(Rutas.LOGIN) {
             val authViewModel: AuthViewModel = viewModel()
-            LoginScreen(navController, authViewModel)
+            LoginScreen(navController, authViewModel, musicManager = musicManager, isMusicGloballyEnabled = isMusicGloballyEnabled, isAppInForeground = isAppInForeground)
         }
 
         composable(Rutas.REGISTRO) {
             val authViewModel: AuthViewModel = viewModel()
-            RegisterScreen(navController, authViewModel)
+            RegisterScreen(navController, authViewModel, musicManager = musicManager, isMusicGloballyEnabled = isMusicGloballyEnabled, isAppInForeground = isAppInForeground)
         }
         composable(Rutas.LOADING_ANIMADO) {
             LoadingScreenOceanWordsAnimated(navController)

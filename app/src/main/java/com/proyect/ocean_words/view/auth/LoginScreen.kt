@@ -32,11 +32,25 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.navigation.NavController
 import com.proyect.ocean_words.R
+import com.proyect.ocean_words.utils.MusicManager
 import com.proyect.ocean_words.view.rutas.Rutas
 import java.util.regex.Pattern
 
 @Composable
-fun LoginScreen(navController: NavController, authViewModel: AuthViewModel) {
+fun LoginScreen(
+    navController: NavController,
+    authViewModel: AuthViewModel,
+    musicManager: MusicManager,
+    isMusicGloballyEnabled: Boolean,
+    isAppInForeground: Boolean
+) {
+    LaunchedEffect(isMusicGloballyEnabled, isAppInForeground) {
+        if (isMusicGloballyEnabled && isAppInForeground) {
+            musicManager.playLevelMusic()
+        } else {
+            musicManager.stopAllMusic()
+        }
+    }
 
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }

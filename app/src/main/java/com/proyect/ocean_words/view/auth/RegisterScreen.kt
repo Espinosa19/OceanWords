@@ -30,9 +30,16 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.text.withStyle
 import com.proyect.ocean_words.R
+import com.proyect.ocean_words.utils.MusicManager
 
 @Composable
-fun RegisterScreen(navController: NavController, authViewModel: AuthViewModel) {
+fun RegisterScreen(
+    navController: NavController,
+    authViewModel: AuthViewModel,
+    musicManager: MusicManager,
+    isMusicGloballyEnabled: Boolean,
+    isAppInForeground: Boolean
+) {
 
     var fullname by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
@@ -66,6 +73,14 @@ fun RegisterScreen(navController: NavController, authViewModel: AuthViewModel) {
                 errorMessage = authMessage
                 showErrorDialog = true
             }
+        }
+    }
+
+    LaunchedEffect(isMusicGloballyEnabled, isAppInForeground) {
+        if (isMusicGloballyEnabled && isAppInForeground) {
+            musicManager.playLevelMusic()
+        } else {
+            musicManager.stopAllMusic()
         }
     }
 
