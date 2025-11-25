@@ -134,7 +134,9 @@ fun JuegoAnimal(
 
     val animalRandom = viewModel.animalRandom
     val letrasPorFila = 7 // Asumiendo que esta es una constante de la UI
-
+    val vidas by nivelViewModel.vidas.collectAsState()
+    val allLivesLost = vidas.all { !it }
+    val isGameEnabled = !allLivesLost
     val visible = viewModel.visible
     val respuestaJugador = viewModel.respuestaJugador
     val navegarAExito by viewModel.navegarAExito.observeAsState(initial = false)
@@ -174,7 +176,7 @@ fun JuegoAnimal(
                 .padding(bottom = bottomPadding, start = 10.dp, end = 10.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            tecladoInteractivo(animalRandom, visible, letrasPorFila, onLetterSelected)
+            tecladoInteractivo(animalRandom, visible, letrasPorFila, onLetterSelected, enabled = isGameEnabled)
         }
 
         Column(
@@ -186,7 +188,7 @@ fun JuegoAnimal(
                 .padding(bottom = 38.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            accionesEspecíficas(onResetGame,onGoBackGame,obtenerPista)
+            accionesEspecíficas(onResetGame,onGoBackGame,obtenerPista, enabled = isGameEnabled)
         }
     }
 }
@@ -377,7 +379,8 @@ fun tecladoInteractivo(
     animalRandom: String,
     visible: MutableList<Boolean>,
     letrasPorFila: Int,
-    onLetterSelected: (Char, Int) -> Unit // 💡 NUEVO ARGUMENTO
+    onLetterSelected: (Char, Int) -> Unit, // 💡 NUEVO ARGUMENTO
+    enabled: Boolean
 ) {
     val configuration = LocalConfiguration.current
     val screenWidthDp = configuration.screenWidthDp.dp
@@ -399,8 +402,7 @@ fun tecladoInteractivo(
                         exit = fadeOut(animationSpec = tween(500))
                     ) {
                         Button(
-                            onClick = { onLetterSelected(animalRandom[j], j) }, // 💡 Usa el callback
-                            modifier = Modifier.size(38.dp),
+                            onClick = { if (enabled) onLetterSelected(animalRandom[j], j) },                            modifier = Modifier.size(38.dp),
                             shape = RoundedCornerShape(12.dp),
                             contentPadding = PaddingValues(0.dp),
                             colors = ButtonDefaults.buttonColors(containerColor = LightBlue)
@@ -422,7 +424,7 @@ fun tecladoInteractivo(
 }
 
 @Composable
-fun accionesEspecíficas(onResetGame: () -> Unit, onGoBackGame: () -> Unit, obtenerPista: () -> Unit) {
+fun accionesEspecíficas(onResetGame: () -> Unit, onGoBackGame: () -> Unit, obtenerPista: () -> Unit, enabled: Boolean) {
     val dividerColor = Color(0xFFE98516)
     val dividerWidth = 2.dp
     val imageSize = 40.dp

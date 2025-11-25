@@ -286,7 +286,7 @@ fun NavManager(
         composable(
             route = "loading_screen/{levelId}",
             arguments = listOf(navArgument("levelId") { type = NavType.IntType })
-            ) { backStackEntry ->
+        ) { backStackEntry ->
             val niveles = nivelViewModel.niveles.collectAsState().value // si tienes Flow o LiveData
             val levelId = backStackEntry.arguments?.getInt("levelId")
             LoadingScreenOceanWords(
