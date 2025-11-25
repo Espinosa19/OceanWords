@@ -28,7 +28,7 @@ import java.nio.charset.StandardCharsets
 
 @Composable
 fun LoadingScreenOceanWords(
-    currentLevelId: Int,
+    currentLevelId: Int?,
     niveles: List<NivelEstado>,
     navController: NavController
 ) {
@@ -186,7 +186,7 @@ fun BurbujasAnimadas(drawableId: Int, duration: Int, alpha: Float, startX: Int, 
 }
 
 fun onStartTransitionAndNavigate(
-    levelId: Int,
+    levelId: Int?,
     niveles: List<NivelEstado>,
     navController: NavController
 ) {

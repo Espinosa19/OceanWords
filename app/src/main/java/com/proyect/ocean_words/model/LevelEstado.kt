@@ -7,5 +7,6 @@ data class LevelEstado(
     val nombreEspecie: String,
     val dificultad: String,
     val imagen: String,
-    val isUnlocked: Boolean
+    val isUnlocked: Boolean,
+    val isCompleted: Boolean = false
 )

@@ -53,8 +53,9 @@ dependencies {
     implementation("androidx.navigation:navigation-compose:2.7.4") // Reemplaza 2.7.4 con la versión estable más reciente
     implementation ("androidx.compose.runtime:runtime-livedata:1.6.8") // O la versión actual
     implementation ("com.jakewharton.threetenabp:threetenabp:1.4.4")
-    implementation("com.google.firebase:firebase-auth-ktx:22.3.0")
+    implementation("com.google.firebase:firebase-auth-ktx:23.2.1")
     implementation("com.google.firebase:firebase-database-ktx:20.3.0")
+
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)

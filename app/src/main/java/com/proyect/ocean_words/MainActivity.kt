@@ -14,11 +14,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.rememberNavController
 import com.jakewharton.threetenabp.AndroidThreeTen
+import com.proyect.ocean_words.auth.AuthViewModel
 import com.proyect.ocean_words.utils.MusicManager
 import com.proyect.ocean_words.view.theme.Ocean_wordsTheme
 import com.proyect.ocean_words.view.rutas.NavManager
 import com.proyect.ocean_words.viewmodels.EspecieViewModel
 import com.proyect.ocean_words.viewmodels.NivelViewModel
+import com.proyect.ocean_words.viewmodels.ProgresoViewModel
+import com.proyect.ocean_words.viewmodels.UsuariosViewModel
 
 class MainActivity : ComponentActivity() {
 
@@ -26,7 +29,8 @@ class MainActivity : ComponentActivity() {
     var isAppInForeground by mutableStateOf(true)
     private val nivelViewModel: NivelViewModel by viewModels()
     private val especieViewModel: EspecieViewModel by viewModels()
-
+    private val usuarioViwModel: UsuariosViewModel by viewModels()
+    private val progresoViewModel: ProgresoViewModel by viewModels()
     @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     override fun onCreate(savedInstanceState: Bundle?) {
         AndroidThreeTen.init(this)
@@ -41,7 +45,7 @@ class MainActivity : ComponentActivity() {
                 val navController = rememberNavController()
 
                 Scaffold(modifier = Modifier.fillMaxSize()) {
-                    NavManager(musicManager, isAppInForeground,nivelViewModel)
+                    NavManager(musicManager, isAppInForeground,nivelViewModel,progresoViewModel)
                 }
             }
         }
