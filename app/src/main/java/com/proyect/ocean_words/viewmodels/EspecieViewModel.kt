@@ -36,6 +36,11 @@ class EspecieViewModel (
     val navegarAExito: LiveData<Boolean> = _navegarAExito
     private val letrasPorFila = 7
 
+    private val _pistaUsada = MutableStateFlow(false)
+    val pistaUsada: StateFlow<Boolean> = _pistaUsada.asStateFlow()
+    private val _mostrarMensajePistaUsada = MutableLiveData<Boolean>()
+    val mostrarMensajePistaUsada: LiveData<Boolean> = _mostrarMensajePistaUsada
+
     /*private val _vidas = MutableStateFlow(listOf(true, true, true))
     val vidas = _vidas.asStateFlow()
 
@@ -207,19 +212,25 @@ class EspecieViewModel (
     }
 
     fun obtenerPista() {
+        if (_pistaUsada.value) {
+            _mostrarMensajePistaUsada.value = true
+            return
+        }
         // 1️⃣ Encuentra todos los índices donde la letra aún no está colocada
         val indicesVacios = respuestaJugador.mapIndexedNotNull { index, slot ->
             if (slot?.char == null) index else null
         }
-
-        if (indicesVacios.isEmpty()) return // ya está completa
-
+        if (indicesVacios.isEmpty()) return
         // 2️⃣ Elegir un índice vacío aleatorio (para que la pista sea aleatoria)
         val indexPista = indicesVacios.random()
 
         // 3️⃣ Colocar la letra correcta en ese índice
         val letraCorrecta = animalSinEspacios[indexPista]
         respuestaJugador[indexPista] = SlotEstado(char = letraCorrecta, esCorrecto = true)
+        _pistaUsada.value = true
+    }
+    fun mensajePistaMostrado() {
+        _mostrarMensajePistaUsada.value = false
     }
 
 

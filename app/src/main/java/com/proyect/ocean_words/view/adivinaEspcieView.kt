@@ -18,6 +18,7 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.getValue // Esta es la importación clave que faltaimport androidx.compose.runtime.remember
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -58,6 +59,7 @@ import com.proyect.ocean_words.view.theme.VerdeClaro
 import com.proyect.ocean_words.viewmodels.EspecieViewModel
 import com.proyect.ocean_words.viewmodels.NivelViewModel
 import com.proyect.ocean_words.viewmodels.ProgresoViewModel
+import kotlinx.coroutines.launch
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 
@@ -147,48 +149,67 @@ fun JuegoAnimal(
     val usuario: UsuariosEstado? = UserSession.currentUser
     Log.i("VistaProgreso","${usuario?.progreso_niveles}")
     val obtenerPista : () -> Unit = viewModel::obtenerPista
+
+    val mostrarMensajePistaUsada by viewModel.mostrarMensajePistaUsada.observeAsState(initial = false)
+    val scope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
+
     LaunchedEffect (navegarAExito,levelId,especieId) {
         if (navegarAExito) {
-
-            val imagen = URLEncoder.encode(imagen, StandardCharsets.UTF_8.toString()) // 👈 Codificar                            // Navegar pasando los parámetros
-
+            val imagen = URLEncoder.encode(imagen, StandardCharsets.UTF_8.toString())
             progresoViewModel.buscarProgresoUsuId(levelId,especieId)
-
-
-            // 2. Consumir el evento de navegación reseteando la LiveData
             navController.navigate("caracteristicas/$especieId/$imagen/$levelId")
         }
     }
 
-    // 4. LAYOUT
-    Box(modifier = Modifier.fillMaxSize()) {
-        val configuration = LocalConfiguration.current
-        val screenWidthDp = configuration.screenWidthDp.dp
-        val bottomPadding = if (screenWidthDp > 420.dp) { 180.dp } else { 150.dp }
-
-        QuestionAndImageSection( navController,animalQuestion, animal, respuestaJugador, onLetterRemoved, musicManager, onMusicToggle, isMusicEnabled,imagen)
-
-
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .align(Alignment.BottomCenter)
-                .padding(bottom = bottomPadding, start = 10.dp, end = 10.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            tecladoInteractivo(animalRandom, visible, letrasPorFila, onLetterSelected, enabled = isGameEnabled)
+    LaunchedEffect(mostrarMensajePistaUsada) {
+        if (mostrarMensajePistaUsada) {
+            scope.launch {
+                snackbarHostState.showSnackbar(
+                    message = "¡Ya has usado tu única pista!",
+                    duration = SnackbarDuration.Short
+                )
+                viewModel.mensajePistaMostrado()
+            }
         }
+    }
 
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(130.dp)
-                .align(Alignment.BottomCenter)
-                .background(Color(0xFFE98516))
-                .padding(bottom = 38.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            accionesEspecíficas(onResetGame,onGoBackGame,obtenerPista, enabled = isGameEnabled)
+    // 4. LAYOUT
+    Scaffold(
+        containerColor = Color.Transparent,
+        snackbarHost = { SnackbarHost(snackbarHostState) },
+        modifier = Modifier.fillMaxSize()
+    ) { paddingValues ->
+        Box(modifier = Modifier
+            .fillMaxSize()
+            .padding(paddingValues)) {
+            val configuration = LocalConfiguration.current
+            val screenWidthDp = configuration.screenWidthDp.dp
+            val bottomPadding = if (screenWidthDp > 420.dp) { 180.dp } else { 150.dp }
+
+            QuestionAndImageSection( navController,animalQuestion, animal, respuestaJugador, onLetterRemoved, musicManager, onMusicToggle, isMusicEnabled,imagen)
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .align(Alignment.BottomCenter)
+                    .padding(bottom = bottomPadding, start = 10.dp, end = 10.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                tecladoInteractivo(animalRandom, visible, letrasPorFila, onLetterSelected, enabled = isGameEnabled)
+            }
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(130.dp)
+                    .align(Alignment.BottomCenter)
+                    .background(Color(0xFFE98516))
+                    .padding(bottom = 38.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                accionesEspecíficas(onResetGame,onGoBackGame,obtenerPista, enabled = isGameEnabled)
+            }
         }
     }
 }
