@@ -197,7 +197,7 @@ fun JuegoAnimal(
                     .padding(bottom = bottomPadding, start = 10.dp, end = 10.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                tecladoInteractivo(animalRandom, visible, letrasPorFila, onLetterSelected, enabled = isGameEnabled)
+                tecladoInteractivo(animalRandom, visible, letrasPorFila, onLetterSelected, enabled = isGameEnabled, musicManager = musicManager)
             }
 
             Column(
@@ -209,7 +209,7 @@ fun JuegoAnimal(
                     .padding(bottom = 38.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                accionesEspecíficas(onResetGame,onGoBackGame,obtenerPista, enabled = isGameEnabled, pistaUsada = pistaUsada)
+                accionesEspecíficas(onResetGame,onGoBackGame,obtenerPista, enabled = isGameEnabled, pistaUsada = pistaUsada, musicManager = musicManager)
             }
         }
     }
@@ -274,10 +274,12 @@ fun QuestionAndImageSection(
                     )
                 )
                 // 💡 LLAMADA A RESPONSEAREA CON EL ESTADO Y CALLBACK
-                ResponseArea(animal, respuestaJugador, onLetterRemoved)
+                ResponseArea(animal, respuestaJugador, onLetterRemoved, musicManager)
             }
             IconButton(
-                onClick = { statusMenu = !statusMenu },
+                onClick = {
+                    musicManager.playClickSound()
+                    statusMenu = !statusMenu },
 
                 modifier = Modifier
                     .align(Alignment.TopEnd)
@@ -294,7 +296,9 @@ fun QuestionAndImageSection(
             if (statusMenu) {
                 NavegacionDrawerMenu(
                     navController = navController,
-                    onCloseMenu = { statusMenu = false },
+                    onCloseMenu = {
+                        musicManager.playClickSound()
+                        statusMenu = false },
                     musicManager = musicManager,
                     onMusicToggle = onMusicToggle,
                     isMusicEnabled = isMusicEnabled
@@ -308,7 +312,8 @@ fun QuestionAndImageSection(
 fun ResponseArea(
     animal: String,
     respuestaJugador: MutableList<SlotEstado?>,
-    onSlotClicked: (Int) -> Unit
+    onSlotClicked: (Int) -> Unit,
+    musicManager: MusicManager
 ) {
     val configuration = LocalConfiguration.current
     val screenWidthDp = configuration.screenWidthDp.dp
@@ -368,7 +373,12 @@ fun ResponseArea(
                         }
 
                         Button(
-                            onClick = { if (responseChar != null) onSlotClicked(indexForCallback) },
+                            onClick = {
+                                if (responseChar != null) {
+                                    musicManager.playClickSound()
+                                    onSlotClicked(indexForCallback)
+                                }
+                            },
                             modifier = Modifier
                                 .size(sizeCard)
                                 .clip(RoundedCornerShape(15.dp)),
@@ -402,7 +412,8 @@ fun tecladoInteractivo(
     visible: MutableList<Boolean>,
     letrasPorFila: Int,
     onLetterSelected: (Char, Int) -> Unit, // 💡 NUEVO ARGUMENTO
-    enabled: Boolean
+    enabled: Boolean,
+    musicManager: MusicManager
 ) {
     val configuration = LocalConfiguration.current
     val screenWidthDp = configuration.screenWidthDp.dp
@@ -424,7 +435,13 @@ fun tecladoInteractivo(
                         exit = fadeOut(animationSpec = tween(500))
                     ) {
                         Button(
-                            onClick = { if (enabled) onLetterSelected(animalRandom[j], j) },                            modifier = Modifier.size(38.dp),
+                            onClick = {
+                                if (enabled) {
+                                    musicManager.playClickSound()
+                                    onLetterSelected(animalRandom[j], j)
+                                }
+                            },
+                            modifier = Modifier.size(38.dp),
                             shape = RoundedCornerShape(12.dp),
                             contentPadding = PaddingValues(0.dp),
                             colors = ButtonDefaults.buttonColors(containerColor = LightBlue)
@@ -446,7 +463,7 @@ fun tecladoInteractivo(
 }
 
 @Composable
-fun accionesEspecíficas(onResetGame: () -> Unit, onGoBackGame: () -> Unit, obtenerPista: () -> Unit, enabled: Boolean, pistaUsada: Boolean) {
+fun accionesEspecíficas(onResetGame: () -> Unit, onGoBackGame: () -> Unit, obtenerPista: () -> Unit, enabled: Boolean, pistaUsada: Boolean, musicManager: MusicManager) {
     val dividerColor = Color(0xFFE98516)
     val dividerWidth = 2.dp
     val imageSize = 40.dp
@@ -465,7 +482,10 @@ fun accionesEspecíficas(onResetGame: () -> Unit, onGoBackGame: () -> Unit, obte
             modifier = Modifier
                 .weight(1f)
                 .fillMaxHeight()
-                .clickable(onClick = onResetGame)
+                .clickable(onClick = {
+                    musicManager.playClickSound()
+                    onResetGame()
+                })
                 .clip(RoundedCornerShape(8.dp)),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
@@ -498,7 +518,10 @@ fun accionesEspecíficas(onResetGame: () -> Unit, onGoBackGame: () -> Unit, obte
             modifier = Modifier
                 .weight(1f)
                 .fillMaxHeight()
-                .clickable(onClick = onGoBackGame) // <--- Funcionalidad click
+                .clickable(onClick = {
+                    musicManager.playClickSound()
+                    onGoBackGame()
+                })
                 .clip(RoundedCornerShape(8.dp)),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
@@ -532,7 +555,10 @@ fun accionesEspecíficas(onResetGame: () -> Unit, onGoBackGame: () -> Unit, obte
             modifier = Modifier
                 .weight(1f)
                 .fillMaxHeight()
-                .clickable(onClick = obtenerPista)
+                .clickable(onClick = {
+                    musicManager.playClickSound()
+                    obtenerPista()
+                })
                 .clip(RoundedCornerShape(8.dp)),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center

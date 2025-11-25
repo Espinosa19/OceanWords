@@ -226,6 +226,7 @@ fun LoginScreen(
 
             TextButton(
                 onClick = {
+                    musicManager.playClickSound()
                     if (email.isBlank()) showError("Ingrese su correo para recuperar la contraseña")
                     else if (!isValidEmail(email)) showError("Ingrese un correo válido")
                     else {
@@ -246,6 +247,7 @@ fun LoginScreen(
 
             Button(
                 onClick = {
+                    musicManager.playClickSound()
                     when {
                         email.isBlank() -> showError("Ingrese su correo electrónico")
                         !isValidEmail(email) -> showError("Ingrese un correo válido")
@@ -263,7 +265,10 @@ fun LoginScreen(
 
             Spacer(Modifier.height(16.dp))
 
-            TextButton(onClick = { navController.navigate(Rutas.REGISTRO) }) {
+            TextButton(onClick = {
+                musicManager.playClickSound()
+                navController.navigate(Rutas.REGISTRO)
+            }) {
                 Text(
                     "¿No tienes cuenta? Registrarse",
                     color = Color(0xFF163C75),
@@ -305,7 +310,9 @@ fun LoginScreen(
                 )
                 Spacer(Modifier.height(20.dp))
                 Button(
-                    onClick = { showDialog = false },
+                    onClick = {
+                        musicManager.playClickSound()
+                        showDialog = false },
                     colors = ButtonDefaults.buttonColors(containerColor = Color.White)
                 ) {
                     Text("Cerrar", color = Color(0xFF007ACC))

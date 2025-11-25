@@ -31,6 +31,7 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.proyect.ocean_words.R
 import com.proyect.ocean_words.model.EspecieEstado
+import com.proyect.ocean_words.utils.MusicManager
 import com.proyect.ocean_words.view.theme.*
 import com.proyect.ocean_words.view.rutas.Rutas
 import com.proyect.ocean_words.viewmodels.CaracteristicasEspecieViewModels
@@ -42,7 +43,8 @@ fun caracteristicasEspecieView(
     navController: NavController,
     especie_id: String,
     imagen: String?,
-    levelId: Int?
+    levelId: Int?,
+    musicManager: MusicManager
 ) {
     val viewModel: CaracteristicasEspecieViewModels = viewModel()
     val especieState by viewModel.especie.collectAsState()
@@ -80,7 +82,8 @@ fun caracteristicasEspecieView(
                     especie = especie,
                     onClose = { navController.popBackStack() },
                     imagen = imagen,
-                    levelId = levelId
+                    levelId = levelId,
+                    musicManager = musicManager
                 )
             }
         }
@@ -93,7 +96,8 @@ fun CaracteristicasModal(
     especie: EspecieEstado,
     onClose: () -> Unit,
     imagen: String?,
-    levelId: Int?
+    levelId: Int?,
+    musicManager: MusicManager
 ) {
     val levelId = levelId?.plus(1)
     Dialog(onDismissRequest = { onClose() }) {
@@ -223,6 +227,7 @@ fun CaracteristicasModal(
                             icon = Icons.Default.Home,
                             texto = "Inicio",
                             onClick = {
+                                musicManager.playClickSound()
                                 navController.navigate(Rutas.CAMINO_NIVELES) {
                                     popUpTo(Rutas.CAMINO_NIVELES) { inclusive = true }
                                 }
@@ -232,6 +237,7 @@ fun CaracteristicasModal(
                             icon = Icons.Default.ArrowForward,
                             texto = "Siguiente",
                             onClick = {
+                                musicManager.playClickSound()
                                 navController.navigate("loading_screen/$levelId")
 
                             }

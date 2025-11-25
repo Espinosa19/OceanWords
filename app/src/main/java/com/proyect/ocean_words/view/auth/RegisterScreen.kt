@@ -87,11 +87,15 @@ fun RegisterScreen(
     // Ventana de error
     if (showErrorDialog) {
         AlertDialog(
-            onDismissRequest = { showErrorDialog = false },
+            onDismissRequest = {
+                showErrorDialog = false
+                musicManager.playClickSound()},
             title = { Text("Aviso") },
             text = { Text(errorMessage ?: "") },
             confirmButton = {
-                Button(onClick = { showErrorDialog = false }) {
+                Button(onClick = {
+                    showErrorDialog = false
+                    musicManager.playClickSound()}) {
                     Text("Cerrar")
                 }
             }
@@ -253,6 +257,7 @@ fun RegisterScreen(
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                 keyboardActions = KeyboardActions(
                     onDone = {
+                        musicManager.playClickSound()
                         when {
                             fullname.isBlank() -> { errorMessage = "Ingrese su nombre completo"; showErrorDialog = true }
                             !isValidName(fullname) -> { errorMessage = "El nombre solo puede contener letras"; showErrorDialog = true }
@@ -273,6 +278,7 @@ fun RegisterScreen(
 
             Button(
                 onClick = {
+                    musicManager.playClickSound()
                     when {
                         fullname.isBlank() -> { errorMessage = "Ingrese su nombre completo"; showErrorDialog = true }
                         !isValidName(fullname) -> { errorMessage = "El nombre solo puede contener letras"; showErrorDialog = true }
@@ -297,7 +303,9 @@ fun RegisterScreen(
 
             Spacer(Modifier.height(10.dp))
 
-            TextButton(onClick = { navController.popBackStack() }) {
+            TextButton(onClick = {
+                musicManager.playClickSound()
+                navController.popBackStack() }) {
                 Text("¿Ya tienes cuenta? Iniciar sesión", color = Color.Black)
             }
         }
@@ -393,6 +401,7 @@ fun RegisterScreen(
 
                     Button(
                         onClick = {
+                            musicManager.playClickSound()
                             showSuccessDialog = false
                             navController.popBackStack()
                         },
