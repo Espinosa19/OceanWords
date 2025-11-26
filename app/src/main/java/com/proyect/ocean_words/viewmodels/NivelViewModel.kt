@@ -27,6 +27,9 @@ class NivelViewModel : ViewModel() {
     private val _isLoading = MutableStateFlow(true)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
+    private val _showGameCompletionEvent = MutableStateFlow(false)
+    val showGameCompletionEvent: StateFlow<Boolean> = _showGameCompletionEvent.asStateFlow()
+
     private val _isSplashShown = MutableStateFlow(false)
     val isSplashShown: StateFlow<Boolean> = _isSplashShown.asStateFlow()
 
@@ -142,6 +145,17 @@ class NivelViewModel : ViewModel() {
                     _isLoading.value = false
                 }
         }
+    }
+    fun triggerGameCompletionDialog() {
+        _showGameCompletionEvent.value = true
+    }
+
+    /**
+     * Llama a esta función desde CaminoNivelesRoute cuando el diálogo
+     * de felicitación ha sido mostrado y cerrado, para 'consumir' el evento.
+     */
+    fun consumeGameCompletionEvent() {
+        _showGameCompletionEvent.value = false
     }
 
 }

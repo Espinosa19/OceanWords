@@ -35,6 +35,7 @@ import com.proyect.ocean_words.utils.MusicManager
 import com.proyect.ocean_words.view.theme.*
 import com.proyect.ocean_words.view.rutas.Rutas
 import com.proyect.ocean_words.viewmodels.CaracteristicasEspecieViewModels
+import com.proyect.ocean_words.viewmodels.NivelViewModel
 
 val StarColor = Color(0xFFFFCC00)
 
@@ -44,7 +45,8 @@ fun caracteristicasEspecieView(
     especie_id: String,
     imagen: String?,
     levelId: Int?,
-    musicManager: MusicManager
+    musicManager: MusicManager,
+    nivelViewModel: NivelViewModel
 ) {
     val viewModel: CaracteristicasEspecieViewModels = viewModel()
     val especieState by viewModel.especie.collectAsState()
@@ -83,7 +85,8 @@ fun caracteristicasEspecieView(
                     onClose = { navController.popBackStack() },
                     imagen = imagen,
                     levelId = levelId,
-                    musicManager = musicManager
+                    musicManager = musicManager,
+                    nivelViewModel = nivelViewModel
                 )
             }
         }
@@ -97,9 +100,12 @@ fun CaracteristicasModal(
     onClose: () -> Unit,
     imagen: String?,
     levelId: Int?,
-    musicManager: MusicManager
+    musicManager: MusicManager,
+    nivelViewModel: NivelViewModel
 ) {
     val nextLevelId = levelId?.plus(1)
+    val niveles by nivelViewModel.niveles.collectAsState()
+    val totalNiveles = niveles.size
 
     Dialog(onDismissRequest = { onClose() }) {
         Card(
@@ -239,8 +245,15 @@ fun CaracteristicasModal(
                             texto = "Siguiente",
                             onClick = {
                                 musicManager.playClickSound()
-                                if (nextLevelId != null) {
+                                if (levelId != null && levelId >= totalNiveles && totalNiveles > 0) {
+                                    nivelViewModel.triggerGameCompletionDialog()
+                                    navController.navigate(Rutas.CAMINO_NIVELES) {
+                                        popUpTo(Rutas.CAMINO_NIVELES) { inclusive = true }
+                                    }
+                                } else if (nextLevelId != null) {
                                     navController.navigate("loading_screen/$nextLevelId")
+                                } else {
+                                    navController.navigate(Rutas.CAMINO_NIVELES)
                                 }
                             }
                         )

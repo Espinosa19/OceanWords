@@ -189,7 +189,7 @@ fun NavManager(
                 }
             }
             if (especie_id != null) {
-                caracteristicasEspecieView(navController,especie_id,imagen,levelId, musicManager)
+                caracteristicasEspecieView(navController,especie_id,imagen,levelId, musicManager, nivelViewModel)
             }
         }
 

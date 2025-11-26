@@ -446,7 +446,7 @@ fun CaminoNivelesRoute(
     val niveles by viewModel.niveles.collectAsState(initial = emptyList())
     val totalNivelesCargados = niveles.size
 
-    var wasGameCompletionDialogShown by remember { mutableStateOf(false) }
+    val showCompletionEvent by viewModel.showGameCompletionEvent.collectAsState()
     var showCompletionDialog by remember { mutableStateOf(false) }
 
     val progresoViewModel: ProgresoViewModel = viewModel()
@@ -457,12 +457,9 @@ fun CaminoNivelesRoute(
         it.nivel == totalNivelesCargados && it.estado.equals("completado", ignoreCase = true)
     }
 
-    LaunchedEffect(isGameFinished) {
-        if (isGameFinished && !wasGameCompletionDialogShown) {
+    LaunchedEffect(showCompletionEvent) {
+        if (showCompletionEvent) {
             showCompletionDialog = true
-            wasGameCompletionDialogShown = true
-        } else if (!isGameFinished) {
-            wasGameCompletionDialogShown = false
         }
     }
 
@@ -522,10 +519,12 @@ fun CaminoNivelesRoute(
         CompletionDialog(
             onDismiss = {
                 showCompletionDialog = false
+                viewModel.consumeGameCompletionEvent()
                 musicManager.playClickSound()
             },
             onNavigateHome = {
                 showCompletionDialog = false
+                viewModel.consumeGameCompletionEvent()
                 musicManager.playClickSound()
             },
             musicManager = musicManager
