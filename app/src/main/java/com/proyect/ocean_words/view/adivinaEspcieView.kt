@@ -176,42 +176,39 @@ fun JuegoAnimal(
     }
 
     // 4. LAYOUT
-    Scaffold(
-        containerColor = Color.Transparent,
-        snackbarHost = { SnackbarHost(snackbarHostState) },
-        modifier = Modifier.fillMaxSize()
-    ) { paddingValues ->
-        Box(modifier = Modifier
-            .fillMaxSize()
-            .padding(paddingValues)) {
-            val configuration = LocalConfiguration.current
-            val screenWidthDp = configuration.screenWidthDp.dp
-            val bottomPadding = if (screenWidthDp > 420.dp) { 180.dp } else { 150.dp }
+    Box(modifier = Modifier.fillMaxSize()) {
+        val configuration = LocalConfiguration.current
+        val screenWidthDp = configuration.screenWidthDp.dp
+        val bottomPadding = if (screenWidthDp > 420.dp) { 180.dp } else { 150.dp }
 
-            QuestionAndImageSection( navController,animalQuestion, animal, respuestaJugador, onLetterRemoved, musicManager, onMusicToggle, isMusicEnabled,imagen)
-
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .align(Alignment.BottomCenter)
-                    .padding(bottom = bottomPadding, start = 10.dp, end = 10.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                tecladoInteractivo(animalRandom, visible, letrasPorFila, onLetterSelected, enabled = isGameEnabled, musicManager = musicManager)
-            }
-
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(130.dp)
-                    .align(Alignment.BottomCenter)
-                    .background(Color(0xFFE98516))
-                    .padding(bottom = 38.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                accionesEspecíficas(onResetGame,onGoBackGame,obtenerPista, enabled = isGameEnabled, pistaUsada = pistaUsada, musicManager = musicManager)
-            }
+        QuestionAndImageSection( navController,animalQuestion, animal, respuestaJugador, onLetterRemoved, musicManager, onMusicToggle, isMusicEnabled,imagen)
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .align(Alignment.BottomCenter)
+                .padding(bottom = bottomPadding, start = 10.dp, end = 10.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            tecladoInteractivo(animalRandom, visible, letrasPorFila, onLetterSelected, enabled = isGameEnabled, musicManager = musicManager)
         }
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(130.dp)
+                .align(Alignment.BottomCenter)
+                .background(Color(0xFFE98516))
+                .padding(bottom = 38.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            accionesEspecíficas(onResetGame,onGoBackGame,obtenerPista, enabled = isGameEnabled, pistaUsada = pistaUsada, musicManager = musicManager)
+        }
+
+        SnackbarHost(
+            hostState = snackbarHostState,
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(horizontal = 16.dp, vertical = 8.dp)
+        )
     }
 }
 @Composable
