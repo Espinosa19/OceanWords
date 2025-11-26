@@ -38,6 +38,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.proyect.ocean_words.R
+import com.proyect.ocean_words.view.rutas.Rutas
 import com.proyect.ocean_words.view.theme.Blue // Asumo que son colores definidos en tu tema
 import com.proyect.ocean_words.view.theme.LightOlive
 import com.proyect.ocean_words.view.theme.azulCeleste
@@ -104,7 +105,10 @@ fun HeaderSection(
                 vidas = vidas,
                 timeToNextLife = timeToNextLife,
                 onBackClick = {
-                    navController.popBackStack()
+                    navController.popBackStack(
+                        route = Rutas.CAMINO_NIVELES,
+                        inclusive = false
+                    )
                 },
                 redireccionarClick={
                     navController.navigate("game_shop")
