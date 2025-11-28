@@ -136,20 +136,9 @@ fun CaracteristicasModal(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
 
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.End
-                    ) {
-                        IconButton(onClick = { onClose() }) {
-                            Icon(
-                                imageVector = Icons.Default.Close,
-                                contentDescription = "Cerrar",
-                                tint = Color.Black
-                            )
-                        }
-                    }
-
                     Text(
+                        modifier = Modifier
+                            .padding(1.dp, 20.dp),
                         text = "¡CORRECTO!",
                         fontFamily = MomoTrustDisplay,
                         color = azulCeleste,
