@@ -10,7 +10,7 @@ import com.proyect.ocean_words.auth.UserSession
 import com.proyect.ocean_words.model.EspecieEstado
 import com.proyect.ocean_words.model.UsuariosEstado
 import com.proyect.ocean_words.model.progreso_Niveles
-import com.proyect.ocean_words.repositories.UsuarioRepository
+import com.proyect.ocean_words.domain.repositories.UsuarioRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch

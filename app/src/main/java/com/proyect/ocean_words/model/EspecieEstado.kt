@@ -1,4 +1,4 @@
-package com.proyect.ocean_words.model
+   package com.proyect.ocean_words.model
 data class Zonas(
     val nombre: String="",
     val profundidad : String ="",

@@ -63,7 +63,7 @@ fun LoadingScreenOceanWordsAnimated(navController: NavController) {
     // Timer → navegar a LOGIN
     LaunchedEffect(true) {
         delay(3000)
-        navController.navigate("login") {
+        navController.navigate("proceso_acceso") {
             popUpTo(0)
         }
     }

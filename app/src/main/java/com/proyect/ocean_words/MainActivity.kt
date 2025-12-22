@@ -13,8 +13,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.rememberNavController
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.jakewharton.threetenabp.AndroidThreeTen
-import com.proyect.ocean_words.auth.AuthViewModel
 import com.proyect.ocean_words.utils.MusicManager
 import com.proyect.ocean_words.view.theme.Ocean_wordsTheme
 import com.proyect.ocean_words.view.rutas.NavManager
@@ -34,6 +35,12 @@ class MainActivity : ComponentActivity() {
     @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     override fun onCreate(savedInstanceState: Bundle?) {
         AndroidThreeTen.init(this)
+        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestIdToken(getString(R.string.web_client_id))
+            .requestEmail()
+            .build()
+
+        val googleSignInClient = GoogleSignIn.getClient(this, gso)
 
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -45,7 +52,7 @@ class MainActivity : ComponentActivity() {
                 val navController = rememberNavController()
 
                 Scaffold(modifier = Modifier.fillMaxSize()) {
-                    NavManager(musicManager, isAppInForeground,nivelViewModel,progresoViewModel)
+                    NavManager(musicManager, isAppInForeground,nivelViewModel,progresoViewModel,googleSignInClient)
                 }
             }
         }

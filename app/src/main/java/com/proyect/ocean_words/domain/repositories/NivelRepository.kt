@@ -1,4 +1,4 @@
-package com.proyect.ocean_words.repositories
+package com.proyect.ocean_words.domain.repositories
 
 import com.google.firebase.firestore.FirebaseFirestore
 import android.util.Log

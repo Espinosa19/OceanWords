@@ -1,4 +1,4 @@
-package com.proyect.ocean_words.repositories
+package com.proyect.ocean_words.domain.repositories
 
 import android.util.Log
 import com.google.firebase.firestore.FirebaseFirestore
@@ -22,6 +22,15 @@ class UsuarioRepository(
      * Crea un usuario en Firestore con el UID proporcionado
      */
     fun crearYObservarUsuario(uid: String, email: String, nombre: String): Flow<UsuariosEstado?> {
+        // Primero crear el usuario si no existe
+        usuarioRef.document(uid).set(
+            UsuariosEstado(nombre = nombre, email = email, id = uid, progreso_niveles = emptyList())
+        )
+
+        // Luego retornamos el flow para escuchar cambios en tiempo real
+        return buscarUsuarioPorId(uid)
+    }
+    fun crearUsuario(uid: String, email: String, nombre: String): Flow<UsuariosEstado?> {
         // Primero crear el usuario si no existe
         usuarioRef.document(uid).set(
             UsuariosEstado(nombre = nombre, email = email, id = uid, progreso_niveles = emptyList())

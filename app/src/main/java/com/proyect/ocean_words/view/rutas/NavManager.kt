@@ -23,6 +23,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.proyect.ocean_words.auth.AuthViewModel
 
 import com.proyect.ocean_words.auth.LoginScreen
@@ -34,6 +35,7 @@ import com.proyect.ocean_words.view.CaminoNivelesRoute
 import com.proyect.ocean_words.view.LoadingScreenOceanWords
 import com.proyect.ocean_words.view.LoadingScreenOceanWordsAnimated
 import com.proyect.ocean_words.view.OceanWordsGameRoute
+import com.proyect.ocean_words.view.auth.ProcesoAccesoScreen
 import com.proyect.ocean_words.view.screens.BottomNavBar
 import com.proyect.ocean_words.view.screens.GameShopScreen
 import com.proyect.ocean_words.view.screens.acuario
@@ -61,6 +63,7 @@ object Rutas {
     const val ACERCA_DE = "acerca_de"
     const val GAME_SHOP="game_shop"
     const val LOGIN = "login"
+    const val PROCESOACCESO="proceso_acceso"
     const val REGISTRO = "registro"
 }
 
@@ -72,7 +75,8 @@ fun NavManager(
     musicManager: MusicManager,
     isAppInForeground: Boolean,
     nivelViewModel: NivelViewModel,
-    progresoViewModel: ProgresoViewModel
+    progresoViewModel: ProgresoViewModel,
+    googleSignInClient: GoogleSignInClient,
 ) {
     val navController = rememberNavController()
     var targetLevelId by remember { mutableStateOf<Int?>(null) }
@@ -320,6 +324,10 @@ fun NavManager(
                     CircularProgressIndicator(color = Color.White)
                 }
             }
+        }
+        composable(Rutas.PROCESOACCESO) {
+            val authViewModel: AuthViewModel = viewModel()
+            ProcesoAccesoScreen(navController, authViewModel, musicManager = musicManager, isMusicGloballyEnabled = isMusicGloballyEnabled, isAppInForeground = isAppInForeground,googleSignInClient)
         }
         composable(Rutas.LOGIN) {
             val authViewModel: AuthViewModel = viewModel()

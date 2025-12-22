@@ -1,23 +1,20 @@
 package com.proyect.ocean_words.auth
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.GoogleAuthProvider
-import com.google.firebase.database.FirebaseDatabase
 import com.proyect.ocean_words.model.UsuariosEstado
-import com.proyect.ocean_words.repositories.UsuarioRepository
+import com.proyect.ocean_words.domain.repositories.AutenRepository
+import com.proyect.ocean_words.domain.repositories.UsuarioRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
+
 class AuthViewModel : ViewModel() {
     val usuarioRepository = UsuarioRepository()
-    private val auth: FirebaseAuth = FirebaseAuth.getInstance()
-
+    val autRepository = AutenRepository()
     private val _usuarioLiveData = MutableLiveData<UsuariosEstado?>()
     val usuarioLiveData: LiveData<UsuariosEstado?> = _usuarioLiveData
 
@@ -30,11 +27,10 @@ class AuthViewModel : ViewModel() {
     fun loginUser(email: String, password: String) {
         viewModelScope.launch {
             try {
-                val authResult = auth.signInWithEmailAndPassword(email, password).await()
-                val uid = authResult.user?.uid ?: throw Exception("UID del usuario es null")
+                val uid = autRepository.loginWithEmail(email, password)
+
 
                 usuarioRepository.buscarUsuarioPorId(uid).collect { usuario ->
-                    Log.i("Repository","$usuario")
                     if (usuario != null) {
                         // Guardamos datos en LiveData y en UserSession
                         _usuarioLiveData.value = usuario
@@ -58,61 +54,120 @@ class AuthViewModel : ViewModel() {
         }
     }
 
-    fun signInWithGoogle(idToken: String) {
-        val credential = GoogleAuthProvider.getCredential(idToken, null)
-        auth.signInWithCredential(credential)
-            .addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    val user = auth.currentUser
-                    if (user != null) {
-                        _isAuthenticated.value = true
-                        _authState.value = "Login con Google exitoso"
-                        // Aquí podrías buscar datos en Firestore y actualizar UserSession
-                    }
-                } else {
-                    _authState.value = task.exception?.message
-                    _isAuthenticated.value = false
-                }
-            }
-    }
 
-    fun registerUser(nombre: String, email: String, password: String) {
+    fun loginWithGoogle(idToken: String) {
         viewModelScope.launch {
-            auth.createUserWithEmailAndPassword(email, password)
-                .addOnCompleteListener { task ->
-                    if (task.isSuccessful) {
-                        val uid = auth.currentUser?.uid
-                        if (uid != null) {
-                            usuarioRepository.crearYObservarUsuario(uid, email, nombre)
-                            // Guardamos datos en UserSession
-                            val newUser = UsuariosEstado(email, nombre,emptyList(),uid)
-                            UserSession.currentUser = newUser
-                            UserSession.isAuthenticated = true
-                        }
-                        _authState.value = "Registro exitoso"
-                        _isAuthenticated.value = true
-                    } else {
-                        _authState.value = task.exception?.message
-                        _isAuthenticated.value = false
-                        UserSession.isAuthenticated = false
-                    }
+            try {
+                if (idToken.isBlank()) {
+                    _authState.value = "Token de Google inválido"
+                    _isAuthenticated.value = false
+                    return@launch
                 }
+
+                // 🔹 1. Login Firebase
+                val uid = autRepository.loginWithGoogle(idToken)
+
+                // 🔹 2. Buscar usuario en Firestore
+                val usuario = usuarioRepository
+                    .buscarUsuarioPorId(uid)
+                    .first()
+
+                // 🔹 3. Si no existe → crear usuario
+                val finalUser = if (usuario == null) {
+
+                    val firebaseUser = autRepository.getCurrentUser()
+
+                    val nombre = firebaseUser?.displayName ?: "Usuario"
+                    val correo = firebaseUser?.email ?: ""
+
+                    val usuario=usuarioRepository.crearUsuario(uid, correo,nombre)
+                    usuario
+
+                } else {
+                    usuario
+                }
+
+                // 🔹 4. Guardar sesión
+                _usuarioLiveData.value = usuario
+                UserSession.currentUser = usuario
+                UserSession.isAuthenticated = true
+
+                _isAuthenticated.value = true
+                _authState.value = "Login con Google exitoso"
+
+            } catch (e: Exception) {
+                UserSession.isAuthenticated = false
+                _isAuthenticated.value = false
+                _authState.value = e.localizedMessage ?: "Error al iniciar sesión con Google"
+            }
         }
     }
 
-    fun resetPassword(email: String) {
-        auth.sendPasswordResetEmail(email)
-            .addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    _authState.value = "Se ha enviado un enlace de recuperación a su correo"
-                } else {
-                    _authState.value = task.exception?.localizedMessage
-                }
-            }
+
+    fun validarRegistro(
+        fullname: String,
+        email: String,
+        password: String
+    ): String? {
+
+        return when {
+            fullname.isBlank() ->
+                "Ingrese su nombre completo"
+
+            !isValidName(fullname) ->
+                "El nombre solo puede contener letras"
+
+            email.isBlank() ->
+                "Ingrese correo electrónico"
+
+            !isValidEmailR(email) ->
+                "Correo inválido"
+
+            password.isBlank() ->
+                "Ingrese contraseña"
+
+            password.length < 6 ->
+                "La contraseña debe tener al menos 6 caracteres"
+
+            else -> null // ✅ Todo correcto
+        }
     }
 
+
+    fun registerUser(nombre: String, email: String, password: String) {
+        viewModelScope.launch {
+            try {
+                // 1. Crear usuario en Firebase Auth
+                val uid = autRepository.registerWithEmail(email, password)
+
+
+                usuarioRepository.crearYObservarUsuario(uid, email,nombre)
+
+                // 4. Actualizar estado UI
+                _isAuthenticated.value = true
+                _authState.value = "Registro exitoso"
+
+            } catch (e: Exception) {
+                UserSession.isAuthenticated = false
+                _isAuthenticated.value = false
+                _authState.value = e.localizedMessage
+            }
+        }
+    }
+//
+//    fun resetPassword(email: String) {
+//        auth.sendPasswordResetEmail(email)
+//            .addOnCompleteListener { task ->
+//                if (task.isSuccessful) {
+//                    _authState.value = "Se ha enviado un enlace de recuperación a su correo"
+//                } else {
+//                    _authState.value = task.exception?.localizedMessage
+//                }
+//            }
+//    }
+
     fun logout() {
-        auth.signOut()
+        autRepository.logout()
         UserSession.clear()
         _usuarioLiveData.value = null
         _isAuthenticated.value = false

@@ -3,7 +3,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope // 👈 Importar la extensión
 
 import com.proyect.ocean_words.model.NivelEstado
-import com.proyect.ocean_words.repositories.NivelRepository
+import com.proyect.ocean_words.domain.repositories.NivelRepository
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow

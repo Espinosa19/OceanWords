@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -28,9 +30,12 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.withStyle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.proyect.ocean_words.R
 import com.proyect.ocean_words.utils.MusicManager
+import com.proyect.ocean_words.view.rutas.Rutas
 
 @Composable
 fun RegisterScreen(
@@ -43,12 +48,9 @@ fun RegisterScreen(
 
     var fullname by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
-    var confirmEmail by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
-    var confirmPassword by remember { mutableStateOf("") }
 
     var passwordVisible by remember { mutableStateOf(false) }
-    var confirmPasswordVisible by remember { mutableStateOf(false) }
 
     val authMessage by authViewModel.authState.collectAsState()
     var showErrorDialog by remember { mutableStateOf(false) }
@@ -57,9 +59,9 @@ fun RegisterScreen(
 
     val fullnameFocus = remember { FocusRequester() }
     val emailFocus = remember { FocusRequester() }
-    val confirmEmailFocus = remember { FocusRequester() }
     val passwordFocus = remember { FocusRequester() }
-    val confirmPasswordFocus = remember { FocusRequester() }
+    val viewModel: AuthViewModel = viewModel()
+    val focusManager = LocalFocusManager.current
 
     // Animación inicial
     val scaleAnim = remember { Animatable(0.8f) }
@@ -185,7 +187,6 @@ fun RegisterScreen(
                 isError = email.isNotEmpty() && !isValidEmailR(email),
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
                 keyboardActions = KeyboardActions(
-                    onNext = { confirmEmailFocus.requestFocus() }
                 )
             )
             if (email.isNotEmpty() && !isValidEmailR(email)) {
@@ -195,34 +196,16 @@ fun RegisterScreen(
             Spacer(Modifier.height(10.dp))
 
             // ------ CONFIRMAR EMAIL ------
-            OutlinedTextField(
-                value = confirmEmail,
-                onValueChange = { confirmEmail = it },
-                placeholder = { Text("Confirmar correo") },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .focusRequester(confirmEmailFocus),
-                shape = RoundedCornerShape(12.dp),
-                isError = confirmEmail.isNotEmpty() && confirmEmail != email,
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-                keyboardActions = KeyboardActions(
-                    onNext = { passwordFocus.requestFocus() }
-                )
-            )
-            if (confirmEmail.isNotEmpty() && confirmEmail != email) {
-                Text("Los correos no coinciden", color = Color.Red, fontSize = 12.sp)
-            }
-
             Spacer(Modifier.height(10.dp))
-
-            // ------ PASSWORD ------
             OutlinedTextField(
                 value = password,
                 onValueChange = { password = it },
                 placeholder = { Text("Contraseña") },
-                visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                visualTransformation = if (passwordVisible)
+                    VisualTransformation.None else PasswordVisualTransformation(),
                 trailingIcon = {
-                    val icon = if (passwordVisible) R.drawable.ic_visibility else R.drawable.ic_visibility_off
+                    val icon = if (passwordVisible)
+                        R.drawable.ic_visibility else R.drawable.ic_visibility_off
                     IconButton(onClick = { passwordVisible = !passwordVisible }) {
                         Icon(painterResource(id = icon), contentDescription = null)
                     }
@@ -231,65 +214,32 @@ fun RegisterScreen(
                     .fillMaxWidth()
                     .focusRequester(passwordFocus),
                 shape = RoundedCornerShape(12.dp),
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                keyboardOptions = KeyboardOptions(
+                    imeAction = ImeAction.Done,
+                    keyboardType = KeyboardType.Password
+                ),
                 keyboardActions = KeyboardActions(
-                    onNext = { confirmPasswordFocus.requestFocus() }
+                    onDone = {
+                        focusManager.clearFocus() // 🔑 NO borra texto
+                    }
                 )
             )
 
             Spacer(Modifier.height(10.dp))
 
-            OutlinedTextField(
-                value = confirmPassword,
-                onValueChange = { confirmPassword = it },
-                placeholder = { Text("Confirmar contraseña") },
-                visualTransformation = if (confirmPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-                trailingIcon = {
-                    val icon = if (confirmPasswordVisible) R.drawable.ic_visibility else R.drawable.ic_visibility_off
-                    IconButton(onClick = { confirmPasswordVisible = !confirmPasswordVisible }) {
-                        Icon(painterResource(id = icon), contentDescription = null)
-                    }
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .focusRequester(confirmPasswordFocus),
-                shape = RoundedCornerShape(12.dp),
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-                keyboardActions = KeyboardActions(
-                    onDone = {
-                        musicManager.playClickSound()
-                        when {
-                            fullname.isBlank() -> { errorMessage = "Ingrese su nombre completo"; showErrorDialog = true }
-                            !isValidName(fullname) -> { errorMessage = "El nombre solo puede contener letras"; showErrorDialog = true }
-                            email.isBlank() -> { errorMessage = "Ingrese correo electrónico"; showErrorDialog = true }
-                            !isValidEmailR(email) -> { errorMessage = "Correo inválido"; showErrorDialog = true }
-                            confirmEmail.isBlank() -> { errorMessage = "Confirme su correo"; showErrorDialog = true }
-                            email != confirmEmail -> { errorMessage = "Los correos no coinciden"; showErrorDialog = true }
-                            password.isBlank() -> { errorMessage = "Ingrese contraseña"; showErrorDialog = true }
-                            confirmPassword.isBlank() -> { errorMessage = "Confirme su contraseña"; showErrorDialog = true }
-                            password != confirmPassword -> { errorMessage = "Las contraseñas no coinciden"; showErrorDialog = true }
-                            else -> authViewModel.registerUser(fullname,email,password)
-                        }
-                    }
-                )
-            )
 
             Spacer(Modifier.height(20.dp))
 
             Button(
                 onClick = {
                     musicManager.playClickSound()
-                    when {
-                        fullname.isBlank() -> { errorMessage = "Ingrese su nombre completo"; showErrorDialog = true }
-                        !isValidName(fullname) -> { errorMessage = "El nombre solo puede contener letras"; showErrorDialog = true }
-                        email.isBlank() -> { errorMessage = "Ingrese correo electrónico"; showErrorDialog = true }
-                        !isValidEmailR(email) -> { errorMessage = "Correo inválido"; showErrorDialog = true }
-                        confirmEmail.isBlank() -> { errorMessage = "Confirme su correo"; showErrorDialog = true }
-                        email != confirmEmail -> { errorMessage = "Los correos no coinciden"; showErrorDialog = true }
-                        password.isBlank() -> { errorMessage = "Ingrese contraseña"; showErrorDialog = true }
-                        confirmPassword.isBlank() -> { errorMessage = "Confirme su contraseña"; showErrorDialog = true }
-                        password != confirmPassword -> { errorMessage = "Las contraseñas no coinciden"; showErrorDialog = true }
-                        else -> authViewModel.registerUser(fullname,email,password)
+                    val error = viewModel.validarRegistro(fullname, email, password)
+
+                    if (error != null) {
+                        errorMessage = error
+                        showErrorDialog = true
+                    } else {
+                        authViewModel.registerUser(fullname, email, password)
                     }
                 },
                 modifier = Modifier
@@ -308,6 +258,19 @@ fun RegisterScreen(
                 navController.popBackStack() }) {
                 Text("¿Ya tienes cuenta? Iniciar sesión", color = Color.Black)
             }
+            Spacer(Modifier.height(12.dp))
+            TextButton(onClick = {
+                musicManager.playClickSound()
+                navController.navigate(Rutas.PROCESOACCESO)
+            }) {
+                Icon(
+                    imageVector = Icons.Default.ArrowBack,
+                    contentDescription = "Volver"
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("Volver")
+            }
+
         }
     }
 
