@@ -137,6 +137,11 @@ class UsuariosViewModel : ViewModel() {
             newVidas
         }
     }
+    fun descontarMonedas(uid: String) {
+        viewModelScope.launch {
+            usuarioRepository.descontarMonedas(uid, 50)
+        }
+    }
 
     fun reiniciarVidas() {
         _vidas.value = listOf(true, true, true)

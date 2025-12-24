@@ -1,22 +1,16 @@
 package com.proyect.ocean_words.domain.repositories
 
 import android.util.Log
-import com.google.firebase.Firebase
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.firestore
 import com.google.firebase.firestore.snapshots
 import com.proyect.ocean_words.model.UsuariosEstado
 import com.proyect.ocean_words.model.progreso_Niveles
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
 class UsuarioRepository(
@@ -49,6 +43,22 @@ class UsuarioRepository(
         return buscarUsuarioPorId(uid)
     }
 
+    suspend fun descontarMonedas(uid: String, monedas: Int): Result<Unit> {
+
+        if (uid.isBlank()) return Result.failure(Exception("UID vacío"))
+        if (monedas <= 0) return Result.failure(Exception("Monto inválido"))
+
+        return try {
+            usuarioRef.document(uid)
+                .update("monedas_obtenidas", FieldValue.increment(-monedas.toLong()))
+                .await()
+
+            Result.success(Unit)
+
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
 
     fun observarUsuario(id: String): Flow<UsuariosEstado?> {
         return buscarUsuarioPorId(id)

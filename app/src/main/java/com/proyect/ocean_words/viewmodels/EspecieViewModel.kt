@@ -4,6 +4,7 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.proyect.ocean_words.model.EspecieEstado
 import com.proyect.ocean_words.model.SlotEstado
 import com.proyect.ocean_words.domain.repositories.EspecieRepository
@@ -11,6 +12,7 @@ import com.proyect.ocean_words.model.UsuariosEstado
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 import kotlin.text.lowercase
 
 class EspecieViewModel (
@@ -204,22 +206,33 @@ class EspecieViewModel (
     }
 
     fun obtenerPista() {
-        if (_pistaUsada.value) {
-            _mostrarMensajePistaUsada.value = true
-            return
-        }
-        // 1️⃣ Encuentra todos los índices donde la letra aún no está colocada
-        val indicesVacios = respuestaJugador.mapIndexedNotNull { index, slot ->
-            if (slot?.char == null) index else null
-        }
-        if (indicesVacios.isEmpty()) return
-        // 2️⃣ Elegir un índice vacío aleatorio (para que la pista sea aleatoria)
-        val indexPista = indicesVacios.random()
+        val monedas= usuariosViewModel.monedasUsuario.value?.toInt()
+        if (monedas != null) {
+            if(monedas >= 50){
 
-        // 3️⃣ Colocar la letra correcta en ese índice
-        val letraCorrecta = animalSinEspacios[indexPista]
-        respuestaJugador[indexPista] = SlotEstado(char = letraCorrecta, esCorrecto = true)
-        _pistaUsada.value = true
+                if (_pistaUsada.value) {
+                    _mostrarMensajePistaUsada.value = true
+                    return
+                }
+                // 1️⃣ Encuentra todos los índices donde la letra aún no está colocada
+                val indicesVacios = respuestaJugador.mapIndexedNotNull { index, slot ->
+                    if (slot?.char == null) index else null
+                }
+                if (indicesVacios.isEmpty()) return
+                // 2️⃣ Elegir un índice vacío aleatorio (para que la pista sea aleatoria)
+                val indexPista = indicesVacios.random()
+
+                // 3️⃣ Colocar la letra correcta en ese índice
+                val letraCorrecta = animalSinEspacios[indexPista]
+                respuestaJugador[indexPista] = SlotEstado(char = letraCorrecta, esCorrecto = true)
+                _pistaUsada.value = true
+                viewModelScope.launch {
+                    usuariosViewModel.descontarMonedas(userId)
+                }
+            }else{
+
+            }
+        }
     }
     fun mensajePistaMostrado() {
         _mostrarMensajePistaUsada.value = false
