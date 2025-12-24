@@ -39,7 +39,7 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 
 import com.proyect.ocean_words.R
-import com.proyect.ocean_words.auth.UserSession
+import com.proyect.ocean_words.viewmodels.UserSession
 import com.proyect.ocean_words.viewmodels.AdivinaEspecieViewModelFactory
 import com.proyect.ocean_words.model.SlotEstado
 import com.proyect.ocean_words.model.UsuariosEstado
@@ -59,6 +59,7 @@ import com.proyect.ocean_words.view.theme.VerdeClaro
 import com.proyect.ocean_words.viewmodels.EspecieViewModel
 import com.proyect.ocean_words.viewmodels.NivelViewModel
 import com.proyect.ocean_words.viewmodels.ProgresoViewModel
+import com.proyect.ocean_words.viewmodels.UsuariosViewModel
 import kotlinx.coroutines.launch
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
@@ -78,10 +79,13 @@ fun OceanWordsGameUI(
     especieId: String,
     nivelViewModel: NivelViewModel,
     imagen: String?,
-    progresoViewModel: ProgresoViewModel
+    progresoViewModel: ProgresoViewModel,
+    usuarioViwModel: UsuariosViewModel,
 ) {
-    val vidas by nivelViewModel.vidas.collectAsState()
-    val timeToNextLife by nivelViewModel.timeToNextLife.collectAsState()
+    val viewModel: EspecieViewModel = viewModel(
+        factory = AdivinaEspecieViewModelFactory(animal, dificultad,usuarioViwModel)
+    )
+
 
     Box(
         modifier = Modifier
@@ -102,12 +106,16 @@ fun OceanWordsGameUI(
                 .fillMaxSize()
         ) {
             // 1. Encabezado (Score, Time)
-            HeaderSection(animal,dificultad,navController,vidas = vidas, timeToNextLife = timeToNextLife, nivelViewModel = nivelViewModel)
+            HeaderSection(
+                navController,
+                nivelViewModel = nivelViewModel,
+                usuariosViewModel = usuarioViwModel
+            )
 
             Spacer(modifier = Modifier.height(20.dp))
 
             // 2. Aquí se llama al componente principal del juego con toda la lógica de estado
-            JuegoAnimal(animal, dificultad, animalQuestion, navController, musicManager, onMusicToggle, isMusicEnabled,especieId, nivelViewModel,imagen,progresoViewModel,levelId)
+            JuegoAnimal(animal, dificultad, animalQuestion, navController, musicManager, onMusicToggle, isMusicEnabled,especieId, nivelViewModel,imagen,progresoViewModel,levelId,viewModel,usuarioViwModel)
         }
 
 
@@ -128,15 +136,15 @@ fun JuegoAnimal(
     nivelViewModel: NivelViewModel,
     imagen: String?,
     progresoViewModel: ProgresoViewModel,
-    levelId: Int
+    levelId: Int,
+    viewModel: EspecieViewModel,
+    usuarioViwModel: UsuariosViewModel
 ) {
-    val viewModel: EspecieViewModel = viewModel(
-        factory = AdivinaEspecieViewModelFactory(animal, dificultad, nivelViewModel)
-    )
+
 
     val animalRandom = viewModel.animalRandom
     val letrasPorFila = 7 // Asumiendo que esta es una constante de la UI
-    val vidas by nivelViewModel.vidas.collectAsState()
+    val vidas by usuarioViwModel.vidas.collectAsState()
     val allLivesLost = vidas.all { !it }
     val isGameEnabled = !allLivesLost
     val visible = viewModel.visible
@@ -631,7 +639,8 @@ fun OceanWordsGameRoute(
     especieId: String,
     nivelViewModel: NivelViewModel = viewModel(),
     imagen: String?,
-    progresoViewModel: ProgresoViewModel
+    progresoViewModel: ProgresoViewModel,
+    usuarioViwModel: UsuariosViewModel,
 ) {
 
     LaunchedEffect(isMusicGloballyEnabled, isAppInForeground) {
@@ -653,13 +662,13 @@ fun OceanWordsGameRoute(
         dificultad = dificultad,
         imagen=imagen,
         animalQuestion = defaultQuestion,
-
         onMusicToggle = onMusicToggle,
 
         isMusicEnabled = isMusicGloballyEnabled,
         especieId = especieId,
         nivelViewModel = nivelViewModel,
-        progresoViewModel =progresoViewModel
+        progresoViewModel =progresoViewModel,
+        usuarioViwModel= usuarioViwModel
     )
 }
 

@@ -1,23 +1,32 @@
 package com.proyect.ocean_words.domain.repositories
 
 import android.util.Log
+import com.google.firebase.Firebase
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.firestore
 import com.google.firebase.firestore.snapshots
 import com.proyect.ocean_words.model.UsuariosEstado
 import com.proyect.ocean_words.model.progreso_Niveles
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
 class UsuarioRepository(
     private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
 ) {
-
+    private val _monedasUsuario = MutableStateFlow<Int?>(null)
+    val monedasUsuario: StateFlow<Int?> = _monedasUsuario
     private val usuarioRef = firestore.collection("usuarios")
-
+    private val _vidas = MutableStateFlow<List<Boolean>?>(null)
+    val vidas: StateFlow<List<Boolean>?> = _vidas
     /**
      * Crea un usuario en Firestore con el UID proporcionado
      */
@@ -33,13 +42,60 @@ class UsuarioRepository(
     fun crearUsuario(uid: String, email: String, nombre: String): Flow<UsuariosEstado?> {
         // Primero crear el usuario si no existe
         usuarioRef.document(uid).set(
-            UsuariosEstado(nombre = nombre, email = email, id = uid, progreso_niveles = emptyList())
+            UsuariosEstado(nombre = nombre, email = email, monedas_obtenidas = 0, id = uid, progreso_niveles = emptyList())
         )
 
         // Luego retornamos el flow para escuchar cambios en tiempo real
         return buscarUsuarioPorId(uid)
     }
 
+
+    fun observarUsuario(id: String): Flow<UsuariosEstado?> {
+        return buscarUsuarioPorId(id)
+    }
+
+
+    suspend fun actualizarVidas(id: String?, vidas: List<Boolean>?) {
+
+        // 1️⃣ Validaciones básicas
+        if (id.isNullOrBlank()) {
+            Log.e("Firestore", "❌ ID de usuario nulo o vacío")
+            return
+        }
+
+        if (vidas.isNullOrEmpty()) {
+            Log.e("Firestore", "❌ Lista de vidas nula o vacía")
+            return
+        }
+
+        if (vidas.any { it !is Boolean }) {
+            Log.e("Firestore", "❌ Lista de vidas inválida")
+            return
+        }
+
+        try {
+            // 2️⃣ Referencia segura
+            val db = FirebaseFirestore.getInstance()
+            val docRef = db.collection("usuarios").document(id)
+
+            // 3️⃣ Verificar que el documento exista
+            val snapshot = docRef.get().await()
+            if (!snapshot.exists()) {
+                Log.e("Firestore", "❌ El documento del usuario no existe: $id")
+                return
+            }
+
+            // 4️⃣ Actualizar campo
+            docRef
+                .update("vidas_restantes", vidas)
+                .await()
+
+            Log.d("Firestore", "✅ Vidas actualizadas correctamente: $vidas")
+
+        } catch (e: Exception) {
+            Log.e("Firestore", "🔥 Error al actualizar vidas", e)
+        }
+    }
 
     /**
      * Escucha los cambios del usuario en tiempo real

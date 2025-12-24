@@ -1,7 +1,5 @@
 package com.proyect.ocean_words.view
 
-import android.R.attr.scaleX
-import android.R.attr.scaleY
 import android.util.Log
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Image
@@ -21,7 +19,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -52,6 +49,7 @@ import androidx.navigation.NavHostController
 import com.proyect.ocean_words.R
 import com.proyect.ocean_words.model.LevelEstado
 import com.proyect.ocean_words.model.NivelEstado
+import com.proyect.ocean_words.model.UsuariosEstado
 import com.proyect.ocean_words.model.progreso_Niveles
 import com.proyect.ocean_words.utils.MusicManager
 import com.proyect.ocean_words.view.screens.BottomNavBar
@@ -61,6 +59,8 @@ import com.proyect.ocean_words.view.screens.LifeRechargeBubble
 import com.proyect.ocean_words.view.screens.configuracionView
 import com.proyect.ocean_words.viewmodels.NivelViewModel
 import com.proyect.ocean_words.viewmodels.ProgresoViewModel
+import com.proyect.ocean_words.viewmodels.UserSession
+import com.proyect.ocean_words.viewmodels.UsuariosViewModel
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 
@@ -79,13 +79,22 @@ fun caminoNiveles(
     niveles: List<NivelEstado>,
     progreso: List<progreso_Niveles>,
     onItemClick: () -> Unit,
-    vidas: List<Boolean>,
-    timeToNextLife: String
-) {
+    usuarioViwModel: UsuariosViewModel,
+
+    ) {
     val listState = rememberLazyListState()
     val density = LocalDensity.current
     var showConfigDialog by remember { mutableStateOf(false) }
     val bubbleHeight = 35.dp
+    val usuarioDatos: UsuariosEstado? = UserSession.currentUser
+    val userId : String= (usuarioDatos?.id).toString()
+
+    LaunchedEffect(userId) {
+        usuarioViwModel.observarMonedasVidasUsuario(userId)
+    }
+    val monedas by usuarioViwModel.monedasUsuario.collectAsState()
+    val vidas by usuarioViwModel.vidas.collectAsState()
+    val timeToNextLife by usuarioViwModel.timeToNextLife.collectAsState()
     val isRechargeNeeded = vidas.any { !it }
     val isTimerRunning = timeToNextLife.isNotEmpty()
     val infiniteTransition = rememberInfiniteTransition(label = "general_animations")
@@ -439,9 +448,9 @@ fun CaminoNivelesRoute(
     viewModel: NivelViewModel,
     isMusicGloballyEnabled: Boolean,
     onMusicToggle: (Boolean) -> Unit,
-    vidas: List<Boolean>,
-    timeToNextLife: String,
-) {
+    usuarioViwModel: UsuariosViewModel,
+
+    ) {
     val isSplashShown by viewModel.isSplashShown.collectAsState()
     val niveles by viewModel.niveles.collectAsState(initial = emptyList())
     val totalNivelesCargados = niveles.size
@@ -507,9 +516,8 @@ fun CaminoNivelesRoute(
                     onMusicToggle = onMusicToggle,
                     isMusicEnabled = isMusicGloballyEnabled,
                     onItemClick = musicManager::playClickSound,
-                    vidas = vidas,
-                    timeToNextLife = timeToNextLife,
-                    progreso = progresoList
+                    progreso = progresoList,
+                    usuarioViwModel = usuarioViwModel
                 )
             }
         }

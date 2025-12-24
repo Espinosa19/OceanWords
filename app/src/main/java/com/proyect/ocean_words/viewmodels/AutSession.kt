@@ -1,4 +1,4 @@
-package com.proyect.ocean_words.auth
+package com.proyect.ocean_words.viewmodels
 
 import com.proyect.ocean_words.model.UsuariosEstado
 

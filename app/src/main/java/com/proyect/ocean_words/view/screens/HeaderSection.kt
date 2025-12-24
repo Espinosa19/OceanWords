@@ -16,6 +16,7 @@ import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -35,35 +36,45 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.proyect.ocean_words.R
+import com.proyect.ocean_words.model.UsuariosEstado
 import com.proyect.ocean_words.view.rutas.Rutas
 import com.proyect.ocean_words.view.theme.Blue // Asumo que son colores definidos en tu tema
 import com.proyect.ocean_words.view.theme.LightOlive
 import com.proyect.ocean_words.view.theme.azulCeleste
-import com.proyect.ocean_words.viewmodels.AdivinaEspecieViewModelFactory
 import com.proyect.ocean_words.viewmodels.EspecieViewModel
 import com.proyect.ocean_words.viewmodels.NivelViewModel
+import com.proyect.ocean_words.viewmodels.UserSession
+import com.proyect.ocean_words.viewmodels.UsuariosViewModel
 
 // NOTA: Tu código original usaba IndicatorBackgroundColor, Orange, OrangeDeep, y Purple40
 // pero no estaban definidos en el código que enviaste. Asumo que se definen en el archivo theme.
 
 @Composable
 fun HeaderSection(
-    animal: String,
-    dificultad: String,
     navController: NavController,
-    vidas: List<Boolean>,
-    timeToNextLife: String,
-    nivelViewModel: NivelViewModel
-    ) {
+    nivelViewModel: NivelViewModel,
+    usuariosViewModel: UsuariosViewModel
+) {
 
+    val usuarioDatos: UsuariosEstado? = UserSession.currentUser
+    val userId : String= (usuarioDatos?.id).toString()
+    LaunchedEffect(Unit) {
+        usuariosViewModel.checkAndRegenerateLife(userId)
+    }
+
+    LaunchedEffect(userId) {
+        usuariosViewModel.observarMonedasVidasUsuario(userId)
+    }
+    val monedas by usuariosViewModel.monedasUsuario.collectAsState()
+    val vidas by usuariosViewModel.vidas.collectAsState()
+    val timeToNextLife by usuariosViewModel.timeToNextLife.collectAsState()
     val showNoLivesDialog = remember { mutableStateOf(false) }
     val allLivesLost = vidas.all { !it }
 
     LaunchedEffect(allLivesLost) {
-        if (allLivesLost) {
+        if (allLivesLost == true) {
             showNoLivesDialog.value = true
         }
     }
@@ -103,6 +114,7 @@ fun HeaderSection(
 
             HeaderIndicatorRow(
                 vidas = vidas,
+                monedas = monedas,
                 timeToNextLife = timeToNextLife,
                 onBackClick = {
                     navController.popBackStack(
@@ -110,7 +122,7 @@ fun HeaderSection(
                         inclusive = false
                     )
                 },
-                redireccionarClick={
+                redireccionarClick ={
                     navController.navigate("game_shop")
                 })
         }
@@ -119,12 +131,13 @@ fun HeaderSection(
     }
 }@Composable
 fun HeaderIndicatorRow(
-    vidas: List<Boolean>,
+    vidas: List<Boolean>?,
     timeToNextLife: String,
     onBackClick: () -> Unit,
-    redireccionarClick: () -> Unit
+    redireccionarClick: () -> Unit,
+    monedas: Int?
 ) {
-    val isRechargeNeeded = vidas.any { !it }
+    val isRechargeNeeded = vidas?.any { !it }
     val isTimerRunning = timeToNextLife.isNotEmpty()
 
     val bubbleHeight = 35.dp // Altura aproximada de la burbuja
@@ -147,7 +160,7 @@ fun HeaderIndicatorRow(
             ) {
                 CentralIndicatorBox(vidas = vidas)
 
-                if (isRechargeNeeded && isTimerRunning) {
+                if (isRechargeNeeded == true && isTimerRunning) {
                     LifeRechargeBubble(
                         timeRemaining = timeToNextLife,
                         modifier = Modifier
@@ -157,7 +170,7 @@ fun HeaderIndicatorRow(
                 }
             }
 
-            GameIndicator(value = "500",redireccionarClick,true)
+            GameIndicator(value = monedas.toString(),redireccionarClick,true)
         }
     }
 }
@@ -328,7 +341,7 @@ fun CustomBackButton(onClick: () -> Unit) {
  * Componente Indicador Central (Corregido para mostrar corazones llenos/vacíos)
  */
 @Composable
-fun CentralIndicatorBox(vidas: List<Boolean>) {
+fun CentralIndicatorBox(vidas: List<Boolean>?) {
     // ... [Variables de ancho, alto y colores, etc. - Mantenemos esto igual] ...
     val indicatorWidth = 100.dp
     val indicatorHeight = 40.dp
@@ -353,7 +366,7 @@ fun CentralIndicatorBox(vidas: List<Boolean>) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             // ITERACIÓN CORREGIDA: Iteramos sobre cada 'vida'
-            vidas.forEach { isLifeActive ->
+            vidas?.forEach { isLifeActive ->
                 val imageResource = if (isLifeActive) {
                     R.drawable.vidas // Asumo que 'vidas' es el corazón lleno
                 } else {
@@ -424,12 +437,20 @@ fun GameIndicator(
 
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = "$value",
+            when (value) {
+                null -> {
+                    CircularProgressIndicator()
+                }
+                else -> {
+                    Text(
+                        text = "$value",
 
-                color = Color.White,
-                style = MaterialTheme.typography.labelMedium,
-            )
+                        color = Color.White,
+                        style = MaterialTheme.typography.labelMedium,
+                    )
+                }
+            }
+
             if(visible) {
 
                 Button(

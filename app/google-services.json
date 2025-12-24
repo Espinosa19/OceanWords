@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "438998684991",
+    "firebase_url": "https://oceanwords-20718-default-rtdb.firebaseio.com",
     "project_id": "oceanwords-20718",
     "storage_bucket": "oceanwords-20718.firebasestorage.app"
   },
@@ -12,7 +13,20 @@
           "package_name": "com.proyect.ocean_words"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "438998684991-5ptfof9nhef36d4tf37nq606k6g2nkju.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.proyect.ocean_words",
+            "certificate_hash": "516fc20521efb343ed5d6d41da7de7d493dc62f0"
+          }
+        },
+        {
+          "client_id": "438998684991-1k6v355oqt8t6udroq31rb6n9iq220lk.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyC0dUCW7PuQUWxCxTdSZYcCyrXz60zUvps"
@@ -20,7 +34,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "438998684991-1k6v355oqt8t6udroq31rb6n9iq220lk.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

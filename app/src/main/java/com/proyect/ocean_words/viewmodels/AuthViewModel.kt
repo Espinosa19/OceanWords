@@ -1,9 +1,11 @@
-package com.proyect.ocean_words.auth
+package com.proyect.ocean_words.viewmodels
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.proyect.ocean_words.view.auth.isValidEmailR
+import com.proyect.ocean_words.view.auth.isValidName
 import com.proyect.ocean_words.model.UsuariosEstado
 import com.proyect.ocean_words.domain.repositories.AutenRepository
 import com.proyect.ocean_words.domain.repositories.UsuarioRepository
@@ -11,8 +13,14 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import com.proyect.ocean_words.core.security.JwtManager
+import kotlinx.coroutines.tasks.await
 
-class AuthViewModel : ViewModel() {
+class AuthViewModel(
+    private val jwtManager: JwtManager
+
+) : ViewModel() {
+
     val usuarioRepository = UsuarioRepository()
     val autRepository = AutenRepository()
     private val _usuarioLiveData = MutableLiveData<UsuariosEstado?>()
@@ -32,7 +40,13 @@ class AuthViewModel : ViewModel() {
 
                 usuarioRepository.buscarUsuarioPorId(uid).collect { usuario ->
                     if (usuario != null) {
-                        // Guardamos datos en LiveData y en UserSession
+
+
+                        val user  = autRepository.getCurrentUser()
+                        val tokenResult = user?.getIdToken(true)?.await()
+                        val token = tokenResult?.token
+
+                        token?.let { jwtManager.save(it) }
                         _usuarioLiveData.value = usuario
                         UserSession.currentUser = usuario
                         UserSession.isAuthenticated = true
@@ -53,6 +67,7 @@ class AuthViewModel : ViewModel() {
             }
         }
     }
+
 
 
     fun loginWithGoogle(idToken: String) {
@@ -79,13 +94,19 @@ class AuthViewModel : ViewModel() {
 
                     val nombre = firebaseUser?.displayName ?: "Usuario"
                     val correo = firebaseUser?.email ?: ""
-
                     val usuario=usuarioRepository.crearUsuario(uid, correo,nombre)
                     usuario
 
                 } else {
                     usuario
                 }
+
+                val tokenResult = autRepository
+                    .getCurrentUser()
+                    ?.getIdToken(true)
+                    ?.await()
+
+                tokenResult?.token?.let { jwtManager.save(it) }
 
                 // 🔹 4. Guardar sesión
                 _usuarioLiveData.value = usuario
@@ -99,6 +120,47 @@ class AuthViewModel : ViewModel() {
                 UserSession.isAuthenticated = false
                 _isAuthenticated.value = false
                 _authState.value = e.localizedMessage ?: "Error al iniciar sesión con Google"
+            }
+        }
+    }
+    fun restoreSessionIfPossible() {
+        viewModelScope.launch {
+            try {
+                val user = autRepository.getCurrentUser()
+
+                if (user == null) {
+                    _isAuthenticated.value = false
+                    return@launch
+                }
+
+                val usuario = usuarioRepository
+                    .buscarUsuarioPorId(user.uid)
+                    .first()
+
+                if (usuario == null) {
+                    _isAuthenticated.value = false
+                    UserSession.isAuthenticated = false
+                    return@launch
+                }
+
+                _usuarioLiveData.value = usuario
+                UserSession.currentUser = usuario
+                UserSession.isAuthenticated = true
+                _isAuthenticated.value = true
+
+            } catch (e: Exception) {
+                _isAuthenticated.value = false
+                UserSession.isAuthenticated = false
+            }
+        }
+    }
+    fun checkSession() {
+        viewModelScope.launch {
+            val user = autRepository.getCurrentUser()
+            if (user != null) {
+                restoreSessionIfPossible()
+            } else {
+                _isAuthenticated.value = false
             }
         }
     }

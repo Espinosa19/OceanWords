@@ -1,4 +1,4 @@
-package com.proyect.ocean_words.auth
+package com.proyect.ocean_words.view.auth
 
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Image
@@ -36,6 +36,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.proyect.ocean_words.R
 import com.proyect.ocean_words.utils.MusicManager
 import com.proyect.ocean_words.view.rutas.Rutas
+import com.proyect.ocean_words.viewmodels.AuthViewModel
 
 @Composable
 fun RegisterScreen(

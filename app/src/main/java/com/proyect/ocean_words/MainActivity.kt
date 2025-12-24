@@ -42,6 +42,7 @@ class MainActivity : ComponentActivity() {
 
         val googleSignInClient = GoogleSignIn.getClient(this, gso)
 
+
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
@@ -52,7 +53,7 @@ class MainActivity : ComponentActivity() {
                 val navController = rememberNavController()
 
                 Scaffold(modifier = Modifier.fillMaxSize()) {
-                    NavManager(musicManager, isAppInForeground,nivelViewModel,progresoViewModel,googleSignInClient)
+                    NavManager(musicManager, isAppInForeground,nivelViewModel,progresoViewModel,googleSignInClient,usuarioViwModel)
                 }
             }
         }

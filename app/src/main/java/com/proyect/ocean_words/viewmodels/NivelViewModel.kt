@@ -40,81 +40,9 @@ class NivelViewModel : ViewModel() {
         mostrarNiveles()
     }
 
-    private val MAX_LIVES = 3
-    private val RECHARGE_COOLDOWN_MS = 1 * 60 * 1000L
-
-    private val _vidas = MutableStateFlow(listOf(true, true, true))
-    val vidas: StateFlow<List<Boolean>> = _vidas.asStateFlow()
-
-    private val _lastLifeLossTime = MutableStateFlow<Long?>(null)
-
     // Temporizador de recarga
-    val timeToNextLife: StateFlow<String> = flow {
-        while(true) {
-            val lastLoss = _lastLifeLossTime.value
-            if (lastLoss != null) {
-                val timeElapsed = System.currentTimeMillis() - lastLoss
-                val timeLeft = RECHARGE_COOLDOWN_MS - timeElapsed
 
-                if (timeLeft > 0) {
-                    emit(formatTime(timeLeft))
-                } else {
-                    regenerateOneLifeAndCheckRestart()
-                }
-            } else {
-                emit("")
-            }
-            delay(1000)
-        }
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "")
 
-    private fun formatTime(ms: Long): String {
-        val totalSeconds = ms / 1000
-        val minutes = totalSeconds / 60
-        val seconds = totalSeconds % 60
-        return String.format("%02d:%02d", minutes, seconds)
-    }
-
-    fun perderVidaGlobal() {
-        val index = _vidas.value.indexOfLast { it }
-        if (index != -1) {
-            _vidas.update { currentVidas ->
-                currentVidas.toMutableList().apply {
-                    this[index] = false
-                }
-            }
-
-            if (_lastLifeLossTime.value == null && _vidas.value.count { !it } > 0) {
-                _lastLifeLossTime.value = System.currentTimeMillis()
-            }
-        }
-    }
-
-    private fun regenerateOneLifeAndCheckRestart() {
-        _vidas.update { currentVidas ->
-            val firstLostIndex = currentVidas.indexOf(false)
-            if (firstLostIndex != -1) {
-                val newVidas = currentVidas.toMutableList().apply {
-                    this[firstLostIndex] = true
-                }
-
-                if (newVidas.count { it } < MAX_LIVES) {
-                    _lastLifeLossTime.value = System.currentTimeMillis()
-                } else {
-                    _lastLifeLossTime.value = null
-                }
-                return@update newVidas
-            } else {
-                _lastLifeLossTime.value = null
-                return@update currentVidas
-            }
-        }
-    }
-
-    fun reiniciarVidas() {
-        _vidas.value = listOf(true, true, true)
-        _lastLifeLossTime.value = null
-    }
 
     fun markSplashAsShown() {
         _isSplashShown.value = true

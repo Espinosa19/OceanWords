@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import com.proyect.ocean_words.model.EspecieEstado
 import com.proyect.ocean_words.model.SlotEstado
 import com.proyect.ocean_words.domain.repositories.EspecieRepository
+import com.proyect.ocean_words.model.UsuariosEstado
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -15,24 +16,24 @@ import kotlin.text.lowercase
 class EspecieViewModel (
     animal: String,
     dificultad: String,
-    private val onPerderVidaGlobal: () -> Unit
+    private val usuariosViewModel: UsuariosViewModel
 ) : ViewModel() {
     private val repository = EspecieRepository()
     private val MAX_LIVES = 3
     private val RECHARGE_COOLDOWN_MS = 1 * 60 * 1000L
     private val _especie = MutableStateFlow<EspecieEstado?>(null)
     val especie = _especie.asStateFlow()
-
     val animalSinEspacios: String = animal.trim().lowercase().replace(" ", "")
     private val tamanoTeclado: Int
     private val _navegarAExito = MutableLiveData<Boolean>()
     val navegarAExito: LiveData<Boolean> = _navegarAExito
-    private val letrasPorFila = 7
 
     private val _pistaUsada = MutableStateFlow(false)
     val pistaUsada: StateFlow<Boolean> = _pistaUsada.asStateFlow()
     private val _mostrarMensajePistaUsada = MutableLiveData<Boolean>()
     val mostrarMensajePistaUsada: LiveData<Boolean> = _mostrarMensajePistaUsada
+    val usuarioDatos: UsuariosEstado? = UserSession.currentUser
+    val userId : String= (usuarioDatos?.id).toString()
 
     /*private val _vidas = MutableStateFlow(listOf(true, true, true))
     val vidas = _vidas.asStateFlow()
@@ -65,9 +66,7 @@ class EspecieViewModel (
         return String.format("%02d:%02d", minutes, seconds)
     }
 
-    fun perderVida() {
-        onPerderVidaGlobal()
-    }
+
 
     val animalRandom: String = if (dificultad != "dificil") {
         shuffleText(animalSinEspacios)
@@ -105,7 +104,7 @@ class EspecieViewModel (
             _navegarAExito.value = true
 
         } else {
-            perderVida()
+            usuariosViewModel.perderVidaGlobal(userId)
             val indicesIncorrectos = mutableListOf<Int>()
             for (i in respuestaJugador.indices) {
                 val letraJugador = respuestaJugador[i]?.char
@@ -242,15 +241,4 @@ class EspecieViewModel (
     private fun shuffleText(text: String): String {
         return text.toList().shuffled().joinToString("")
     }
-//    fun mostrarEspeciePorId(idEspecie: String) {
-//        viewModelScope.launch {
-//            repository.buscarEspeciePorId(idEspecie)
-//                .catch {
-//                    _especie.value = null
-//                }
-//                .collect { especieEncontrada ->
-//                    _especie.value = especieEncontrada
-//                }
-//        }
-//    }
 }

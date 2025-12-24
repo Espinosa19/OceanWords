@@ -69,7 +69,7 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
     // Import the BoM for the Firebase platform
-    implementation(platform("com.google.firebase:firebase-bom:34.6.0"))
+    implementation(platform("com.google.firebase:firebase-bom:34.7.0"))
     implementation ("com.google.android.gms:play-services-auth:21.0.0")
 
     // Add the dependency for the Firebase Authentication library

@@ -12,6 +12,7 @@ class AutenRepository(
         return result.user?.uid ?: throw Exception("UID del usuario es null")
     }
 
+
     /** 🔐 Login con Google */
     suspend fun loginWithGoogle(idToken: String): String {
         val credential = GoogleAuthProvider.getCredential(idToken, null)

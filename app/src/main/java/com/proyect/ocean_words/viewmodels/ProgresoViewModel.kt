@@ -6,7 +6,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.firestore.FirebaseFirestore
-import com.proyect.ocean_words.auth.UserSession
 import com.proyect.ocean_words.model.EspecieEstado
 import com.proyect.ocean_words.model.UsuariosEstado
 import com.proyect.ocean_words.model.progreso_Niveles

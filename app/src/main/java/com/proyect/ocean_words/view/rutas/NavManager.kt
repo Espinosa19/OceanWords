@@ -17,6 +17,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -24,25 +25,27 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
-import com.proyect.ocean_words.auth.AuthViewModel
+import com.proyect.ocean_words.viewmodels.AuthViewModel
 
-import com.proyect.ocean_words.auth.LoginScreen
-import com.proyect.ocean_words.auth.RegisterScreen
+import com.proyect.ocean_words.view.auth.LoginScreen
+import com.proyect.ocean_words.view.auth.RegisterScreen
 import com.proyect.ocean_words.model.PistaEstado
 import com.proyect.ocean_words.model.sampleShopItems
 import com.proyect.ocean_words.utils.MusicManager
 import com.proyect.ocean_words.view.CaminoNivelesRoute
 import com.proyect.ocean_words.view.LoadingScreenOceanWords
-import com.proyect.ocean_words.view.LoadingScreenOceanWordsAnimated
 import com.proyect.ocean_words.view.OceanWordsGameRoute
+import com.proyect.ocean_words.view.StartScreen
 import com.proyect.ocean_words.view.auth.ProcesoAccesoScreen
 import com.proyect.ocean_words.view.screens.BottomNavBar
 import com.proyect.ocean_words.view.screens.GameShopScreen
 import com.proyect.ocean_words.view.screens.acuario
-import com.proyect.ocean_words.view.screens.caracteristicasEspecieView
+import com.proyect.ocean_words.view.caracteristicasEspecieView
 import com.proyect.ocean_words.view.screens.configuracionView
+import com.proyect.ocean_words.viewmodels.AuthViewModelFactory
 import com.proyect.ocean_words.viewmodels.NivelViewModel
 import com.proyect.ocean_words.viewmodels.ProgresoViewModel
+import com.proyect.ocean_words.viewmodels.UsuariosViewModel
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
 
@@ -77,12 +80,12 @@ fun NavManager(
     nivelViewModel: NivelViewModel,
     progresoViewModel: ProgresoViewModel,
     googleSignInClient: GoogleSignInClient,
+    usuarioViwModel: UsuariosViewModel,
 ) {
     val navController = rememberNavController()
     var targetLevelId by remember { mutableStateOf<Int?>(null) }
     var isMusicGloballyEnabled by remember { mutableStateOf(true) }
-    val vidas by nivelViewModel.vidas.collectAsState()
-    val timeToNextLife by nivelViewModel.timeToNextLife.collectAsState()
+
 
     NavHost(
         navController = navController,
@@ -119,8 +122,7 @@ fun NavManager(
                 onMusicToggle = { isEnabled ->
                     isMusicGloballyEnabled = isEnabled
                 },
-                vidas = vidas,
-                timeToNextLife = timeToNextLife
+                usuarioViwModel = usuarioViwModel
             )
         }
         composable(
@@ -166,7 +168,8 @@ fun NavManager(
                                     isMusicGloballyEnabled = isEnabled
                                 },
                                 nivelViewModel = nivelViewModel,
-                                progresoViewModel =progresoViewModel
+                                progresoViewModel =progresoViewModel,
+                                usuarioViwModel= usuarioViwModel
                             )
                         }
                     }
@@ -326,20 +329,37 @@ fun NavManager(
             }
         }
         composable(Rutas.PROCESOACCESO) {
-            val authViewModel: AuthViewModel = viewModel()
+            val context = LocalContext.current
+
+            val authViewModel: AuthViewModel = viewModel(
+                factory = AuthViewModelFactory(context)
+            )
             ProcesoAccesoScreen(navController, authViewModel, musicManager = musicManager, isMusicGloballyEnabled = isMusicGloballyEnabled, isAppInForeground = isAppInForeground,googleSignInClient)
         }
         composable(Rutas.LOGIN) {
-            val authViewModel: AuthViewModel = viewModel()
+            val context = LocalContext.current
+
+            val authViewModel: AuthViewModel = viewModel(
+                factory = AuthViewModelFactory(context)
+            )
             LoginScreen(navController, authViewModel, musicManager = musicManager, isMusicGloballyEnabled = isMusicGloballyEnabled, isAppInForeground = isAppInForeground)
         }
 
         composable(Rutas.REGISTRO) {
-            val authViewModel: AuthViewModel = viewModel()
+            val context = LocalContext.current
+
+            val authViewModel: AuthViewModel = viewModel(
+                factory = AuthViewModelFactory(context)
+            )
             RegisterScreen(navController, authViewModel, musicManager = musicManager, isMusicGloballyEnabled = isMusicGloballyEnabled, isAppInForeground = isAppInForeground)
         }
         composable(Rutas.LOADING_ANIMADO) {
-            LoadingScreenOceanWordsAnimated(navController)
+            val context = LocalContext.current
+
+            val authViewModel: AuthViewModel = viewModel(
+                factory = AuthViewModelFactory(context)
+            )
+            StartScreen(navController,authViewModel)
         }
 
     }

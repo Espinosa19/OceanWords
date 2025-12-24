@@ -1,4 +1,4 @@
-package com.proyect.ocean_words.view.screens
+package com.proyect.ocean_words.view
 
 import android.util.Log
 import androidx.compose.foundation.Image
@@ -10,7 +10,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowForward
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -46,7 +45,7 @@ fun caracteristicasEspecieView(
     imagen: String?,
     levelId: Int?,
     musicManager: MusicManager,
-    nivelViewModel: NivelViewModel
+    nivelViewModel: NivelViewModel,
 ) {
     val viewModel: CaracteristicasEspecieViewModels = viewModel()
     val especieState by viewModel.especie.collectAsState()

@@ -1,13 +1,12 @@
 package com.proyect.ocean_words.view.auth
 
-import com.proyect.ocean_words.auth.AuthViewModel
+import com.proyect.ocean_words.viewmodels.AuthViewModel
 
 
 import android.app.Activity
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.animation.core.*
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -23,10 +22,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.*
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
@@ -34,7 +30,6 @@ import com.google.android.gms.common.api.ApiException
 import com.proyect.ocean_words.R
 import com.proyect.ocean_words.utils.MusicManager
 import com.proyect.ocean_words.view.rutas.Rutas
-import com.proyect.ocean_words.viewmodels.EspecieViewModel
 import java.util.regex.Pattern
 @Composable
 fun ProcesoAccesoScreen(
