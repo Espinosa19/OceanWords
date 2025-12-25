@@ -12,10 +12,11 @@ data class UsuariosEstado(
     val email : String ="",
     val monedas_obtenidas: Int = 0,
     val vidas_restantes: List<Boolean> = emptyList(),
+    val pistas_obtenidas: Int= 0,
     val progreso_niveles : List<progreso_Niveles> = emptyList(),
     val id : String =""
 ) {
-    constructor() :this("","",0,emptyList(),emptyList(),"")
+    constructor() :this("","",0,emptyList(),0,emptyList(),"")
     fun withFirebaseId(firebaseId: String): UsuariosEstado = copy(id = firebaseId)
 
 

@@ -14,11 +14,13 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.windowInsetsPadding
-import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items   // ✅ ESTE ES EL CLAVE
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -43,21 +45,28 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.proyect.ocean_words.R
+import com.proyect.ocean_words.model.PaqueteType
 import com.proyect.ocean_words.model.PistaEstado
-import com.proyect.ocean_words.model.sampleShopItems
-import com.proyect.ocean_words.view.theme.Blue
+
 import com.proyect.ocean_words.view.theme.LightOlive
 import com.proyect.ocean_words.view.theme.MomoTrustDisplay
 import com.proyect.ocean_words.view.theme.azulCeleste
 import com.proyect.ocean_words.utils.MusicManager
-
 @Composable
-fun ShopItemCard(item: PistaEstado, onBuyClicked: (PistaEstado) -> Unit, musicManager: MusicManager) {
+fun ShopItemCard(
+    item: PistaEstado,
+    onBuyClicked: (PistaEstado) -> Unit,
+    musicManager: MusicManager,
+    modifier: Modifier = Modifier // ✅ OBLIGATORIO
+) {
     Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .shadow(6.dp, RoundedCornerShape(16.dp)) // 🔹 Sombra suave para resaltar
-            .border(1.5.dp, Color.LightGray.copy(alpha = 0.5f), RoundedCornerShape(16.dp))
+        modifier = modifier
+            .shadow(6.dp, RoundedCornerShape(16.dp))
+            .border(
+                1.5.dp,
+                Color.LightGray.copy(alpha = 0.5f),
+                RoundedCornerShape(16.dp)
+            )
             .background(
                 color = Color.White.copy(alpha = 0.85f),
                 shape = RoundedCornerShape(16.dp)
@@ -69,7 +78,6 @@ fun ShopItemCard(item: PistaEstado, onBuyClicked: (PistaEstado) -> Unit, musicMa
             .padding(vertical = 16.dp, horizontal = 8.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Imagen del ícono
         Image(
             painter = painterResource(id = item.iconResId),
             contentDescription = item.type.name,
@@ -78,21 +86,19 @@ fun ShopItemCard(item: PistaEstado, onBuyClicked: (PistaEstado) -> Unit, musicMa
 
         Spacer(modifier = Modifier.height(10.dp))
 
-        // Cantidad de monedas
         Text(
             text = "+${item.quantity}",
             style = MaterialTheme.typography.titleSmall,
-
             color = Color(0xFF00796B)
         )
 
         Spacer(modifier = Modifier.height(14.dp))
 
-        // Botón de compra
         Button(
             onClick = {
                 onBuyClicked(item)
-                musicManager.playClickSound()},
+                musicManager.playClickSound()
+            },
             shape = RoundedCornerShape(12.dp),
             modifier = Modifier
                 .fillMaxWidth(0.8f)
@@ -102,7 +108,11 @@ fun ShopItemCard(item: PistaEstado, onBuyClicked: (PistaEstado) -> Unit, musicMa
             )
         ) {
             Text(
-                text = "$${item.price}",
+                text = if (item.type == PaqueteType.MONEDAS) {
+                    "$${item.price}"
+                } else {
+                    "${item.price}"
+                },
                 style = MaterialTheme.typography.labelMedium,
                 color = Color.White
             )
@@ -113,7 +123,9 @@ fun ShopItemCard(item: PistaEstado, onBuyClicked: (PistaEstado) -> Unit, musicMa
 // --- Pantalla principal de tienda ---
 @Composable
 fun GameShopScreen(
-    items: List<PistaEstado>, onBuy: (PistaEstado) -> Unit,
+    itemsMonedas: List<PistaEstado>,
+    itemsVidas: List<PistaEstado>,
+    onBuy: (PistaEstado) -> Unit,
     visible: Boolean,
     navController: NavController,
     musicManager: MusicManager
@@ -220,17 +232,72 @@ fun GameShopScreen(
             Spacer(modifier = Modifier.height(20.dp))
 
             // 🔹 Cuadrícula de productos
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(2),
-                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-                verticalArrangement = Arrangement.spacedBy(20.dp),
-                horizontalArrangement = Arrangement.spacedBy(20.dp),
-                modifier = Modifier.weight(1f)
+            LazyColumn(
+                modifier = Modifier.fillMaxSize()
             ) {
-                items(items) { item ->
-                    ShopItemCard(item = item, onBuyClicked = onBuy, musicManager = musicManager)
+
+                items(itemsMonedas.chunked(2)) { rowItems ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp),
+                        horizontalArrangement = Arrangement.spacedBy(20.dp)
+                    ) {
+                        rowItems.forEach { item ->
+                            ShopItemCard(
+                                item = item,
+                                onBuyClicked = onBuy,
+                                musicManager = musicManager,
+                                modifier = Modifier.weight(1f)
+                            )
+                        }
+
+                        if (rowItems.size == 1) {
+                            Spacer(modifier = Modifier.weight(1f))
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(20.dp))
+                }
+
+                item {
+                    Spacer(
+                        Modifier
+                            .fillMaxWidth()
+                            .height(12.dp)
+
+                            .background(azulCeleste)
+                    )
+                    Spacer(Modifier.height(12.dp))
+                }
+
+                items(itemsVidas.chunked(2)) { rowItems ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp),
+                        horizontalArrangement = Arrangement.spacedBy(20.dp)
+                    ) {
+                        rowItems.forEach { item ->
+                            ShopItemCard(
+                                item = item,
+                                onBuyClicked = onBuy,
+                                musicManager = musicManager,
+                                modifier = Modifier.weight(1f)
+                            )
+                        }
+
+                        if (rowItems.size == 1) {
+                            Spacer(modifier = Modifier.weight(1f))
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(20.dp))
                 }
             }
+
+
+
         }
     }
 }

@@ -6,6 +6,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -23,6 +24,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
@@ -45,6 +47,8 @@ import com.proyect.ocean_words.model.SlotEstado
 import com.proyect.ocean_words.model.UsuariosEstado
 
 import com.proyect.ocean_words.utils.MusicManager
+import com.proyect.ocean_words.view.rutas.Rutas
+import com.proyect.ocean_words.view.screens.FishShape
 import com.proyect.ocean_words.view.theme.LightBlue
 import com.proyect.ocean_words.view.theme.OceanBackground
 import com.proyect.ocean_words.view.theme.Orange
@@ -85,7 +89,15 @@ fun OceanWordsGameUI(
     val viewModel: EspecieViewModel = viewModel(
         factory = AdivinaEspecieViewModelFactory(animal, dificultad,usuarioViwModel)
     )
+    val usuarioDatos: UsuariosEstado? = UserSession.currentUser
+    val userId : String= (usuarioDatos?.id).toString()
+    LaunchedEffect(Unit) {
+        usuarioViwModel.checkAndRegenerateLife(userId)
+    }
 
+    LaunchedEffect(userId) {
+        usuarioViwModel.observarMonedasVidasUsuario(userId)
+    }
 
     Box(
         modifier = Modifier
@@ -158,7 +170,6 @@ fun JuegoAnimal(
     Log.i("VistaProgreso","${usuario?.progreso_niveles}")
     val obtenerPista : () -> Unit = viewModel::obtenerPista
 
-    val mostrarMensajePistaUsada by viewModel.mostrarMensajePistaUsada.observeAsState(initial = false)
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
     val pistaUsada by viewModel.pistaUsada.collectAsState()
@@ -171,17 +182,6 @@ fun JuegoAnimal(
         }
     }
 
-    LaunchedEffect(mostrarMensajePistaUsada) {
-        if (mostrarMensajePistaUsada) {
-            scope.launch {
-                snackbarHostState.showSnackbar(
-                    message = "¡Ya has usado tu única pista!",
-                    duration = SnackbarDuration.Short
-                )
-                viewModel.mensajePistaMostrado()
-            }
-        }
-    }
 
     // 4. LAYOUT
     Box(modifier = Modifier.fillMaxSize()) {
@@ -208,7 +208,7 @@ fun JuegoAnimal(
                 .padding(bottom = 38.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            accionesEspecíficas(onResetGame,onGoBackGame,obtenerPista, enabled = isGameEnabled, pistaUsada = pistaUsada, musicManager = musicManager)
+            accionesEspecíficas(onResetGame,onGoBackGame,obtenerPista, enabled = isGameEnabled, pistaUsada = pistaUsada, musicManager = musicManager,usuarioViwModel,navController)
         }
 
         SnackbarHost(
@@ -468,12 +468,23 @@ fun tecladoInteractivo(
 }
 
 @Composable
-fun accionesEspecíficas(onResetGame: () -> Unit, onGoBackGame: () -> Unit, obtenerPista: () -> Unit, enabled: Boolean, pistaUsada: Boolean, musicManager: MusicManager) {
+fun accionesEspecíficas(
+    onResetGame: () -> Unit,
+    onGoBackGame: () -> Unit,
+    obtenerPista: () -> Unit,
+    enabled: Boolean,
+    pistaUsada: Boolean,
+    musicManager: MusicManager,
+    usuarioViwModel: UsuariosViewModel,
+    navController: NavController
+) {
     val dividerColor = Color(0xFFE98516)
     val dividerWidth = 2.dp
     val imageSize = 40.dp
+    val usoPista = usuarioViwModel.pistasUsuario.collectAsState()
+    val usoPistaString = usoPista.value.toString()
+    val pistasUsadas = usoPistaString.toIntOrNull() ?: 0
 
-    val usoPista = if (pistaUsada) "0" else "1"
 
     Row(
         modifier = Modifier
@@ -554,15 +565,19 @@ fun accionesEspecíficas(onResetGame: () -> Unit, onGoBackGame: () -> Unit, obte
                 .width(dividerWidth)
                 .background(dividerColor)
         )
-
-        // --- 3. Botón de Pista ---
+            // --- 3. Botón de Pista ---
         Column(
             modifier = Modifier
                 .weight(1f)
                 .fillMaxHeight()
                 .clickable(onClick = {
                     musicManager.playClickSound()
-                    obtenerPista()
+                    if (pistasUsadas > 0) {
+                        obtenerPista()
+                    }else{
+                        navController.navigate("game_shop") // Usa una ruta clara, por ejemplo, "game_shop"
+                    }
+
                 })
                 .clip(RoundedCornerShape(8.dp)),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -578,24 +593,58 @@ fun accionesEspecíficas(onResetGame: () -> Unit, onGoBackGame: () -> Unit, obte
                     contentDescription = "Pista",
                     modifier = Modifier.size(imageSize)
                 )
-
-                // Este es el Badge con el número '1'
-                Box(
-                    modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .offset(x = 6.dp, y = (-6).dp)
-                        .size(20.dp)
-                        .background(Color.Blue, shape = CircleShape),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = usoPista,
-                        color = Color.White,
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Bold
-                    )
+                if (usoPistaString.equals("0")) {
+                    Log.i("Decision","$usoPistaString")
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .offset(x = (30).dp, y = 22.dp) // mejor control
+                            .size(width = 200.dp, height = 40.dp)
+                            .background(Color.Blue, FishShape())
+                            .border(3.dp, Color(0xFFFFD700), FishShape())
+                            .shadow(16.dp, FishShape()),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.dolar),
+                                contentDescription = "Monedas",
+                                tint = Color(0xFFFFD700),
+                                modifier = Modifier.size(10.dp)
+                            )
+                            Spacer(Modifier.width(3.dp))
+                            Text(
+                                text = "50",
+                                color = Color.White,
+                                fontWeight = FontWeight.ExtraBold,
+                                fontSize = 10.sp
+                            )
+                        }
+                    }
+                }else{
+                    Log.i("Decision","Hola")
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .offset(x = 6.dp, y = (-6).dp)
+                            .size(20.dp)
+                            .background(Color.Blue, shape = CircleShape),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = usoPistaString,
+                            color = Color.White,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
                 }
+                // Este es el Badge con el número '1'
+
             }
+
             Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = "Pista",
@@ -606,6 +655,7 @@ fun accionesEspecíficas(onResetGame: () -> Unit, onGoBackGame: () -> Unit, obte
             )
         }
     }
+
 }
 
 @Composable

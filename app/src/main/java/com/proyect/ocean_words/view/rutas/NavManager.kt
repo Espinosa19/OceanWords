@@ -31,6 +31,7 @@ import com.proyect.ocean_words.view.auth.LoginScreen
 import com.proyect.ocean_words.view.auth.RegisterScreen
 import com.proyect.ocean_words.model.PistaEstado
 import com.proyect.ocean_words.model.sampleShopItems
+import com.proyect.ocean_words.model.vidasShopItems
 import com.proyect.ocean_words.utils.MusicManager
 import com.proyect.ocean_words.view.CaminoNivelesRoute
 import com.proyect.ocean_words.view.LoadingScreenOceanWords
@@ -246,7 +247,8 @@ fun NavManager(
                     }
 
                     GameShopScreen(
-                        items = sampleShopItems,
+                        itemsMonedas = sampleShopItems,
+                        itemsVidas = vidasShopItems,
                         onBuy = onBuyAction,
                         false,
                         navController,
@@ -285,7 +287,8 @@ fun NavManager(
             }
 
             GameShopScreen(
-                items = sampleShopItems,
+                itemsMonedas = sampleShopItems,
+                itemsVidas = vidasShopItems,
                 onBuy = onBuyAction,
                 true,
                 navController,

@@ -28,7 +28,8 @@ class UsuariosViewModel : ViewModel() {
 
     private val _monedasUsuario = MutableStateFlow<Int?>(null)
     val monedasUsuario: StateFlow<Int?> = _monedasUsuario.asStateFlow()
-
+    private val _pistasUsuario =MutableStateFlow<Int?>(null)
+    val pistasUsuario : StateFlow<Int?> = _pistasUsuario.asStateFlow()
     private val _lastLifeLossTime = MutableStateFlow<Long?>(null)
 
     val usuarioDatos: UsuariosEstado? = UserSession.currentUser
@@ -38,6 +39,7 @@ class UsuariosViewModel : ViewModel() {
             usuarioRepository.observarUsuario(id).collect { usuario ->
                 _monedasUsuario.value = usuario?.monedas_obtenidas
                 _vidas.value = usuario?.vidas_restantes ?: listOf(true, true, true)
+                _pistasUsuario.value =usuario?.pistas_obtenidas
             }
         }
     }
@@ -142,7 +144,11 @@ class UsuariosViewModel : ViewModel() {
             usuarioRepository.descontarMonedas(uid, 50)
         }
     }
-
+    fun descontarPistas(uid: String){
+        viewModelScope.launch {
+            usuarioRepository.descontarPistas(uid,1)
+        }
+    }
     fun reiniciarVidas() {
         _vidas.value = listOf(true, true, true)
         _lastLifeLossTime.value = null

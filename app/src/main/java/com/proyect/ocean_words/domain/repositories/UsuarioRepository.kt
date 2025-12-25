@@ -36,7 +36,7 @@ class UsuarioRepository(
     fun crearUsuario(uid: String, email: String, nombre: String): Flow<UsuariosEstado?> {
         // Primero crear el usuario si no existe
         usuarioRef.document(uid).set(
-            UsuariosEstado(nombre = nombre, email = email, monedas_obtenidas = 0, id = uid, progreso_niveles = emptyList())
+            UsuariosEstado(nombre = nombre, email = email, monedas_obtenidas = 0, pistas_obtenidas = 1,id = uid, progreso_niveles = emptyList())
         )
 
         // Luego retornamos el flow para escuchar cambios en tiempo real
@@ -51,6 +51,22 @@ class UsuarioRepository(
         return try {
             usuarioRef.document(uid)
                 .update("monedas_obtenidas", FieldValue.increment(-monedas.toLong()))
+                .await()
+
+            Result.success(Unit)
+
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+    suspend fun descontarPistas(uid: String, unaPistaMenos: Int): Result<Unit> {
+
+        if (uid.isBlank()) return Result.failure(Exception("UID vacío"))
+        if (unaPistaMenos <= 0) return Result.failure(Exception("Monto inválido"))
+
+        return try {
+            usuarioRef.document(uid)
+                .update("pistas_obtenidas", FieldValue.increment(-unaPistaMenos.toLong()))
                 .await()
 
             Result.success(Unit)

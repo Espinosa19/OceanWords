@@ -21,8 +21,7 @@ class EspecieViewModel (
     private val usuariosViewModel: UsuariosViewModel
 ) : ViewModel() {
     private val repository = EspecieRepository()
-    private val MAX_LIVES = 3
-    private val RECHARGE_COOLDOWN_MS = 1 * 60 * 1000L
+
     private val _especie = MutableStateFlow<EspecieEstado?>(null)
     val especie = _especie.asStateFlow()
     val animalSinEspacios: String = animal.trim().lowercase().replace(" ", "")
@@ -32,8 +31,6 @@ class EspecieViewModel (
 
     private val _pistaUsada = MutableStateFlow(false)
     val pistaUsada: StateFlow<Boolean> = _pistaUsada.asStateFlow()
-    private val _mostrarMensajePistaUsada = MutableLiveData<Boolean>()
-    val mostrarMensajePistaUsada: LiveData<Boolean> = _mostrarMensajePistaUsada
     val usuarioDatos: UsuariosEstado? = UserSession.currentUser
     val userId : String= (usuarioDatos?.id).toString()
 
@@ -207,13 +204,10 @@ class EspecieViewModel (
 
     fun obtenerPista() {
         val monedas= usuariosViewModel.monedasUsuario.value?.toInt()
-        if (monedas != null) {
-            if(monedas >= 50){
+        val pistas = usuariosViewModel.pistasUsuario.value?.toInt()
+        pistas?.let {
+            if(it > 0) {
 
-                if (_pistaUsada.value) {
-                    _mostrarMensajePistaUsada.value = true
-                    return
-                }
                 // 1️⃣ Encuentra todos los índices donde la letra aún no está colocada
                 val indicesVacios = respuestaJugador.mapIndexedNotNull { index, slot ->
                     if (slot?.char == null) index else null
@@ -227,15 +221,11 @@ class EspecieViewModel (
                 respuestaJugador[indexPista] = SlotEstado(char = letraCorrecta, esCorrecto = true)
                 _pistaUsada.value = true
                 viewModelScope.launch {
-                    usuariosViewModel.descontarMonedas(userId)
-                }
-            }else{
+                    usuariosViewModel.descontarPistas(userId)
 
+                }
             }
         }
-    }
-    fun mensajePistaMostrado() {
-        _mostrarMensajePistaUsada.value = false
     }
 
 

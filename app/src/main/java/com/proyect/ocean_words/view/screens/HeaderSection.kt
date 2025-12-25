@@ -58,15 +58,7 @@ fun HeaderSection(
     usuariosViewModel: UsuariosViewModel
 ) {
 
-    val usuarioDatos: UsuariosEstado? = UserSession.currentUser
-    val userId : String= (usuarioDatos?.id).toString()
-    LaunchedEffect(Unit) {
-        usuariosViewModel.checkAndRegenerateLife(userId)
-    }
 
-    LaunchedEffect(userId) {
-        usuariosViewModel.observarMonedasVidasUsuario(userId)
-    }
     val monedas by usuariosViewModel.monedasUsuario.collectAsState()
     val vidas by usuariosViewModel.vidas.collectAsState()
     val timeToNextLife by usuariosViewModel.timeToNextLife.collectAsState()
