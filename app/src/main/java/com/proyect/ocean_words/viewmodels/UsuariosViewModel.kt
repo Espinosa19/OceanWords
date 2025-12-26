@@ -153,4 +153,6 @@ class UsuariosViewModel : ViewModel() {
         _vidas.value = listOf(true, true, true)
         _lastLifeLossTime.value = null
     }
+
+
 }

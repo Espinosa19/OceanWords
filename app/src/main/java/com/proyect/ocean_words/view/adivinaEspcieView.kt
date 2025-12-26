@@ -47,7 +47,6 @@ import com.proyect.ocean_words.model.SlotEstado
 import com.proyect.ocean_words.model.UsuariosEstado
 
 import com.proyect.ocean_words.utils.MusicManager
-import com.proyect.ocean_words.view.rutas.Rutas
 import com.proyect.ocean_words.view.screens.FishShape
 import com.proyect.ocean_words.view.theme.LightBlue
 import com.proyect.ocean_words.view.theme.OceanBackground
@@ -64,7 +63,6 @@ import com.proyect.ocean_words.viewmodels.EspecieViewModel
 import com.proyect.ocean_words.viewmodels.NivelViewModel
 import com.proyect.ocean_words.viewmodels.ProgresoViewModel
 import com.proyect.ocean_words.viewmodels.UsuariosViewModel
-import kotlinx.coroutines.launch
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 
@@ -87,7 +85,7 @@ fun OceanWordsGameUI(
     usuarioViwModel: UsuariosViewModel,
 ) {
     val viewModel: EspecieViewModel = viewModel(
-        factory = AdivinaEspecieViewModelFactory(animal, dificultad,usuarioViwModel)
+        factory = AdivinaEspecieViewModelFactory(levelId,especieId,animal, dificultad,usuarioViwModel)
     )
     val usuarioDatos: UsuariosEstado? = UserSession.currentUser
     val userId : String= (usuarioDatos?.id).toString()
@@ -161,6 +159,7 @@ fun JuegoAnimal(
     val isGameEnabled = !allLivesLost
     val visible = viewModel.visible
     val respuestaJugador = viewModel.respuestaJugador
+    Log.i("RespuestaJugado","$respuestaJugador")
     val navegarAExito by viewModel.navegarAExito.observeAsState(initial = false)
     val onLetterSelected: (Char, Int) -> Unit = viewModel::selectLetter
     val onLetterRemoved: (Int) -> Unit = viewModel::removeLetter
@@ -177,7 +176,6 @@ fun JuegoAnimal(
     LaunchedEffect (navegarAExito,levelId,especieId) {
         if (navegarAExito) {
             val imagen = URLEncoder.encode(imagen, StandardCharsets.UTF_8.toString())
-            progresoViewModel.buscarProgresoUsuId(levelId,especieId)
             navController.navigate("caracteristicas/$especieId/$imagen/$levelId")
         }
     }
@@ -197,7 +195,7 @@ fun JuegoAnimal(
                 .padding(bottom = bottomPadding, start = 10.dp, end = 10.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            tecladoInteractivo(animalRandom, visible, letrasPorFila, onLetterSelected, enabled = isGameEnabled, musicManager = musicManager)
+            tecladoInteractivo(animalRandom, letrasPorFila, enabled = isGameEnabled, musicManager = musicManager,viewModel)
         }
         Column(
             modifier = Modifier
@@ -409,21 +407,22 @@ fun ResponseArea(
         }
     }
 }
-
-
 @Composable
 fun tecladoInteractivo(
     animalRandom: String,
-    visible: MutableList<Boolean>,
     letrasPorFila: Int,
-    onLetterSelected: (Char, Int) -> Unit, // 💡 NUEVO ARGUMENTO
     enabled: Boolean,
-    musicManager: MusicManager
+    musicManager: MusicManager,
+    viewModel: EspecieViewModel
 ) {
     val configuration = LocalConfiguration.current
     val screenWidthDp = configuration.screenWidthDp.dp
-    val topPadding = if (screenWidthDp > 420.dp) { 125.dp } else { 148.dp }
+
+    val usoLetras by viewModel.usoLetras.collectAsState()
+    val respuestaJugador = viewModel.respuestaJugador
+
     val tamano = animalRandom.length
+
     Column(
         verticalArrangement = Arrangement.spacedBy(8.dp),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -434,16 +433,28 @@ fun tecladoInteractivo(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 val fin = (i + letrasPorFila).coerceAtMost(tamano)
+
                 for (j in i until fin) {
+                    val letra = animalRandom[j]
+
+                    // 🔑 Visibilidad DERIVADA
+                    val botonUsado = respuestaJugador.any { it?.botonIndex == j }
+
                     AnimatedVisibility(
-                        visible = visible[j],
-                        exit = fadeOut(animationSpec = tween(500))
+                        visible = !botonUsado,
+                        exit = fadeOut(animationSpec = tween(300))
                     ) {
                         Button(
                             onClick = {
-                                if (enabled) {
-                                    musicManager.playClickSound()
-                                    onLetterSelected(animalRandom[j], j)
+                                if (!enabled) return@Button
+
+                                musicManager.playClickSound()
+
+                                val usosActuales = usoLetras[letra] ?: 0
+                                val maxUsos = animalRandom.count { it == letra }
+
+                                if (usosActuales < maxUsos) {
+                                    viewModel.selectLetter(letra, j)
                                 }
                             },
                             modifier = Modifier.size(38.dp),
@@ -452,7 +463,7 @@ fun tecladoInteractivo(
                             colors = ButtonDefaults.buttonColors(containerColor = LightBlue)
                         ) {
                             Text(
-                                text = animalRandom[j].toString(),
+                                text = letra.toString(),
                                 color = Color.Black,
                                 fontFamily = MomoTrustDisplay,
                                 fontSize = 20.sp,

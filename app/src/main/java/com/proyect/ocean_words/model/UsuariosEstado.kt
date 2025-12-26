@@ -1,11 +1,15 @@
 package com.proyect.ocean_words.model
 
+
 data class progreso_Niveles(
     val nivel: Int = 0,
-    val estado: String ="",
-    val vidad_restantes: Int=0,
-    val id : String =""
-)
+    val estado: String = "",
+    val id: String = "",
+    val letra: List<ProgresoLetra?> = emptyList()
+) {
+    constructor() : this(0, "", "", emptyList())
+}
+
 
 data class UsuariosEstado(
     val nombre: String ="",

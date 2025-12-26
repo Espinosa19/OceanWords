@@ -3,6 +3,7 @@ package com.proyect.ocean_words.domain.repositories
 import android.util.Log
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.SetOptions
 import com.google.firebase.firestore.snapshots
 import com.proyect.ocean_words.model.UsuariosEstado
 import com.proyect.ocean_words.model.progreso_Niveles
@@ -152,5 +153,6 @@ class UsuarioRepository(
             .addOnSuccessListener { Log.i("Firestore", "Progreso actualizado") }
             .addOnFailureListener { e -> Log.e("Firestore", "Error al actualizar progreso: ${e.message}") }
     }
+
 
 }
