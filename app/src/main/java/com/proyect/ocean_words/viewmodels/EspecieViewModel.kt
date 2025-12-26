@@ -127,7 +127,8 @@ class EspecieViewModel (
     private fun validarPalabraCompleta() {
         val respuestaCompleta = respuestaJugador.map { it?.char ?: ' ' }.joinToString("")
         val esPalabraCorrecta = respuestaCompleta.equals(animalSinEspacios, ignoreCase = true)
-        var letrasCorrectas = ""  // inicializamos el String vacío
+
+        val letrasCorrectasConIndice = mutableListOf<String>() // guardará letra+índice
 
         if (esPalabraCorrecta) {
             // Todas las letras correctas → bloqueadas
@@ -135,7 +136,7 @@ class EspecieViewModel (
                 val currentChar = slot?.char
                 respuestaJugador[i] = SlotEstado(char = currentChar, esCorrecto = true)
                 if (currentChar != null) {
-                    letrasCorrectas += currentChar.toString()
+                    letrasCorrectasConIndice.add("$currentChar-$i")
                 }
             }
 
@@ -144,7 +145,7 @@ class EspecieViewModel (
                 especieId = especieId,
                 userId = userId,
                 completado = true,
-                letras = letrasCorrectas
+                letras = letrasCorrectasConIndice.joinToString(",") // ejemplo: A-0,B-1,C-2
             )
 
             _navegarAExito.value = true
@@ -160,7 +161,7 @@ class EspecieViewModel (
                 if (letraJugador != null && letraJugador.equals(letraCorrecta, ignoreCase = true)) {
                     // Letra correcta → bloqueada
                     respuestaJugador[i] = SlotEstado(char = letraJugador, esCorrecto = true)
-                    letrasCorrectas += letraJugador.toString()
+                    letrasCorrectasConIndice.add("$letraJugador-$i")
                 } else {
                     // Letra incorrecta → se limpiará
                     respuestaJugador[i] = SlotEstado(char = letraJugador, esCorrecto = false)
@@ -168,13 +169,15 @@ class EspecieViewModel (
                 }
             }
 
-            progresoViewModel.buscarProgresoUsuId(
-                level = levelId,
-                especieId = especieId,
-                userId = userId,
-                completado = false,
-                letras = letrasCorrectas
-            )
+            if (letrasCorrectasConIndice.isNotEmpty()) {
+                progresoViewModel.buscarProgresoUsuId(
+                    level = levelId,
+                    especieId = especieId,
+                    userId = userId,
+                    completado = false,
+                    letras = letrasCorrectasConIndice.joinToString(",")
+                )
+            }
 
             // Limpiar solo las letras incorrectas
             removerLetrasIncorrectas(indicesIncorrectos)
