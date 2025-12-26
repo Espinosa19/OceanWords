@@ -41,18 +41,18 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 
 import com.proyect.ocean_words.R
+import com.proyect.ocean_words.model.CustomDialogConfig
 import com.proyect.ocean_words.viewmodels.UserSession
 import com.proyect.ocean_words.viewmodels.AdivinaEspecieViewModelFactory
 import com.proyect.ocean_words.model.SlotEstado
 import com.proyect.ocean_words.model.UsuariosEstado
-import com.proyect.ocean_words.model.progreso_Niveles
 
 import com.proyect.ocean_words.utils.MusicManager
+import com.proyect.ocean_words.view.screens.CustomDialog
 import com.proyect.ocean_words.view.screens.FishShape
 import com.proyect.ocean_words.view.theme.LightBlue
 import com.proyect.ocean_words.view.theme.OceanBackground
 import com.proyect.ocean_words.view.theme.Orange
-//import com.proyect.ocean_words.view.theme.OrangeDeep
 import com.proyect.ocean_words.view.screens.HeaderSection
 import com.proyect.ocean_words.view.screens.NavegacionDrawerMenu
 import com.proyect.ocean_words.view.theme.Boogaloo
@@ -90,7 +90,39 @@ fun OceanWordsGameUI(
     )
     val usuarioDatos: UsuariosEstado? = UserSession.currentUser
     val userId : String= (usuarioDatos?.id).toString()
-// Ejemplo: obtener letras del primer nivel
+    val estadoNivel by viewModel.estadoNivel.collectAsState()
+    val mostrarDialog = remember { mutableStateOf(false) }
+
+    // Cada vez que cambie estadoNivel, revisamos si está completado
+    LaunchedEffect(estadoNivel) {
+        viewModel.calcularEstadoNivel() // Llamamos para actualizar el estado
+        if (estadoNivel == "completado") {
+            mostrarDialog.value = true
+            Log.i("DEBUG", "Nivel completado!")
+        }
+    }
+
+    // Mostrar diálogo
+    if (mostrarDialog.value) {
+        CustomDialog(
+            showDialog = mostrarDialog.value,
+            config = CustomDialogConfig(
+                title = "¡FELICIDADES!",
+                imageRes = R.drawable.trofeo,
+                headline = "Nivel completado",
+                message = "Excelente trabajo",
+                leftButtonText = "Continuar"
+            ),
+            onDismiss = { mostrarDialog.value = false },
+            onLeftClick = {
+                mostrarDialog.value = false
+
+            }
+        )
+    }
+
+
+
 
     LaunchedEffect(Unit) {
         usuarioViwModel.checkAndRegenerateLife(userId)

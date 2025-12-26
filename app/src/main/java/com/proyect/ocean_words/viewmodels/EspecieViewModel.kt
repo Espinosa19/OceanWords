@@ -44,6 +44,8 @@ class EspecieViewModel (
     val usuarioDatos: UsuariosEstado? = UserSession.currentUser
     val userId : String= (usuarioDatos?.id).toString()
 
+    private val _estadoNivel = MutableStateFlow<String?>(null)
+    val estadoNivel: StateFlow<String?> = _estadoNivel
 
 
     private fun formatTime(ms: Long): String {
@@ -60,7 +62,12 @@ class EspecieViewModel (
 
         return progresoExistente?.letra  // retorna letras si existe, o null
     }
+    fun calcularEstadoNivel() {
+        val progresoExistente = usuarioDatos?.progreso_niveles
+            ?.firstOrNull { it.nivel == levelId && it.id == especieId }
 
+        _estadoNivel.value = progresoExistente?.estado
+    }
 
     val animalRandom: String = if (dificultad != "dificil") {
         shuffleText(animalSinEspacios)

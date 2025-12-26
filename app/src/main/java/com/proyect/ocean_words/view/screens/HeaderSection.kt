@@ -36,8 +36,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.navigation.NavController
 import com.proyect.ocean_words.R
+import com.proyect.ocean_words.model.CustomDialogConfig
 import com.proyect.ocean_words.model.UsuariosEstado
 import com.proyect.ocean_words.view.rutas.Rutas
 import com.proyect.ocean_words.view.theme.Blue // Asumo que son colores definidos en tu tema
@@ -70,15 +72,26 @@ fun HeaderSection(
             showNoLivesDialog.value = true
         }
     }
-    CustomNoLivesDialog(
-        showDialog = showNoLivesDialog.value,
-        onDismiss = { showNoLivesDialog.value = false },
-        onBuyClick = {
+
+    CustomDialog(
+        showDialog = showNoLivesDialog.value, // ✅ Boolean
+        config = CustomDialogConfig(
+            title = "¡OH NO!",
+            imageRes = R.drawable.nome_gusta,
+            headline = "Sin vidas",
+            message = "Necesitas vidas para continuar",
+            leftButtonText = "Esperar",
+            rightButtonText = "Comprar"
+        ),
+        onDismiss = {
+            showNoLivesDialog.value = false
+        },
+        onLeftClick = {
+            showNoLivesDialog.value = false
+        },
+        onRightClick = {
             showNoLivesDialog.value = false
             navController.navigate("game_shop")
-        },
-        onWaitClick = {
-            showNoLivesDialog.value = false
         }
     )
     Box(
@@ -165,13 +178,13 @@ fun HeaderIndicatorRow(
             GameIndicator(value = monedas.toString(),redireccionarClick,true)
         }
     }
-}
-@Composable
-fun CustomNoLivesDialog(
+}@Composable
+fun CustomDialog(
     showDialog: Boolean,
+    config: CustomDialogConfig,
     onDismiss: () -> Unit,
-    onBuyClick: () -> Unit,
-    onWaitClick: () -> Unit
+    onLeftClick: () -> Unit,
+    onRightClick: (() -> Unit)? = null
 ) {
     AnimatedVisibility(
         visible = showDialog,
@@ -180,7 +193,7 @@ fun CustomNoLivesDialog(
     ) {
         Dialog(
             onDismissRequest = onDismiss,
-            properties = androidx.compose.ui.window.DialogProperties(
+            properties = DialogProperties(
                 dismissOnBackPress = false,
                 dismissOnClickOutside = false
             )
@@ -204,17 +217,23 @@ fun CustomNoLivesDialog(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.spacedBy(15.dp)
                 ) {
-                    // Título superior con fondo azul celeste
+
+                    // 🔵 HEADER
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clip(RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp))
+                            .clip(
+                                RoundedCornerShape(
+                                    topStart = 20.dp,
+                                    topEnd = 20.dp
+                                )
+                            )
                             .background(azulCeleste)
                             .padding(vertical = 12.dp),
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = "¡OH NO!",
+                            text = config.title,
                             fontSize = 28.sp,
                             fontWeight = FontWeight.ExtraBold,
                             color = Color.White,
@@ -222,84 +241,92 @@ fun CustomNoLivesDialog(
                         )
                     }
 
-                    // Contenido principal del diálogo
+                    // 🧠 CONTENIDO
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 20.dp, vertical = 10.dp),
+                            .padding(horizontal = 20.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
                         Image(
-                            painter = painterResource(id = R.drawable.nome_gusta),
-                            contentDescription = "Sin Vidas",
+                            painter = painterResource(id = config.imageRes),
+                            contentDescription = null,
                             modifier = Modifier.size(90.dp),
                             contentScale = ContentScale.Fit
                         )
 
                         Text(
-                            text = "¡Te has quedado sin vidas!",
+                            text = config.headline,
                             fontSize = 22.sp,
                             fontWeight = FontWeight.Black,
                             color = Color.DarkGray,
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier.fillMaxWidth()
+                            textAlign = TextAlign.Center
                         )
 
                         Text(
-                            text = "Necesitas vidas para continuar jugando. Puedes esperar a la recarga automática o conseguir más en la tienda.",
+                            text = config.message,
                             fontSize = 15.sp,
                             color = Color.Gray,
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier.fillMaxWidth()
+                            textAlign = TextAlign.Center
                         )
                     }
 
-                    Spacer(modifier = Modifier.height(15.dp))
+                    Spacer(modifier = Modifier.height(10.dp))
 
+                    // 🔘 BOTONES (AUTO AJUSTABLES)
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(horizontal = 20.dp),
-                        horizontalArrangement = Arrangement.SpaceAround,
+                        horizontalArrangement = Arrangement.spacedBy(15.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
+
+                        // 🟢 BOTÓN IZQUIERDO
                         Button(
-                            onClick = onWaitClick,
+                            onClick = onLeftClick,
                             modifier = Modifier
-                                .weight(1f)
+                                .weight(if (onRightClick == null) 1f else 0.5f)
                                 .height(50.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = LightOlive),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = LightOlive
+                            ),
                             shape = RoundedCornerShape(12.dp),
-                            elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp),
-                            contentPadding = PaddingValues(horizontal = 10.dp)
+                            elevation = ButtonDefaults.buttonElevation(
+                                defaultElevation = 4.dp
+                            )
                         ) {
                             Text(
-                                text = "Esperar",
+                                text = config.leftButtonText,
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.SemiBold,
                                 color = Color.White
                             )
                         }
 
-                        Spacer(modifier = Modifier.width(15.dp))
-
-                        Button(
-                            onClick = onBuyClick,
-                            modifier = Modifier
-                                .weight(1f)
-                                .height(50.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = Blue),
-                            shape = RoundedCornerShape(12.dp),
-                            elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp),
-                            contentPadding = PaddingValues(horizontal = 10.dp)
-                        ) {
-                            Text(
-                                text = "Comprar",
-                                fontSize = 16.sp,
-                                fontWeight = FontWeight.SemiBold,
-                                color = Color.White
-                            )
+                        // 🔵 BOTÓN DERECHO (OPCIONAL)
+                        if (onRightClick != null) {
+                            Button(
+                                onClick = onRightClick,
+                                modifier = Modifier
+                                    .weight(0.5f)
+                                    .height(50.dp),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = Blue
+                                ),
+                                shape = RoundedCornerShape(12.dp),
+                                elevation = ButtonDefaults.buttonElevation(
+                                    defaultElevation = 4.dp
+                                )
+                            ) {
+                                Text(
+                                    text = config.rightButtonText,
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = Color.White
+                                )
+                            }
                         }
                     }
                 }
@@ -307,6 +334,7 @@ fun CustomNoLivesDialog(
         }
     }
 }
+
 // -------------------------------------------------------------------------------------------------
 
 /**
