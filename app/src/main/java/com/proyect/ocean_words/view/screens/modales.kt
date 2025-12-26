@@ -7,6 +7,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -14,24 +15,23 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items   // ✅ ESTE ES EL CLAVE
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Divider
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
@@ -39,88 +39,87 @@ import androidx.compose.ui.graphics.Color // Usar la clase Color de Compose
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.proyect.ocean_words.R
 import com.proyect.ocean_words.model.PaqueteType
 import com.proyect.ocean_words.model.PistaEstado
+import com.proyect.ocean_words.model.UsuariosEstado
 
-import com.proyect.ocean_words.view.theme.LightOlive
-import com.proyect.ocean_words.view.theme.MomoTrustDisplay
 import com.proyect.ocean_words.view.theme.azulCeleste
 import com.proyect.ocean_words.utils.MusicManager
+import com.proyect.ocean_words.viewmodels.UserSession
+import com.proyect.ocean_words.viewmodels.UsuariosViewModel
 @Composable
 fun ShopItemCard(
     item: PistaEstado,
     onBuyClicked: (PistaEstado) -> Unit,
     musicManager: MusicManager,
-    modifier: Modifier = Modifier // ✅ OBLIGATORIO
+    modifier: Modifier = Modifier,
+    usuarioViwModel: UsuariosViewModel,
 ) {
+    val accentColor = if (item.type == PaqueteType.MONEDAS) {
+        Color(0xFFFFC107) // Dorado
+    } else {
+        Color(0xFFE53935) // Rojo vidas
+    }
+    val usuarioDatos: UsuariosEstado? = UserSession.currentUser
+    val userId : String= (usuarioDatos?.id).toString()
+
     Column(
         modifier = modifier
             .shadow(6.dp, RoundedCornerShape(16.dp))
-            .border(
-                1.5.dp,
-                Color.LightGray.copy(alpha = 0.5f),
-                RoundedCornerShape(16.dp)
-            )
-            .background(
-                color = Color.White.copy(alpha = 0.85f),
-                shape = RoundedCornerShape(16.dp)
-            )
+            .background(Color.White, RoundedCornerShape(16.dp))
             .clickable {
                 onBuyClicked(item)
                 musicManager.playClickSound()
             }
-            .padding(vertical = 16.dp, horizontal = 8.dp),
+            .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Image(
-            painter = painterResource(id = item.iconResId),
-            contentDescription = item.type.name,
-            modifier = Modifier.size(64.dp)
+            painter = painterResource(item.iconResId),
+            contentDescription = null,
+            modifier = Modifier.size(56.dp)
         )
 
-        Spacer(modifier = Modifier.height(10.dp))
+        Spacer(Modifier.height(8.dp))
 
         Text(
             text = "+${item.quantity}",
-            style = MaterialTheme.typography.titleSmall,
-            color = Color(0xFF00796B)
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Bold,
+            color = accentColor
         )
 
-        Spacer(modifier = Modifier.height(14.dp))
+        Spacer(Modifier.height(12.dp))
 
         Button(
             onClick = {
-                onBuyClicked(item)
+                if(item.type == PaqueteType.MONEDAS){
+                    onBuyClicked(item)
+                }else{
+                    usuarioViwModel.descontarMonedas(userId,item.quantity)
+                }
                 musicManager.playClickSound()
             },
+            colors = ButtonDefaults.buttonColors(containerColor = accentColor),
             shape = RoundedCornerShape(12.dp),
-            modifier = Modifier
-                .fillMaxWidth(0.8f)
-                .height(38.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = LightOlive
-            )
+            modifier = Modifier.fillMaxWidth()
         ) {
             Text(
-                text = if (item.type == PaqueteType.MONEDAS) {
-                    "$${item.price}"
-                } else {
-                    "${item.price}"
-                },
-                style = MaterialTheme.typography.labelMedium,
-                color = Color.White
+                text = if (item.type == PaqueteType.MONEDAS)
+                    "Comprar $${item.price}"
+                else
+                    "Recargar ${item.price}",
+                color = Color.White,
+                fontWeight = FontWeight.Bold
             )
         }
     }
 }
 
-// --- Pantalla principal de tienda ---
 @Composable
 fun GameShopScreen(
     itemsMonedas: List<PistaEstado>,
@@ -128,176 +127,227 @@ fun GameShopScreen(
     onBuy: (PistaEstado) -> Unit,
     visible: Boolean,
     navController: NavController,
-    musicManager: MusicManager
+    musicManager: MusicManager,
+    usuarioViwModel: UsuariosViewModel
 ) {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-           ) {
+    val usuarioDatos: UsuariosEstado? = UserSession.currentUser
+    val userId = usuarioDatos?.id ?: ""
+
+    LaunchedEffect(userId) {
+        usuarioViwModel.observarMonedasVidasUsuario(userId)
+        usuarioViwModel.initLifeTimerIfNeeded(userId)
+    }
+
+    val monedas by usuarioViwModel.monedasUsuario.collectAsState(initial = null)
+    val topBarModifier = if (visible) {
+        Modifier
+            .fillMaxWidth()
+            .background(azulCeleste)
+            .windowInsetsPadding(WindowInsets.statusBars)
+            .padding(vertical = 12.dp)
+
+    } else {
+        Modifier
+            .fillMaxWidth()
+            .background(azulCeleste)
+            .padding(vertical = 18.dp, horizontal = 12.dp)
+    }
+    Box(modifier = Modifier.fillMaxSize()) {
+
         Image(
             painter = painterResource(id = R.drawable.fondo_tienda),
             contentDescription = null,
             contentScale = ContentScale.Crop,
             modifier = Modifier.matchParentSize()
         )
-        Column(
-            modifier = Modifier.fillMaxSize()
-                .border(
-                    width = 2.dp,
-                    color = Color.Gray.copy(alpha = 0.5f), // 🔹 Borde con transparencia suave
-                    shape = RoundedCornerShape(12.dp)
-                )
-                ,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            // 🔹 Barra superior de título
+
+        Column(modifier = Modifier.fillMaxSize()) {
+
+            // 🔹 TOP BAR
             Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(azulCeleste)
-                    .windowInsetsPadding(WindowInsets.statusBars) // ✅ Deja espacio arriba
-                    .padding(vertical = 12.dp)
+                modifier = topBarModifier
+
             ) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    if (visible){
-                        Button(
-                            onClick = {
-                                navController.popBackStack()
-                                musicManager.playClickSound() },
-                            modifier = Modifier.size(40.dp), // Tamaño del botón
-                            shape = RoundedCornerShape(50), // Circular
-                            contentPadding = PaddingValues(0.dp), // Sin padding interno
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = Color.Transparent, // Fondo transparente
-                                contentColor = Color.Unspecified // Mantiene el color de la imagen
-                            ),
-                            elevation = ButtonDefaults.buttonElevation(defaultElevation = 0.dp) // Sin sombra
-                        ) {
+                    if (visible) {
+                        IconButton(onClick = {
+                            navController.popBackStack()
+                            musicManager.playClickSound()
+                        }) {
                             Image(
-                                painter = painterResource(id = R.drawable.eliminar),
+                                painter = painterResource(R.drawable.eliminar),
                                 contentDescription = "Cerrar",
-                                contentScale = ContentScale.Crop,
-
-                                modifier = Modifier.size(40.dp)
+                                modifier = Modifier.size(32.dp)
                             )
                         }
-
-
                     }
-
 
                     Text(
                         text = "Tienda",
-                        fontSize = 32.sp,
-                        fontFamily = MomoTrustDisplay,
+                        fontSize = 30.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color.White,
                         modifier = Modifier.weight(1f),
-                        textAlign = TextAlign.Center
                     )
 
-                    GameIndicator(value = "500",
-                        redireccionarClick={
+                    GameIndicator(
+                        value = monedas,
+                        redireccionarClick = {
                             navController.navigate("game_shop")
-                            musicManager.playClickSound()},
-                        false)
-                }
-            }
-
-            Spacer(modifier = Modifier.height(20.dp))
-
-            // 🔹 Título principal
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth(0.9f)
-                    .background(Color.White, RoundedCornerShape(10.dp))
-                    .padding(vertical = 10.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = "COMPRAR",
-                    fontSize = 24.sp,
-                    fontFamily = MomoTrustDisplay,
-                    fontWeight = FontWeight.ExtraBold,
-                    color = Color.Black
-                )
-            }
-
-            Spacer(modifier = Modifier.height(20.dp))
-
-            // 🔹 Cuadrícula de productos
-            LazyColumn(
-                modifier = Modifier.fillMaxSize()
-            ) {
-
-                items(itemsMonedas.chunked(2)) { rowItems ->
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp),
-                        horizontalArrangement = Arrangement.spacedBy(20.dp)
-                    ) {
-                        rowItems.forEach { item ->
-                            ShopItemCard(
-                                item = item,
-                                onBuyClicked = onBuy,
-                                musicManager = musicManager,
-                                modifier = Modifier.weight(1f)
-                            )
-                        }
-
-                        if (rowItems.size == 1) {
-                            Spacer(modifier = Modifier.weight(1f))
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(20.dp))
-                }
-
-                item {
-                    Spacer(
-                        Modifier
-                            .fillMaxWidth()
-                            .height(12.dp)
-
-                            .background(azulCeleste)
+                            musicManager.playClickSound()
+                        },
+                        false
                     )
-                    Spacer(Modifier.height(12.dp))
-                }
-
-                items(itemsVidas.chunked(2)) { rowItems ->
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp),
-                        horizontalArrangement = Arrangement.spacedBy(20.dp)
-                    ) {
-                        rowItems.forEach { item ->
-                            ShopItemCard(
-                                item = item,
-                                onBuyClicked = onBuy,
-                                musicManager = musicManager,
-                                modifier = Modifier.weight(1f)
-                            )
-                        }
-
-                        if (rowItems.size == 1) {
-                            Spacer(modifier = Modifier.weight(1f))
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(20.dp))
                 }
             }
 
+            ShopContainer(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 12.dp, vertical = 8.dp)
+            ) {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(bottom = 24.dp)
+                ) {
+                    // 🔹 MONEDAS
+                    item {
+                        ShopSectionHeader(
+                            title = "Monedas",
+                            description = "Úsalas para comprar pistas y ayudas",
+                            iconRes = R.drawable.dolar
+                        )
+                    }
 
+                    items(itemsMonedas.chunked(2)) { row ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 12.dp),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            row.forEach {
+                                ShopItemCard(
+                                    item = it,
+                                    onBuyClicked = onBuy,
+                                    musicManager = musicManager,
+                                    modifier = Modifier.weight(1f),
+                                    usuarioViwModel,
+                                )
+                            }
+                            if (row.size == 1) Spacer(Modifier.weight(1f))
+                        }
+                        Spacer(Modifier.height(12.dp))
+                    }
 
+                    // Separador
+                    item {
+                        Divider(
+                            modifier = Modifier.padding(horizontal = 20.dp),
+                            color = Color.LightGray.copy(alpha = 0.5f)
+                        )
+                        Spacer(Modifier.height(12.dp))
+                    }
+
+                    // ❤️ VIDAS
+                    item {
+                        ShopSectionHeader(
+                            title = "Vidas",
+                            description = "Recarga tu energía y sigue jugando",
+                            iconRes = R.drawable.vidas
+                        )
+                    }
+
+                    items(itemsVidas.chunked(2)) { row ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 12.dp),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            row.forEach {
+                                ShopItemCard(
+                                    item = it,
+                                    onBuyClicked = onBuy,
+                                    musicManager = musicManager,
+                                    modifier = Modifier.weight(1f),
+                                    usuarioViwModel = usuarioViwModel,
+                                )
+                            }
+                            if (row.size == 1) Spacer(Modifier.weight(1f))
+                        }
+                        Spacer(Modifier.height(12.dp))
+                    }
+                }
+
+        }
+        }
+    }
+
+}
+@Composable
+fun ShopContainer(
+    modifier: Modifier = Modifier,
+    content: @Composable ColumnScope.() -> Unit
+) {
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(12.dp)
+            .background(
+                color = Color.White.copy(alpha = 0.88f),
+                shape = RoundedCornerShape(20.dp)
+            )
+            .border(
+                width = 2.dp,
+                color = Color.White.copy(alpha = 0.6f),
+                shape = RoundedCornerShape(20.dp)
+            )
+    ) {
+        content()
+    }
+}
+
+@Composable
+fun ShopSectionHeader(
+    title: String,
+    description: String,
+    iconRes: Int
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 20.dp, vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Image(
+            painter = painterResource(iconRes),
+            contentDescription = null,
+            modifier = Modifier.size(32.dp)
+        )
+
+        Spacer(modifier = Modifier.width(12.dp))
+
+        Column {
+            Text(
+                text = title,
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.Black
+            )
+            Text(
+                text = description,
+                fontSize = 14.sp,
+                color = Color.Gray
+            )
         }
     }
 }
+
+

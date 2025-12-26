@@ -20,12 +20,13 @@ import com.proyect.ocean_words.R
 import com.proyect.ocean_words.model.NavItemEstado
 import com.proyect.ocean_words.view.theme.whiteBoxColor
 import com.proyect.ocean_words.view.rutas.Rutas
+import com.proyect.ocean_words.viewmodels.UsuariosViewModel
 
 @Composable
 fun BottomNavBar(
     navController: NavController,
     modifier: Modifier = Modifier,
-    onItemClick: () -> Unit
+    onItemClick: () -> Unit,
 ) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route

@@ -1,5 +1,6 @@
 package com.proyect.ocean_words.viewmodels
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
@@ -10,7 +11,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.stateIn
@@ -39,43 +39,48 @@ class UsuariosViewModel : ViewModel() {
             usuarioRepository.observarUsuario(id).collect { usuario ->
                 _monedasUsuario.value = usuario?.monedas_obtenidas
                 _vidas.value = usuario?.vidas_restantes ?: listOf(true, true, true)
+                Log.i("Vidas","${_vidas.value}")
                 _pistasUsuario.value =usuario?.pistas_obtenidas
             }
         }
     }
-
     val timeToNextLife: StateFlow<String> =
         _lastLifeLossTime
-            .filterNotNull()
             .flatMapLatest { lastLoss ->
                 flow {
-                    while (true) {
-                        val elapsed = System.currentTimeMillis() - lastLoss
-                        val timeLeft = RECHARGE_COOLDOWN_MS - elapsed
+                    if (lastLoss == null) {
+                        emit("") // nada por ahora
+                    } else {
+                        while (true) {
+                            val elapsed = System.currentTimeMillis() - lastLoss
+                            val timeLeft = RECHARGE_COOLDOWN_MS - elapsed
 
-                        if (timeLeft > 0) {
-                            emit(formatTime(timeLeft))
-                            delay(1000)
-                        } else {
-                            emit("00:00")
-
-                            // 🔥 Regenerar EXACTAMENTE UNA VEZ
-                            regenerateOneLifeAndCheckRestart(
-                                FirebaseAuth.getInstance().currentUser?.uid ?: return@flow
-                            )
-                            break
+                            if (timeLeft > 0) {
+                                emit(formatTime(timeLeft))
+                                delay(1000)
+                            } else {
+                                emit("00:00")
+                                regenerateOneLifeAndCheckRestart(
+                                    FirebaseAuth.getInstance().currentUser?.uid ?: return@flow
+                                )
+                                break
+                            }
                         }
                     }
                 }
             }
-            .stateIn(
-                viewModelScope,
-                SharingStarted.WhileSubscribed(5_000),
-                ""
-            )
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), "")
 
     fun checkAndRegenerateLife(userId: String) {
+        val currentVidas = _vidas.value
+        val maxVidas = 3
 
+        // Si faltan vidas y _lastLifeLossTime es null, inicialízalo
+        if (currentVidas.count { !it } > 0 && _lastLifeLossTime.value == null) {
+            _lastLifeLossTime.value = System.currentTimeMillis()
+        }
+
+        // Si ya había tiempo registrado, verifica si pasó el cooldown
         val lastLoss = _lastLifeLossTime.value ?: return
         val elapsed = System.currentTimeMillis() - lastLoss
 
@@ -83,6 +88,20 @@ class UsuariosViewModel : ViewModel() {
             regenerateOneLifeAndCheckRestart(userId)
         }
     }
+
+    fun initLifeTimerIfNeeded(userId: String) {
+        val currentVidas = _vidas.value
+        val vidasFaltantes = currentVidas.count { !it }
+
+        // Si faltan vidas y no hay lastLossTime, inicialízalo ahora
+        if (vidasFaltantes > 0 && _lastLifeLossTime.value == null) {
+            _lastLifeLossTime.value = System.currentTimeMillis()
+        }
+
+        // Luego chequea si ya pasó el cooldown
+        checkAndRegenerateLife(userId)
+    }
+
 
     private fun formatTime(ms: Long): String {
         val totalSeconds = ms / 1000
@@ -139,9 +158,9 @@ class UsuariosViewModel : ViewModel() {
             newVidas
         }
     }
-    fun descontarMonedas(uid: String) {
+    fun descontarMonedas(uid: String, quantity: Int) {
         viewModelScope.launch {
-            usuarioRepository.descontarMonedas(uid, 50)
+            usuarioRepository.descontarMonedas(uid, quantity)
         }
     }
     fun descontarPistas(uid: String){

@@ -183,6 +183,12 @@ class EspecieViewModel (
             removerLetrasIncorrectas(indicesIncorrectos)
         }
     }
+    fun volverJugar() {
+        for (i in respuestaJugador.indices) {
+            val letraCorrecta = animalSinEspacios[i]
+            respuestaJugador[i] = SlotEstado(char = null, esCorrecto = false)
+        }
+    }
 
     fun navegacionAExitoCompleta() {
         _navegarAExito.value = false

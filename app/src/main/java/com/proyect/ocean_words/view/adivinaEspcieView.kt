@@ -99,6 +99,8 @@ fun OceanWordsGameUI(
         if (estadoNivel == "completado") {
             mostrarDialog.value = true
             Log.i("DEBUG", "Nivel completado!")
+        }else{
+            mostrarDialog.value = false
         }
     }
 
@@ -116,7 +118,7 @@ fun OceanWordsGameUI(
             onDismiss = { mostrarDialog.value = false },
             onLeftClick = {
                 mostrarDialog.value = false
-
+                viewModel.volverJugar()
             }
         )
     }
@@ -154,7 +156,8 @@ fun OceanWordsGameUI(
             HeaderSection(
                 navController,
                 nivelViewModel = nivelViewModel,
-                usuariosViewModel = usuarioViwModel
+                usuariosViewModel = usuarioViwModel,
+                mostrarDialog=mostrarDialog
             )
 
             Spacer(modifier = Modifier.height(20.dp))
@@ -194,14 +197,12 @@ fun JuegoAnimal(
     val isGameEnabled = !allLivesLost
     val visible = viewModel.visible
     val respuestaJugador = viewModel.respuestaJugador
-    Log.i("RespuestaJugado","$respuestaJugador")
     val navegarAExito by viewModel.navegarAExito.observeAsState(initial = false)
     val onLetterSelected: (Char, Int) -> Unit = viewModel::selectLetter
     val onLetterRemoved: (Int) -> Unit = viewModel::removeLetter
     val onResetGame: () -> Unit = viewModel::resetGame
     val onGoBackGame: () -> Unit = viewModel::goBackGame
     val usuario: UsuariosEstado? = UserSession.currentUser
-    Log.i("VistaProgreso","${usuario?.progreso_niveles}")
     val obtenerPista : () -> Unit = viewModel::obtenerPista
 
     val scope = rememberCoroutineScope()
@@ -406,7 +407,6 @@ fun ResponseArea(
 
                         val colorDeFondo = when (slotEstado?.esCorrecto) {
                             true -> VerdeClaro.copy(alpha = 0.8f)
-                            false -> Color.Red.copy(alpha = 0.8f)
                             else -> LightBlue.copy(alpha = 0.8f)
                         }
 

@@ -252,7 +252,8 @@ fun NavManager(
                         onBuy = onBuyAction,
                         false,
                         navController,
-                        musicManager
+                        musicManager,
+                        usuarioViwModel
                     )
                 }
             }
@@ -292,7 +293,8 @@ fun NavManager(
                 onBuy = onBuyAction,
                 true,
                 navController,
-                musicManager
+                musicManager,
+                usuarioViwModel
             )
         }
 

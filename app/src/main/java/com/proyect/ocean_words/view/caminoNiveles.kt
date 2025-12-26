@@ -91,10 +91,13 @@ fun caminoNiveles(
 
     LaunchedEffect(userId) {
         usuarioViwModel.observarMonedasVidasUsuario(userId)
+        usuarioViwModel.initLifeTimerIfNeeded(userId)  // 🔥 inicializa el contador al inicio
+
     }
-    val monedas by usuarioViwModel.monedasUsuario.collectAsState()
+    val monedas by usuarioViwModel.monedasUsuario.collectAsState(initial = null) // inicializamos como null
     val vidas by usuarioViwModel.vidas.collectAsState()
     val timeToNextLife by usuarioViwModel.timeToNextLife.collectAsState()
+
     val isRechargeNeeded = vidas.any { !it }
     val isTimerRunning = timeToNextLife.isNotEmpty()
     val infiniteTransition = rememberInfiniteTransition(label = "general_animations")
@@ -302,7 +305,7 @@ fun caminoNiveles(
             }
 
             GameIndicator(
-                value = "1500",
+                value = monedas,
                 redireccionarClick = {
                     navController.navigate("game_shop")
                     onItemClick()

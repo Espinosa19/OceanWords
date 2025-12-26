@@ -21,6 +21,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -40,14 +41,11 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.navigation.NavController
 import com.proyect.ocean_words.R
 import com.proyect.ocean_words.model.CustomDialogConfig
-import com.proyect.ocean_words.model.UsuariosEstado
 import com.proyect.ocean_words.view.rutas.Rutas
 import com.proyect.ocean_words.view.theme.Blue // Asumo que son colores definidos en tu tema
 import com.proyect.ocean_words.view.theme.LightOlive
 import com.proyect.ocean_words.view.theme.azulCeleste
-import com.proyect.ocean_words.viewmodels.EspecieViewModel
 import com.proyect.ocean_words.viewmodels.NivelViewModel
-import com.proyect.ocean_words.viewmodels.UserSession
 import com.proyect.ocean_words.viewmodels.UsuariosViewModel
 
 // NOTA: Tu código original usaba IndicatorBackgroundColor, Orange, OrangeDeep, y Purple40
@@ -57,7 +55,8 @@ import com.proyect.ocean_words.viewmodels.UsuariosViewModel
 fun HeaderSection(
     navController: NavController,
     nivelViewModel: NivelViewModel,
-    usuariosViewModel: UsuariosViewModel
+    usuariosViewModel: UsuariosViewModel,
+    mostrarDialog: MutableState<Boolean>
 ) {
 
 
@@ -72,28 +71,30 @@ fun HeaderSection(
             showNoLivesDialog.value = true
         }
     }
+    if(!mostrarDialog.value){
 
-    CustomDialog(
-        showDialog = showNoLivesDialog.value, // ✅ Boolean
-        config = CustomDialogConfig(
-            title = "¡OH NO!",
-            imageRes = R.drawable.nome_gusta,
-            headline = "Sin vidas",
-            message = "Necesitas vidas para continuar",
-            leftButtonText = "Esperar",
-            rightButtonText = "Comprar"
-        ),
-        onDismiss = {
-            showNoLivesDialog.value = false
-        },
-        onLeftClick = {
-            showNoLivesDialog.value = false
-        },
-        onRightClick = {
-            showNoLivesDialog.value = false
-            navController.navigate("game_shop")
-        }
-    )
+        CustomDialog(
+            showDialog = showNoLivesDialog.value, // ✅ Boolean
+            config = CustomDialogConfig(
+                title = "¡OH NO!",
+                imageRes = R.drawable.nome_gusta,
+                headline = "Sin vidas",
+                message = "Necesitas vidas para continuar",
+                leftButtonText = "Esperar",
+                rightButtonText = "Comprar"
+            ),
+            onDismiss = {
+                showNoLivesDialog.value = false
+            },
+            onLeftClick = {
+                showNoLivesDialog.value = false
+            },
+            onRightClick = {
+                showNoLivesDialog.value = false
+                navController.navigate("game_shop")
+            }
+        )
+    }
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -175,7 +176,7 @@ fun HeaderIndicatorRow(
                 }
             }
 
-            GameIndicator(value = monedas.toString(),redireccionarClick,true)
+            GameIndicator(value = monedas,redireccionarClick,true)
         }
     }
 }@Composable
@@ -430,7 +431,7 @@ fun LifeRechargeBubble(timeRemaining: String, modifier: Modifier = Modifier) {
 // NO NECESITA CAMBIOS MAYORES
 @Composable
 fun GameIndicator(
-    value: String,
+    value: Int?, // Ahora es nullable
     redireccionarClick: () -> Unit,
     visible: Boolean
 ) {
@@ -458,9 +459,7 @@ fun GameIndicator(
             verticalAlignment = Alignment.CenterVertically
         ) {
             when (value) {
-                null -> {
-                    CircularProgressIndicator()
-                }
+                null -> CircularProgressIndicator()
                 else -> {
                     Text(
                         text = "$value",
