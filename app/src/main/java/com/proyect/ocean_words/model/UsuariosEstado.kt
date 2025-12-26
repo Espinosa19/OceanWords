@@ -5,9 +5,9 @@ data class progreso_Niveles(
     val nivel: Int = 0,
     val estado: String = "",
     val id: String = "",
-    val letra: List<ProgresoLetra?> = emptyList()
+    val letra: String =""
 ) {
-    constructor() : this(0, "", "", emptyList())
+    constructor() : this(0, "", "", "")
 }
 
 

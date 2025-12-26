@@ -1,5 +1,6 @@
 package com.proyect.ocean_words.viewmodels
 
+import android.util.Log
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.LiveData
@@ -9,8 +10,8 @@ import androidx.lifecycle.viewModelScope
 import com.proyect.ocean_words.model.EspecieEstado
 import com.proyect.ocean_words.model.SlotEstado
 import com.proyect.ocean_words.domain.repositories.EspecieRepository
-import com.proyect.ocean_words.model.ProgresoLetra
 import com.proyect.ocean_words.model.UsuariosEstado
+import com.proyect.ocean_words.model.progreso_Niveles
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -52,6 +53,13 @@ class EspecieViewModel (
         return String.format("%02d:%02d", minutes, seconds)
     }
 
+    fun obtenerLetrasGuardadas(): String? {
+
+        val progresoExistente: progreso_Niveles? = usuarioDatos?.progreso_niveles
+            ?.firstOrNull { it.nivel == levelId && it.id == especieId }
+
+        return progresoExistente?.letra  // retorna letras si existe, o null
+    }
 
 
     val animalRandom: String = if (dificultad != "dificil") {
@@ -69,26 +77,31 @@ class EspecieViewModel (
         repeat(tamanoTeclado) { add(true) }
     }
 
+    val letrasGuardadas: String? = obtenerLetrasGuardadas()
+
     val respuestaJugador = mutableStateListOf<SlotEstado?>().apply {
-        repeat(animalSinEspacios.length) { add(SlotEstado()) }
+        // Recorremos cada posición de la palabra
+        for (i in animalSinEspacios.indices) {
+            val letraCorrecta = animalSinEspacios[i]
+
+            if (letrasGuardadas != null && i < letrasGuardadas.length) {
+                val letraGuardada = letrasGuardadas[i]
+                if (letraGuardada.equals(letraCorrecta, ignoreCase = true)) {
+                    // Si la letra estaba correcta en el progreso guardado → bloqueada
+                    add(SlotEstado(char = letraGuardada, esCorrecto = true))
+                } else {
+                    // Si la letra no estaba correcta → slot vacío
+                    add(SlotEstado(char = null, esCorrecto = false))
+                }
+            } else {
+                // Si no hay progreso guardado → slot vacío
+                add(SlotEstado())
+            }
+        }
     }
 
     val botonADondeFue = mutableStateListOf<Int>().apply {
         repeat(tamanoTeclado) { add(-1) }
-    }
-
-    fun snapshotToProgreso(
-        respuestaJugador: List<SlotEstado?>
-    ): List<ProgresoLetra> {
-        return respuestaJugador.mapIndexedNotNull { index, slot ->
-            slot?.char?.let {
-                ProgresoLetra(
-                    char = it.toString(),
-                    posicion = index,
-                    correcta = slot.esCorrecto == true
-                )
-            }
-        }
     }
 
     val usoLetras: StateFlow<Map<Char, Int>> =
@@ -104,46 +117,63 @@ class EspecieViewModel (
                 SharingStarted.Eagerly,
                 emptyMap()
             )
-
     private fun validarPalabraCompleta() {
-
         val respuestaCompleta = respuestaJugador.map { it?.char ?: ' ' }.joinToString("")
         val esPalabraCorrecta = respuestaCompleta.equals(animalSinEspacios, ignoreCase = true)
+        var letrasCorrectas = ""  // inicializamos el String vacío
 
         if (esPalabraCorrecta) {
-            for (i in respuestaJugador.indices) {
-                val currentChar = respuestaJugador[i]?.char
+            // Todas las letras correctas → bloqueadas
+            respuestaJugador.forEachIndexed { i, slot ->
+                val currentChar = slot?.char
                 respuestaJugador[i] = SlotEstado(char = currentChar, esCorrecto = true)
+                if (currentChar != null) {
+                    letrasCorrectas += currentChar.toString()
+                }
             }
+
             progresoViewModel.buscarProgresoUsuId(
                 level = levelId,
                 especieId = especieId,
                 userId = userId,
                 completado = true,
-                letras = snapshotToProgreso(respuestaJugador)
+                letras = letrasCorrectas
             )
+
             _navegarAExito.value = true
 
         } else {
+            usuariosViewModel.perderVidaGlobal(id = userId)
+
             val indicesIncorrectos = mutableListOf<Int>()
-            for (i in respuestaJugador.indices) {
-                val letraJugador = respuestaJugador[i]?.char
+            respuestaJugador.forEachIndexed { i, slot ->
+                val letraJugador = slot?.char
                 val letraCorrecta = animalSinEspacios[i]
 
-                val esLetraCorrectaEnPosicion = letraJugador != null &&
-                        letraJugador.equals(letraCorrecta, ignoreCase = true)
-
-                if (esLetraCorrectaEnPosicion) {
+                if (letraJugador != null && letraJugador.equals(letraCorrecta, ignoreCase = true)) {
+                    // Letra correcta → bloqueada
                     respuestaJugador[i] = SlotEstado(char = letraJugador, esCorrecto = true)
+                    letrasCorrectas += letraJugador.toString()
                 } else {
+                    // Letra incorrecta → se limpiará
                     respuestaJugador[i] = SlotEstado(char = letraJugador, esCorrecto = false)
                     indicesIncorrectos.add(i)
                 }
             }
 
+            progresoViewModel.buscarProgresoUsuId(
+                level = levelId,
+                especieId = especieId,
+                userId = userId,
+                completado = false,
+                letras = letrasCorrectas
+            )
+
+            // Limpiar solo las letras incorrectas
             removerLetrasIncorrectas(indicesIncorrectos)
         }
     }
+
     fun navegacionAExitoCompleta() {
         _navegarAExito.value = false
     }
@@ -154,9 +184,15 @@ class EspecieViewModel (
      */
     private fun removerLetrasIncorrectas(indices: List<Int>) {
         indices.forEach { index ->
-            respuestaJugador[index] = SlotEstado()
+            // Solo limpiar la letra incorrecta, manteniendo el slot activo
+            respuestaJugador[index] = SlotEstado(
+                char = null,
+                botonIndex = respuestaJugador[index]?.botonIndex,
+                esCorrecto = null
+            )
         }
     }
+
 
     fun selectLetter(char: Char, botonIndex: Int) {
         val posicion = respuestaJugador.indexOfFirst { it?.char == null }

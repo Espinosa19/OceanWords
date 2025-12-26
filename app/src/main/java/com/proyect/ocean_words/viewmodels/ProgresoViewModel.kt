@@ -1,6 +1,7 @@
 package com.proyect.ocean_words.viewmodels
 
 import android.util.Log
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -11,6 +12,7 @@ import com.proyect.ocean_words.model.UsuariosEstado
 import com.proyect.ocean_words.model.progreso_Niveles
 import com.proyect.ocean_words.domain.repositories.UsuarioRepository
 import com.proyect.ocean_words.model.ProgresoLetra
+import com.proyect.ocean_words.model.SlotEstado
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
@@ -69,12 +71,13 @@ class ProgresoViewModel : ViewModel() {
                     onChange(null)
                 }
             }
-    }  fun buscarProgresoUsuId(
+    }
+    fun buscarProgresoUsuId(
         level: Int,
         especieId: String,
         userId: String,
         completado: Boolean,
-        letras: List<ProgresoLetra>,
+        letras: String,
     ) {
         val usuario: UsuariosEstado? = UserSession.currentUser
 
@@ -97,40 +100,39 @@ class ProgresoViewModel : ViewModel() {
                             val progresoActual = usuarioEncontrado.progreso_niveles?.toMutableList() ?: mutableListOf()
                             Log.i("progresoActual", "$progresoActual")
 
-                            // Verificar si ya existe un progreso para esta especie y nivel
-                            val existe = progresoActual.any { it.id == especieId && it.nivel == level }
-                            val estadoNivel =
-                                if (completado) "completado" else "en_progreso"
+                            val estadoNivel = if (completado) "completado" else "en_progreso"
 
-                            if (!existe) {
+                            // ✅ Buscamos si ya existe un progreso para este nivel y especie
+                            val progresoExistente = progresoActual.firstOrNull { it.nivel == level && it.id == especieId }
+
+                            if (progresoExistente == null) {
+                                // Nivel no existe → agregamos nuevo
                                 val nuevoProgreso = progreso_Niveles(
                                     nivel = level,
                                     estado = estadoNivel,
                                     id = especieId,
                                     letra = letras
                                 )
-
-                                val progresoActualizado = if (progresoActual.isEmpty()) {
-                                    // Si no hay elementos, crear una nueva lista con el nuevo progreso
-                                    mutableListOf(nuevoProgreso)
-                                } else {
-                                    // Si ya hay elementos, agregar al final
-                                    progresoActual.apply { add(nuevoProgreso) }
-                                }
-
-                                // Guardar en Firebase
-                                usuarioRepository.actualizarProgresoUsuario(usuarioEncontrado.id, progresoActualizado)
-
-                                // Actualizar LiveData y sesión
-                                val usuarioActualizado = usuarioEncontrado.copy(progreso_niveles = progresoActualizado)
-                                _usuarioLiveData.value = usuarioActualizado
-                                UserSession.currentUser = usuarioActualizado
-
-                                Log.i("progresoGuardado", "${_usuarioLiveData.value}")
+                                progresoActual.add(nuevoProgreso)
                             } else {
-                                Log.i("progresoExistente", "El progreso ya existe, no se inserta")
+                                // Nivel ya existe → actualizamos el existente
+                                val progresoActualizadoNivel = progresoExistente.copy(
+                                    estado = estadoNivel,
+                                    letra = letras
+                                )
+                                val index = progresoActual.indexOf(progresoExistente)
+                                if (index != -1) {
+                                    progresoActual[index] = progresoActualizadoNivel
+                                }
                             }
 
+                            // Guardamos en Firebase y actualizamos LiveData / sesión
+                            usuarioRepository.actualizarProgresoUsuario(usuarioEncontrado.id, progresoActual)
+                            val usuarioActualizado = usuarioEncontrado.copy(progreso_niveles = progresoActual)
+                            _usuarioLiveData.value = usuarioActualizado
+                            UserSession.currentUser = usuarioActualizado
+
+                            Log.i("progresoGuardado", "${_usuarioLiveData.value}")
                             _isLoading.value = false
                         } else {
                             _error.value = "No se encontró el usuario"
@@ -145,6 +147,7 @@ class ProgresoViewModel : ViewModel() {
             }
         }
     }
+
 
 
 

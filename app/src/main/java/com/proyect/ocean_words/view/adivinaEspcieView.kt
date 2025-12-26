@@ -45,6 +45,7 @@ import com.proyect.ocean_words.viewmodels.UserSession
 import com.proyect.ocean_words.viewmodels.AdivinaEspecieViewModelFactory
 import com.proyect.ocean_words.model.SlotEstado
 import com.proyect.ocean_words.model.UsuariosEstado
+import com.proyect.ocean_words.model.progreso_Niveles
 
 import com.proyect.ocean_words.utils.MusicManager
 import com.proyect.ocean_words.view.screens.FishShape
@@ -89,6 +90,8 @@ fun OceanWordsGameUI(
     )
     val usuarioDatos: UsuariosEstado? = UserSession.currentUser
     val userId : String= (usuarioDatos?.id).toString()
+// Ejemplo: obtener letras del primer nivel
+
     LaunchedEffect(Unit) {
         usuarioViwModel.checkAndRegenerateLife(userId)
     }
@@ -439,19 +442,20 @@ fun tecladoInteractivo(
 
                     // 🔑 Visibilidad DERIVADA
                     val botonUsado = respuestaJugador.any { it?.botonIndex == j }
+                    val usosActuales = usoLetras[letra] ?: 0
+                    val maxUsos = animalRandom.count { it == letra }
 
                     AnimatedVisibility(
-                        visible = !botonUsado,
+                        visible = !botonUsado && usosActuales < maxUsos,
                         exit = fadeOut(animationSpec = tween(300))
                     ) {
+
                         Button(
                             onClick = {
                                 if (!enabled) return@Button
 
                                 musicManager.playClickSound()
 
-                                val usosActuales = usoLetras[letra] ?: 0
-                                val maxUsos = animalRandom.count { it == letra }
 
                                 if (usosActuales < maxUsos) {
                                     viewModel.selectLetter(letra, j)
