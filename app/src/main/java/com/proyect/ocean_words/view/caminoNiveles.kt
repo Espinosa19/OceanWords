@@ -49,6 +49,7 @@ import androidx.navigation.NavHostController
 import com.proyect.ocean_words.R
 import com.proyect.ocean_words.model.LevelEstado
 import com.proyect.ocean_words.model.NivelEstado
+import com.proyect.ocean_words.model.TipoEspecie
 import com.proyect.ocean_words.model.UsuariosEstado
 import com.proyect.ocean_words.model.progreso_Niveles
 import com.proyect.ocean_words.utils.MusicManager
@@ -169,13 +170,16 @@ fun caminoNiveles(
             nombreEspecie = especieAleatoria?.nombre ?: "Desconocida",
             dificultad = especieAleatoria?.dificultad ?: "Sin definir",
             imagen = especieAleatoria?.imagen ?: "",
-            isUnlocked = isUnlocked
+            isUnlocked = isUnlocked,
+            tipo_especie = especieAleatoria?.tipo_especie?.name ?: "NORMAL"
+
         )
     }
 
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
+
         Image(
             painter = painterResource(id = R.drawable.fondo_o),
             contentDescription = "Fondo submarino",
@@ -486,9 +490,10 @@ fun CaminoNivelesRoute(
             val nombre = URLEncoder.encode(especie.nombre, StandardCharsets.UTF_8.toString())
             val dificultad = especie.dificultad
             val imagen = URLEncoder.encode(especie.imagen, StandardCharsets.UTF_8.toString())
-
             musicManager.playClickSound()
-            navController.navigate("nivel/$levelId/$especie_id/$nombre/$dificultad/$imagen")
+            val tipoEspecie = especie.tipo_especie.name
+
+            navController.navigate("nivel/$levelId/$especie_id/$nombre/$dificultad/$imagen/${tipoEspecie}")
 
         } else {
             Log.e("CaminoNivelesRoute", "No se encontró especie para el nivel $levelId")

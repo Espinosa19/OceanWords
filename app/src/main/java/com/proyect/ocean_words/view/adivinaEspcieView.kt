@@ -55,6 +55,7 @@ import com.proyect.ocean_words.view.theme.OceanBackground
 import com.proyect.ocean_words.view.theme.Orange
 import com.proyect.ocean_words.view.screens.HeaderSection
 import com.proyect.ocean_words.view.screens.NavegacionDrawerMenu
+import com.proyect.ocean_words.view.screens.OceanChestScreen
 import com.proyect.ocean_words.view.theme.Boogaloo
 import com.proyect.ocean_words.view.theme.BricolageGrotesque
 import com.proyect.ocean_words.view.theme.Delius
@@ -84,6 +85,7 @@ fun OceanWordsGameUI(
     imagen: String?,
     progresoViewModel: ProgresoViewModel,
     usuarioViwModel: UsuariosViewModel,
+    tipo_especie: String?,
 ) {
     val viewModel: EspecieViewModel = viewModel(
         factory = AdivinaEspecieViewModelFactory(levelId,especieId,animal, dificultad,usuarioViwModel)
@@ -139,14 +141,18 @@ fun OceanWordsGameUI(
             .fillMaxSize()
             .background(OceanBackground)
     ) {
-        // Fondo de imagen
+        val imageResource = if (tipo_especie.equals("NORMAL")) {
+            R.drawable.fondo_juego // Asumo que 'vidas' es el corazón lleno
+        } else {
+            R.drawable.fondo_mitico // <--- ¡DEBES USAR UN RECURSO PARA EL CORAZÓN VACÍO AQUÍ!
+        }
+
         Image(
-            painter = painterResource(id = R.drawable.fondo_juego),
+            painter = painterResource(id = imageResource),
             contentDescription = null,
             contentScale = ContentScale.Crop,
             modifier = Modifier.matchParentSize()
         )
-
         // Contenido principal
         Column(
             modifier = Modifier
@@ -163,7 +169,7 @@ fun OceanWordsGameUI(
             Spacer(modifier = Modifier.height(20.dp))
 
             // 2. Aquí se llama al componente principal del juego con toda la lógica de estado
-            JuegoAnimal(animal, dificultad, animalQuestion, navController, musicManager, onMusicToggle, isMusicEnabled,especieId, nivelViewModel,imagen,progresoViewModel,levelId,viewModel,usuarioViwModel)
+            JuegoAnimal(animal, dificultad, animalQuestion, navController, musicManager, onMusicToggle, isMusicEnabled,especieId, nivelViewModel,imagen,progresoViewModel,levelId,viewModel,usuarioViwModel,tipo_especie)
         }
 
 
@@ -186,7 +192,8 @@ fun JuegoAnimal(
     progresoViewModel: ProgresoViewModel,
     levelId: Int,
     viewModel: EspecieViewModel,
-    usuarioViwModel: UsuariosViewModel
+    usuarioViwModel: UsuariosViewModel,
+    tipo_especie: String?
 ) {
 
 
@@ -208,15 +215,24 @@ fun JuegoAnimal(
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
     val pistaUsada by viewModel.pistaUsada.collectAsState()
-
+    val mostrarDial = remember { mutableStateOf(false) }
     LaunchedEffect (navegarAExito,levelId,especieId) {
         if (navegarAExito) {
             val imagen = URLEncoder.encode(imagen, StandardCharsets.UTF_8.toString())
-            navController.navigate("caracteristicas/$especieId/$imagen/$levelId")
+            if(tipo_especie.equals("MITICA")){
+                mostrarDial.value=true
+            }else{
+                navController.navigate("caracteristicas/$especieId/$imagen/$levelId")
+            }
         }
     }
 
+    if (mostrarDial.value) {
 
+            OceanChestScreen(
+            )
+
+    }
     // 4. LAYOUT
     Box(modifier = Modifier.fillMaxSize()) {
         val configuration = LocalConfiguration.current
@@ -738,6 +754,7 @@ fun OceanWordsGameRoute(
     imagen: String?,
     progresoViewModel: ProgresoViewModel,
     usuarioViwModel: UsuariosViewModel,
+    tipo_especie: String?,
 ) {
 
     LaunchedEffect(isMusicGloballyEnabled, isAppInForeground) {
@@ -765,7 +782,8 @@ fun OceanWordsGameRoute(
         especieId = especieId,
         nivelViewModel = nivelViewModel,
         progresoViewModel =progresoViewModel,
-        usuarioViwModel= usuarioViwModel
+        usuarioViwModel= usuarioViwModel,
+        tipo_especie = tipo_especie
     )
 }
 

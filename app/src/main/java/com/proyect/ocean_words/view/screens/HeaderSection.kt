@@ -185,7 +185,8 @@ fun CustomDialog(
     config: CustomDialogConfig,
     onDismiss: () -> Unit,
     onLeftClick: () -> Unit,
-    onRightClick: (() -> Unit)? = null
+    onRightClick: (() -> Unit)? = null,
+    content: (@Composable () -> Unit)? = null // 👈 NUEVO
 ) {
     AnimatedVisibility(
         visible = showDialog,
@@ -250,12 +251,17 @@ fun CustomDialog(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
-                        Image(
-                            painter = painterResource(id = config.imageRes),
-                            contentDescription = null,
-                            modifier = Modifier.size(90.dp),
-                            contentScale = ContentScale.Fit
-                        )
+                        if (content != null) {
+                            content()
+                        } else {
+                            Image(
+                                painter = painterResource(id = config.imageRes),
+                                contentDescription = null,
+                                modifier = Modifier.size(90.dp),
+                                contentScale = ContentScale.Fit
+                            )
+                        }
+
 
                         Text(
                             text = config.headline,

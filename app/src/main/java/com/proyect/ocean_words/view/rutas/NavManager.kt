@@ -127,14 +127,14 @@ fun NavManager(
             )
         }
         composable(
-            route = "nivel/{id}/{especie_id}/{nombre}/{dificultad}/{imagen}",
+            route = "nivel/{id}/{especie_id}/{nombre}/{dificultad}/{imagen}/{tipo_especie}",
             arguments = listOf(
                 navArgument("id") { type = NavType.IntType },
                 navArgument("especie_id") { type = NavType.StringType },
                 navArgument("nombre") { type = NavType.StringType },
                 navArgument("dificultad") { type = NavType.StringType },
-                navArgument("imagen") { type = NavType.StringType }
-
+                navArgument("imagen") { type = NavType.StringType },
+                navArgument("tipo_especie"){type = NavType.StringType}
             )
         ) { backStackEntry ->
 
@@ -150,6 +150,7 @@ fun NavManager(
             val nombre = backStackEntry.arguments?.getString("nombre")
             val dificultad = backStackEntry.arguments?.getString("dificultad")
             val imagen: String? = backStackEntry.arguments?.getString("imagen")
+            val tipo_especie: String? = backStackEntry.arguments?.getString("tipo_especie")
             val nombreLimpio = URLDecoder.decode(nombre, StandardCharsets.UTF_8.toString())
             if (levelId != null) {
                 if (nombre != null) {
@@ -168,6 +169,7 @@ fun NavManager(
                                 onMusicToggle = { isEnabled ->
                                     isMusicGloballyEnabled = isEnabled
                                 },
+                                tipo_especie = tipo_especie,
                                 nivelViewModel = nivelViewModel,
                                 progresoViewModel =progresoViewModel,
                                 usuarioViwModel= usuarioViwModel

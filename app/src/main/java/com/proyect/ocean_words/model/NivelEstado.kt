@@ -3,7 +3,8 @@ data class EspecieNivel(
     var id: String = "",
     var nombre: String = "",
     var dificultad: String = "",
-    var imagen: String = ""
+    var imagen: String = "",
+    val tipo_especie: TipoEspecie = TipoEspecie.NORMAL
 ) {
     constructor() : this("", "", "", "")
 }

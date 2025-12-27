@@ -14,6 +14,7 @@ data class EspecieEstado (
     val dificultad : String ="",
     val agua : String = "",
     val imagen : String ="",
-    val Datos: String = ""
+    val Datos: String = "",
+    val tipo_especie: TipoEspecie = TipoEspecie.NORMAL
 
     )
