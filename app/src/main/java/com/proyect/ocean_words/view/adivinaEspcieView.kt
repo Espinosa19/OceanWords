@@ -1,5 +1,5 @@
 package com.proyect.ocean_words.view
-
+import RealisticStylizedChest
 import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
@@ -20,6 +20,7 @@ import androidx.compose.runtime.getValue // Esta es la importación clave que fa
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -55,7 +56,6 @@ import com.proyect.ocean_words.view.theme.OceanBackground
 import com.proyect.ocean_words.view.theme.Orange
 import com.proyect.ocean_words.view.screens.HeaderSection
 import com.proyect.ocean_words.view.screens.NavegacionDrawerMenu
-import com.proyect.ocean_words.view.screens.OceanChestScreen
 import com.proyect.ocean_words.view.theme.Boogaloo
 import com.proyect.ocean_words.view.theme.BricolageGrotesque
 import com.proyect.ocean_words.view.theme.Delius
@@ -90,21 +90,22 @@ fun OceanWordsGameUI(
     val viewModel: EspecieViewModel = viewModel(
         factory = AdivinaEspecieViewModelFactory(levelId,especieId,animal, dificultad,usuarioViwModel)
     )
+
     val usuarioDatos: UsuariosEstado? = UserSession.currentUser
     val userId : String= (usuarioDatos?.id).toString()
     val estadoNivel by viewModel.estadoNivel.collectAsState()
-    val mostrarDialog = remember { mutableStateOf(false) }
+    var mostrarDialog = remember { mutableStateOf(false) }
 
     // Cada vez que cambie estadoNivel, revisamos si está completado
-    LaunchedEffect(estadoNivel) {
-        viewModel.calcularEstadoNivel() // Llamamos para actualizar el estado
-        if (estadoNivel == "completado") {
-            mostrarDialog.value = true
-            Log.i("DEBUG", "Nivel completado!")
-        }else{
-            mostrarDialog.value = false
-        }
+    LaunchedEffect(Unit) {
+        viewModel.calcularEstadoNivel()
     }
+
+    LaunchedEffect(estadoNivel) {
+        mostrarDialog.value = estadoNivel == "completado"
+    }
+
+    var mostrarDial by rememberSaveable { mutableStateOf(false) }
 
     // Mostrar diálogo
     if (mostrarDialog.value) {
@@ -153,11 +154,13 @@ fun OceanWordsGameUI(
             contentScale = ContentScale.Crop,
             modifier = Modifier.matchParentSize()
         )
+
         // Contenido principal
         Column(
             modifier = Modifier
                 .fillMaxSize()
         ) {
+
             // 1. Encabezado (Score, Time)
             HeaderSection(
                 navController,
@@ -169,10 +172,38 @@ fun OceanWordsGameUI(
             Spacer(modifier = Modifier.height(20.dp))
 
             // 2. Aquí se llama al componente principal del juego con toda la lógica de estado
-            JuegoAnimal(animal, dificultad, animalQuestion, navController, musicManager, onMusicToggle, isMusicEnabled,especieId, nivelViewModel,imagen,progresoViewModel,levelId,viewModel,usuarioViwModel,tipo_especie)
+            JuegoAnimal(
+                animal,
+                dificultad,
+                animalQuestion,
+                navController,
+                musicManager,
+                onMusicToggle,
+                isMusicEnabled,
+                especieId,
+                nivelViewModel,
+                imagen,
+                progresoViewModel,
+                levelId,
+                viewModel,
+                usuarioViwModel,
+                tipo_especie,
+                onMostrarDialChange = { mostrarDial = it },
+                mostrarDial = mostrarDial
+            )
         }
 
-
+        if (mostrarDial) {
+            Log.i("MostrarDia","Holsa")
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.55f)), // 🖤 fondo oscuro translúcido
+                contentAlignment = Alignment.Center
+            ) {
+                RealisticStylizedChest()
+            }
+        }
     }
 }
 
@@ -193,7 +224,9 @@ fun JuegoAnimal(
     levelId: Int,
     viewModel: EspecieViewModel,
     usuarioViwModel: UsuariosViewModel,
-    tipo_especie: String?
+    tipo_especie: String?,
+    mostrarDial: Boolean,
+    onMostrarDialChange: (Boolean) -> Unit
 ) {
 
 
@@ -215,24 +248,25 @@ fun JuegoAnimal(
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
     val pistaUsada by viewModel.pistaUsada.collectAsState()
-    val mostrarDial = remember { mutableStateOf(false) }
-    LaunchedEffect (navegarAExito,levelId,especieId) {
+    LaunchedEffect(navegarAExito) {
         if (navegarAExito) {
-            val imagen = URLEncoder.encode(imagen, StandardCharsets.UTF_8.toString())
-            if(tipo_especie.equals("MITICA")){
-                mostrarDial.value=true
-            }else{
-                navController.navigate("caracteristicas/$especieId/$imagen/$levelId")
+
+            val imagenEncoded = imagen?.let {
+                URLEncoder.encode(it, StandardCharsets.UTF_8.toString())
+            } ?: ""
+
+            if (tipo_especie == "MITICA") {
+                onMostrarDialChange(true) // ✅ AHORA SÍ
+            } else {
+                navController.navigate(
+                    "caracteristicas/$especieId/$imagenEncoded/$levelId"
+                )
             }
         }
     }
 
-    if (mostrarDial.value) {
 
-            OceanChestScreen(
-            )
 
-    }
     // 4. LAYOUT
     Box(modifier = Modifier.fillMaxSize()) {
         val configuration = LocalConfiguration.current
