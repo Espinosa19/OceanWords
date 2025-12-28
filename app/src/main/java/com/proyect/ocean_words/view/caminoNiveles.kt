@@ -49,7 +49,6 @@ import androidx.navigation.NavHostController
 import com.proyect.ocean_words.R
 import com.proyect.ocean_words.model.LevelEstado
 import com.proyect.ocean_words.model.NivelEstado
-import com.proyect.ocean_words.model.TipoEspecie
 import com.proyect.ocean_words.model.UsuariosEstado
 import com.proyect.ocean_words.model.progreso_Niveles
 import com.proyect.ocean_words.utils.MusicManager
@@ -69,6 +68,12 @@ import java.nio.charset.StandardCharsets
 val LevelSpacing = 40.dp
 val PaddingVertical = 50.dp
 val TotalLevels = 5
+private val unlockedLevelImages = listOf(
+    R.drawable.iconos, R.drawable.icono2, R.drawable.icono1
+)
+private val lockedLevelImages =listOf(
+    R.drawable.lock3, R.drawable.lock1, R.drawable.lock2
+)
 
 @Composable
 fun caminoNiveles(
@@ -81,6 +86,7 @@ fun caminoNiveles(
     progreso: List<progreso_Niveles>,
     onItemClick: () -> Unit,
     usuarioViwModel: UsuariosViewModel,
+    nivelesFinal: List<LevelEstado>,
 
     ) {
     val listState = rememberLazyListState()
@@ -103,42 +109,7 @@ fun caminoNiveles(
     val isTimerRunning = timeToNextLife.isNotEmpty()
     val infiniteTransition = rememberInfiniteTransition(label = "general_animations")
 
-    val fish1XOffset by infiniteTransition.animateFloat(
-        initialValue = 1500f,
-        targetValue = -500f,
-        animationSpec = infiniteRepeatable(animation = tween(20000, easing = LinearEasing), repeatMode = RepeatMode.Restart),
-        label = "fish1_offset_x"
-    )
-    val fish1YOffset by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 25f,
-        animationSpec = infiniteRepeatable(animation = tween(4000, easing = EaseInOut), repeatMode = RepeatMode.Reverse),
-        label = "fish1_offset_y"
-    )
-    val fish2XOffset by infiniteTransition.animateFloat(
-        initialValue = 1500f, targetValue = -500f,
-        animationSpec = infiniteRepeatable(animation = tween(14000, easing = LinearEasing), repeatMode = RepeatMode.Restart), label = "fish2_offset_x"
-    )
-    val fish2YOffset by infiniteTransition.animateFloat(
-        initialValue = 0f, targetValue = 15f,
-        animationSpec = infiniteRepeatable(animation = tween(3000, easing = EaseInOut), repeatMode = RepeatMode.Reverse), label = "fish2_offset_y"
-    )
-    val fish3XOffset by infiniteTransition.animateFloat(
-        initialValue = -500f, targetValue = 1500f,
-        animationSpec = infiniteRepeatable(animation = tween(10000, easing = LinearEasing), repeatMode = RepeatMode.Restart), label = "fish3_offset_x"
-    )
-    val fish3YOffset by infiniteTransition.animateFloat(
-        initialValue = 0f, targetValue = 10f,
-        animationSpec = infiniteRepeatable(animation = tween(2500, easing = EaseInOut), repeatMode = RepeatMode.Reverse), label = "fish3_offset_y"
-    )
-    val fish4XOffset by infiniteTransition.animateFloat(
-        initialValue = -500f, targetValue = 1500f,
-        animationSpec = infiniteRepeatable(animation = tween(25000, easing = LinearEasing), repeatMode = RepeatMode.Restart), label = "fish5_offset_x"
-    )
-    val fish4YOffset by infiniteTransition.animateFloat(
-        initialValue = 0f, targetValue = 30f,
-        animationSpec = infiniteRepeatable(animation = tween(5000, easing = EaseInOut), repeatMode = RepeatMode.Reverse), label = "fish5_offset_y"
-    )
+
 
     val levelNodeScale by infiniteTransition.animateFloat(
         initialValue = 1f,
@@ -154,27 +125,7 @@ fun caminoNiveles(
         .mapNotNull { it.nivel }
         .toSet()
 
-    val nivelesFinal = niveles.mapIndexed { index, nivel ->
-        val especieAleatoria = nivel.especies_id.randomOrNull()
 
-        val nivelNumero = index + 1
-
-        val isUnlocked = when (nivelNumero) {
-            1 -> true
-            else -> (completadosSet.contains(nivelNumero - 1))
-        }
-
-        LevelEstado(
-            id = nivelNumero,
-            especie_id = especieAleatoria?.id ?: "0",
-            nombreEspecie = especieAleatoria?.nombre ?: "Desconocida",
-            dificultad = especieAleatoria?.dificultad ?: "Sin definir",
-            imagen = especieAleatoria?.imagen ?: "",
-            isUnlocked = isUnlocked,
-            tipo_especie = especieAleatoria?.tipo_especie?.name ?: "NORMAL"
-
-        )
-    }
 
     Box(
         modifier = Modifier.fillMaxSize()
@@ -218,60 +169,6 @@ fun caminoNiveles(
                 )
             }
         }
-
-        Image(
-            painter = painterResource(id = R.drawable.pez_azul),
-            contentDescription = "Pez 1",
-            modifier = Modifier
-                .size(width = 90.dp, height = 45.dp)
-                .offset(
-                    x = with(density) { fish1XOffset.toDp() },
-                    y = 600.dp + with(density) { fish1YOffset.toDp() }
-                )
-                .graphicsLayer {
-                    scaleX = -1f
-                },
-            contentScale = ContentScale.Fit
-        )
-
-        Image(
-            painter = painterResource(id = R.drawable.pez_triangulo),
-            contentDescription = "Pez 2",
-            modifier = Modifier
-                .size(width = 90.dp, height = 45.dp)
-                .offset(
-                    x = with(density) { fish4XOffset.toDp() },
-                    y = 400.dp + with(density) { fish4YOffset.toDp() }
-                ),
-            contentScale = ContentScale.Fit
-        )
-
-        Image(
-            painter = painterResource(id = R.drawable.pez_naranja),
-            contentDescription = "Pez 3",
-            modifier = Modifier
-                .size(width = 80.dp, height = 40.dp)
-                .offset(
-                    x = with(density) { fish2XOffset.toDp() },
-                    y = 250.dp + with(density) { fish2YOffset.toDp() }
-                )
-                .graphicsLayer {
-                    scaleX = -1f
-                },
-            contentScale = ContentScale.Fit
-        )
-
-        Image(
-            painter = painterResource(id = R.drawable.pez_payaso),
-            contentDescription = "Pez 4",
-            modifier = Modifier
-                .size(75.dp, 37.5.dp)
-                .offset(
-                    x = with(density) { fish3XOffset.toDp() },
-                    y = 80.dp + with(density) { fish3YOffset.toDp() }
-                ),
-            contentScale = ContentScale.Fit
-        )
 
         Row(
             modifier = Modifier
@@ -357,12 +254,6 @@ fun LevelNode(
 ) {
     val horizontalOffset = if (index % 2 == 0) (-50).dp else 50.dp
 
-    val unlockedLevelImages = remember { listOf(
-        R.drawable.iconos, R.drawable.icono2, R.drawable.icono1
-    ) }
-    val lockedLevelImages = remember { listOf(
-        R.drawable.lock3, R.drawable.lock1, R.drawable.lock2
-    ) }
 
     val imageResId = if (level.isUnlocked) {
         unlockedLevelImages.getOrElse(index % unlockedLevelImages.size) { unlockedLevelImages[0] }
@@ -419,22 +310,25 @@ fun LevelNode(
         )
 
         if (isCompleted) {
-            Text(
-                text = "✅",
-                fontSize = 28.sp,
+
+            Image(
+                painter = painterResource(id = R.drawable.correcto),
+                contentDescription = "Completo el nivel",
                 modifier = Modifier
-                    .align(Alignment.TopCenter)
-                    .offset(y = (-14).dp)
+                    .size(40.dp)
+                    .offset(y = (-50).dp)
+
             )
         }
 
         if (!level.isUnlocked) {
-            Text(
-                text = "🔒",
-                fontSize = 20.sp,
+            Image(
+                painter = painterResource(id = R.drawable.cerrarconllave),
+                contentDescription = "No esta completo el nivel",
                 modifier = Modifier
-                    .align(Alignment.BottomCenter)
+                    .size(40.dp)
                     .offset(y = 5.dp)
+
             )
         }
 
@@ -472,6 +366,11 @@ fun CaminoNivelesRoute(
     val isGameFinished = totalNivelesCargados > 0 && progresoList.any {
         it.nivel == totalNivelesCargados && it.estado.equals("completado", ignoreCase = true)
     }
+    LaunchedEffect(niveles, progresoList) {
+        viewModel.construirNivelesFinal(niveles, progresoList)
+    }
+
+    val nivelesFinal by viewModel.nivelesFinal.collectAsState()
 
     LaunchedEffect(showCompletionEvent) {
         if (showCompletionEvent) {
@@ -525,7 +424,9 @@ fun CaminoNivelesRoute(
                     isMusicEnabled = isMusicGloballyEnabled,
                     onItemClick = musicManager::playClickSound,
                     progreso = progresoList,
-                    usuarioViwModel = usuarioViwModel
+                    usuarioViwModel = usuarioViwModel,
+                    nivelesFinal =nivelesFinal
+
                 )
             }
         }

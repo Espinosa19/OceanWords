@@ -2,22 +2,49 @@ import android.graphics.Camera
 import android.graphics.Matrix as AndroidMatrix
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.*
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.drawscope.*
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import kotlin.math.hypot
 import kotlin.math.sin
+import com.proyect.ocean_words.R
+import androidx.compose.ui.text.TextStyle
+import androidx.navigation.NavController
+import com.proyect.ocean_words.view.theme.BricolageGrotesque
+import com.proyect.ocean_words.view.theme.LightOlive
+
 
 @Composable
-fun RealisticStylizedChest(modifier: Modifier = Modifier) {
+fun RealisticStylizedChest(
+    especieId: String,
+    levelId: String,
+    imagenEncoded: Int,
+    navController: NavController,
+    modifier: Modifier = Modifier
+) {
     var isOpen by remember { mutableStateOf(false) }
+    var yaAbierto by remember { mutableStateOf(false) } // <- nueva variable
 
+    var mostrarPremios by remember { mutableStateOf(true) }
     val openProgress by animateFloatAsState(
         targetValue = if (isOpen) 1f else 0f,
         animationSpec = spring(0.55f, Spring.StiffnessLow),
@@ -52,26 +79,31 @@ fun RealisticStylizedChest(modifier: Modifier = Modifier) {
         label = "GlowPulse"
     )
 
-    val glowRotation by glowTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 360f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(9000, easing = LinearEasing)
-        ),
-        label = "GlowRotation"
-    )
 
-    val outlineColor = Color(0xFF2B1506)
+
 
     Box(
-        modifier = modifier.fillMaxSize().clickable { isOpen = !isOpen },
+        modifier = modifier.fillMaxSize().clickable(enabled = !yaAbierto) { // <- solo clic si no se ha abierto
+            isOpen = true
+            yaAbierto = true
+        },
         contentAlignment = Alignment.Center
     ) {
+
+        val outlineColor = Color(0xFF2B1506)
+
+
+        val chestSize = 320.dp
+        val chestSizePx = with(LocalDensity.current) { chestSize.toPx() }
+
+        val chestTopY = (chestSizePx / 2f) - (chestSizePx * 0.55f / 2f)
+
+        val centerX = chestSizePx / 2f
+        val centerY = chestSizePx / 2f + 30f
         Canvas(modifier = Modifier.size(320.dp)) {
+
             val w = size.width * 0.75f
             val h = w * 0.55f
-            val centerX = size.width / 2
-            val centerY = size.height / 2 + 30f
 
             // 1. Sombra de suelo
             drawOval(
@@ -139,15 +171,10 @@ fun RealisticStylizedChest(modifier: Modifier = Modifier) {
                     center = Offset(centerX, centerY - 20f),
                     radius = baseRadius * 1.4f
                 )
-
-
-
-
-
-
                 // 🫧 Perla mágica flotante
 
             }
+
 
 
             // 3. BASE DEL COFRE
@@ -200,8 +227,170 @@ fun RealisticStylizedChest(modifier: Modifier = Modifier) {
 
             drawContext.canvas.nativeCanvas.restore()
         }
+
+        CoinRewardDropdown(
+            openProgress = openProgress,
+            chestWidthPx = chestSizePx * 0.75f,
+            chestTopY = chestTopY
+        )
+        if(!isOpen){
+            Box(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(bottom = 24.dp)
+                    .offset(y = (-45).dp),
+                contentAlignment = Alignment.Center
+            ) {
+
+                Text(
+                    text = "✨ Toca el cofre ✨",
+                    fontSize = 32.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White,
+                    fontFamily = BricolageGrotesque,
+
+
+                    )
+            }
+        }else{
+            Box(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(bottom = 24.dp)
+                    .offset(y = (-85).dp),
+                contentAlignment = Alignment.Center
+            ) {
+
+                Button(
+                    onClick = {
+                        navController.navigate(
+                            "caracteristicas/$especieId/$imagenEncoded/$levelId"
+                        )
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = LightOlive),
+                    shape = RoundedCornerShape(12.dp),
+                    modifier = Modifier.width(320.dp).height(80.dp)
+                ) {
+                    Text(
+                        text = "Continuar",
+                        color = Color.White,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 32.sp
+                    )
+                }
+            }
+        }
+
+
+
+
     }
-}private fun DrawScope.drawDetailedBase(
+}
+@Composable
+fun CoinRewardDropdown(
+    openProgress: Float,
+    chestWidthPx: Float,
+    chestTopY: Float
+) {
+    val show = openProgress > 0.3f
+
+    val expandProgress by animateFloatAsState(
+        targetValue = if (show) 1f else 0f,
+        animationSpec = tween(
+            durationMillis = 700,
+            easing = FastOutSlowInEasing
+        ),
+        label = "CoinExpand"
+    )
+
+    val alpha by animateFloatAsState(
+        targetValue = if (show) 1f else 0f,
+        animationSpec = tween(400),
+        label = "CoinAlpha"
+    )
+
+    // ✨ pequeño pulso para la moneda
+    val pulse by animateFloatAsState(
+        targetValue = if (show) 1.05f else 1f,
+        animationSpec = tween(800, easing = EaseInOutSine),
+        label = "CoinPulse"
+    )
+
+    if (alpha > 0f) {
+        Box(
+            modifier = Modifier
+                .graphicsLayer {
+                    this.alpha = alpha
+                    scaleY = expandProgress
+                    transformOrigin = TransformOrigin(0.5f, 0f)
+                }
+                .width(with(LocalDensity.current) { chestWidthPx.toDp() * 0.9f })
+                .height(72.dp)
+                .offset {
+                    IntOffset(
+                        x = 0,
+                        y = chestTopY.toInt() - 350
+                    )
+                }
+                .background(
+                    brush = Brush.verticalGradient(
+                        colors = listOf(
+                            Color(0xFFFFE082),
+                            Color(0xFFFFC107),
+                            Color(0xFFFFA000)
+                        )
+                    ),
+                    shape = RoundedCornerShape(18.dp)
+                )
+                .border(
+                    width = 2.dp,
+                    color = Color(0xFFFFF3E0),
+                    shape = RoundedCornerShape(18.dp)
+                )
+                .shadow(
+                    elevation = 10.dp,
+                    shape = RoundedCornerShape(18.dp),
+                    clip = false
+                ),
+            contentAlignment = Alignment.Center
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                modifier = Modifier.padding(horizontal = 16.dp)
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.dolar),
+                    contentDescription = "Moneda",
+                    modifier = Modifier
+                        .size(42.dp)
+                        .graphicsLayer {
+                            scaleX = pulse
+                            scaleY = pulse
+                        }
+                )
+
+                Text(
+                    text = "+50",
+                    style = TextStyle(
+                        fontSize = 22.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFF4E342E),
+                        shadow = Shadow(
+                            color = Color.Black.copy(alpha = 0.25f),
+                            offset = Offset(2f, 2f),
+                            blurRadius = 4f
+                        )
+                    )
+                )
+            }
+        }
+    }
+}
+
+
+
+private fun DrawScope.drawDetailedBase(
     x: Float,
     y: Float,
     w: Float,

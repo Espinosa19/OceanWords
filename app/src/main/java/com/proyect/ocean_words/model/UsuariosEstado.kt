@@ -4,10 +4,11 @@ package com.proyect.ocean_words.model
 data class progreso_Niveles(
     val nivel: Int = 0,
     val estado: String = "",
+    val cantidad_jugadas : Int= 0,
     val id: String = "",
     val letra: String =""
 ) {
-    constructor() : this(0, "", "", "")
+    constructor() : this(0, "", 0,"", "")
 }
 
 

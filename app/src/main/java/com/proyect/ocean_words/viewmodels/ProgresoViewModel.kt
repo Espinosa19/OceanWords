@@ -103,55 +103,66 @@ class ProgresoViewModel : ViewModel() {
 
                     val progresoExistente =
                         progresoActual.firstOrNull { it.nivel == level && it.id == especieId }
-
-                    // Convertimos las letras enviadas en pares (letra, índice)
-                    val nuevasLetras = letras.split(",").mapNotNull {
-                        val parts = it.split("-")
-                        if (parts.size == 2) {
-                            val char = parts[0].firstOrNull()
-                            val index = parts[1].toIntOrNull()
-                            if (char != null && index != null) char to index else null
-                        } else null
-                    }
-
-                    if (progresoExistente == null) {
-                        // Creamos un arreglo del tamaño máximo del índice +1 para no perder posiciones
-                        val maxIndex = nuevasLetras.maxOfOrNull { it.second } ?: 0
-                        val letrasArray = CharArray(maxIndex + 1) { ' ' }
-
-                        nuevasLetras.forEach { (char, index) ->
-                            letrasArray[index] = char
-                        }
-
-                        progresoActual.add(
-                            progreso_Niveles(
-                                nivel = level,
-                                estado = estadoNivel,
-                                id = especieId,
-                                letra = String(letrasArray) // guardamos como string
-                            )
-                        )
-                    } else {
-                        val contenidoExistente = progresoExistente.letra
-                        val letrasArray = contenidoExistente.toCharArray().toMutableList()
-
-                        // Ajustamos el tamaño del array si viene alguna letra con índice más alto
-                        val maxIndex = nuevasLetras.maxOfOrNull { it.second } ?: 0
-                        while (letrasArray.size <= maxIndex) {
-                            letrasArray.add(' ')
-                        }
-
-                        // Colocamos las nuevas letras en su posición
-                        nuevasLetras.forEach { (char, index) ->
-                            letrasArray[index] = char
-                        }
-
+                    if (progresoExistente?.estado.equals("completado")) {
                         val indexProgreso = progresoActual.indexOf(progresoExistente)
-                        progresoActual[indexProgreso] = progresoExistente.copy(
-                            estado = estadoNivel,
-                            letra = letrasArray.joinToString("")
+                        val cantidadActual = progresoExistente?.cantidad_jugadas ?: 0
+                        // Incrementamos la cantidad_jugadas si ya estaba completado
+                        progresoActual[indexProgreso] = progresoExistente!!.copy(
+                            cantidad_jugadas = cantidadActual + 1
                         )
+                    } else{
+                        // Convertimos las letras enviadas en pares (letra, índice)
+                        val nuevasLetras = letras.split(",").mapNotNull {
+                            val parts = it.split("-")
+                            if (parts.size == 2) {
+                                val char = parts[0].firstOrNull()
+                                val index = parts[1].toIntOrNull()
+                                if (char != null && index != null) char to index else null
+                            } else null
+                        }
+
+                        if (progresoExistente == null) {
+                            // Creamos un arreglo del tamaño máximo del índice +1 para no perder posiciones
+                            val maxIndex = nuevasLetras.maxOfOrNull { it.second } ?: 0
+                            val letrasArray = CharArray(maxIndex + 1) { ' ' }
+
+                            nuevasLetras.forEach { (char, index) ->
+                                letrasArray[index] = char
+                            }
+
+                            progresoActual.add(
+                                progreso_Niveles(
+                                    nivel = level,
+                                    estado = estadoNivel,
+                                    id = especieId,
+                                    letra = String(letrasArray) ,
+                                    cantidad_jugadas = if (completado) 1 else 0
+
+                                )
+                            )
+                        } else {
+                            val contenidoExistente = progresoExistente.letra
+                            val letrasArray = contenidoExistente.toCharArray().toMutableList()
+
+                            // Ajustamos el tamaño del array si viene alguna letra con índice más alto
+                            val maxIndex = nuevasLetras.maxOfOrNull { it.second } ?: 0
+                            while (letrasArray.size <= maxIndex) {
+                                letrasArray.add(' ')
+                            }
+
+                            // Colocamos las nuevas letras en su posición
+                            nuevasLetras.forEach { (char, index) ->
+                                letrasArray[index] = char
+                            }
+
+                            val indexProgreso = progresoActual.indexOf(progresoExistente)
+                            progresoActual[indexProgreso] = progresoExistente.copy(
+                                estado = estadoNivel,
+                                letra = letrasArray.joinToString("")
+                            )
+                        }
                     }
+
 
                     // Guardamos
                     usuarioRepository.actualizarProgresoUsuario(

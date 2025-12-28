@@ -194,15 +194,29 @@ fun OceanWordsGameUI(
         }
 
         if (mostrarDial) {
-            Log.i("MostrarDia","Holsa")
+            val imagenEncoded = imagen?.let {
+                URLEncoder.encode(it, StandardCharsets.UTF_8.toString())
+            } ?: ""
+            Image(
+                painter = painterResource(id = imageResource),
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.matchParentSize()
+            )
             Box(
                 modifier = Modifier
                     .fillMaxSize()
                     .background(Color.Black.copy(alpha = 0.55f)), // 🖤 fondo oscuro translúcido
                 contentAlignment = Alignment.Center
             ) {
-                RealisticStylizedChest()
+
+                RealisticStylizedChest(imagenEncoded,especieId,levelId,navController)
             }
+
+
+
+
+
         }
     }
 }

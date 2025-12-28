@@ -160,7 +160,7 @@ class UsuariosViewModel : ViewModel() {
     }
     fun descontarMonedas(uid: String, quantity: Int) {
         viewModelScope.launch {
-            usuarioRepository.descontarMonedas(uid, quantity)
+            usuarioRepository.descontarMonedas(uid, quantity )
         }
     }
     fun descontarPistas(uid: String){
